@@ -18,9 +18,16 @@ var auth = jwt({
 });
 
 
-// TODO: load controllers
+// load controllers
+var ctrlToken = require('../controllers/token.controller');
+var ctrlTransaction = require('../controllers/transaction.controller');
 
-// TODO: setup URLs
+// URLs for token
+router.get('/tokens', ctrlToken.readAllTokens);
+router.get('/tokens/:tokenId', ctrlToken.readOneToken);
 
+// URLs for transactions
+router.get('/transactions', ctrlTransaction.readAllTransactions);
+router.get('/transactions/:transactionId', ctrlTransaction.readOneTransaction);
 
 module.exports = router;
