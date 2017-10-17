@@ -9,12 +9,13 @@
 var mongoose = require( 'mongoose' );
 
 // connect, hook into monitor events and setup shutdown handlers
-var dbURI = 'mongodb://localhost/trust-wallet';  // TODO: change dbURI to production URI
+var dbURI = 'mongodb://localhost/trust-wallet';                                  // TODO: change dbURI to production URI
 mongoose.connect(dbURI);
 hookIntoConnectionMonitorEvents(dbURI);
 setupShutdownHandlers();
 
-// TODO: load models into app
+// load models into app
+require('./transaction.model');
 
 /**
  * Hooks into the connection monitoring events
