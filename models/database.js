@@ -16,6 +16,7 @@ setupShutdownHandlers();
 
 // load models into app
 require('./transaction.model');
+require('./token.model');
 
 /**
  * Hooks into the connection monitoring events
