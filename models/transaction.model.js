@@ -55,31 +55,17 @@ var transactionSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  isError: {
-    type: String,
-    required: true
-  },
   input: {
-    type: String,
-    required: true
-  },
-  contractAddress: {
-    type: String,
-    required: true
-  },
-  cumulativeGasUsed: {
     type: String,
     required: true
   },
   gasUsed: {
     type: String,
     required: true
-  },
-  confirmations: {
-    type: String,
-    required: true
   }
 });
+
+// removed for now: cumulativeGasUsed, confirmations, contract address, isError
 
 // compile the schema into a model
 mongoose.model('Transaction', transactionSchema);

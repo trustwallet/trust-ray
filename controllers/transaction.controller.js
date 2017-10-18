@@ -46,7 +46,7 @@ module.exports.readOneTransaction = function(req, res) {
 module.exports.readAllTransactions= function(req, res) {
   if (req.query.fromAddress) {
     var fromAddress = xssFilters.inHTMLData(req.query.fromAddress);
-    Transaction.find({fromAddress: fromAddress}, function(err, transactions) {
+    Transaction.find({from: fromAddress}, function(err, transactions) {
       readAllTransactionsCallback(res, err, transactions, fromAddress)
     });
   } else {
@@ -61,7 +61,7 @@ module.exports.readAllTransactions= function(req, res) {
 
 function readAllTransactionsCallback(res, err, transactions, fromAddress) {
   if(transactions.length === 0) {
-    utils.retrieveTransactionsFromBlockchain(fromAddress);
+    utils.retrieveLatestTransactionsFromBlockchain(fromAddress);
   }
   if(err) {
     utils.sendJSONresponse(res, 404, err);
