@@ -74,21 +74,13 @@ class EthereumBlockchainUtils {
             input: String(transaction.input),
             gasUsed: String(block.gasUsed)
         };
-        // check if tx already exists
-        transaction_model_1.Transaction.find({ hash: transaction_data.hash }, function (err, docs) {
-            if (docs.length) {
-                console.log("Transaction already exists in DB");
+        transaction_model_1.Transaction.findOneAndUpdate({ hash: transaction_data.hash }, transaction_data, { upsert: true,
+            returnNewDocument: true }, function (err, transaction) {
+            if (err) {
+                console.log("Error: " + err);
             }
             else {
-                // create it if not stored yet
-                transaction_model_1.Transaction.create(transaction_data, function callback(err, transaction) {
-                    if (err) {
-                        console.log("Error: " + err);
-                    }
-                    else {
-                        console.log("Success saving: " + transaction);
-                    }
-                });
+                console.log("Success saving: transaction" + transaction);
             }
         });
     }
