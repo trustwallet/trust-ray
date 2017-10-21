@@ -42,6 +42,8 @@
     "cors": "^2.8.4",
     "dotenv": "^2.0.0",
     "errorhandler": "^1.4.3",
+    "ethereumjs-tx": "^1.3.3",
+    "ethereumjs-util": "^5.1.2",
     "express": "^4.14.0",
     "express-flash": "^0.0.2",
     "express-session": "^1.14.2",
@@ -54,7 +56,8 @@
     "passport": "0.3.2",
     "passport-facebook": "^2.1.1",
     "passport-local": "^1.0.0",
-    "request": "^2.78.0"
+    "request": "^2.78.0",
+    "web3": "^1.0.0-beta.24"
   },
   "devDependencies": {
     "@types/async": "^2.0.40",
