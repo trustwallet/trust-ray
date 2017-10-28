@@ -1,6 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose = require("mongoose");
+require("../models/latestBlock.model");
+require("../models/device.model");
+require("../models/transaction.model");
+require("../models/token.model");
 class Database {
     constructor(dbURI) {
         this.dbURI = dbURI;

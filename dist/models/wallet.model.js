@@ -2,23 +2,19 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const networkSchema = new Schema({
-    chainId: {
+const walletSchema = new Schema({
+    from: {
+        type: String,
+        required: true
+    },
+    to: {
+        type: String,
+        required: true
+    },
+    value: {
         type: Number,
-        required: true
-    },
-    name: {
-        type: String,
-        required: true
-    },
-    url: {
-        type: String,
-        required: true
-    },
-    apiKey: {
-        type: String,
         required: true
     }
 });
-exports.Network = mongoose.model("Network", networkSchema);
-//# sourceMappingURL=network.model.js.map
+exports.Wallet = mongoose.model("Wallet", walletSchema);
+//# sourceMappingURL=wallet.model.js.map

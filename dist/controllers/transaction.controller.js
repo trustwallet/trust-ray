@@ -5,14 +5,17 @@ const transaction_model_1 = require("../models/transaction.model");
 class TransactionController {
     readAllTransactions(req, res) {
         if (req.query.fromAddress) {
-            const fromAddress = req.query.fromAddress;
-            transaction_model_1.Transaction.find({ from: fromAddress }, function (err, transactions) {
-                TransactionController.readAllTransactionsCallback(res, err, transactions, fromAddress);
+            transaction_model_1.Transaction.find({ from: req.query.fromAddress }).exec().then((transactions) => {
+                utils_1.sendJSONresponse(res, 200, transactions);
+            }).catch((err) => {
+                utils_1.sendJSONresponse(res, 404, err);
             });
         }
         else {
-            transaction_model_1.Transaction.find({}, function (err, transactions) {
-                TransactionController.readAllTransactionsCallback(res, err, transactions, "*");
+            transaction_model_1.Transaction.find({}).exec().then((transactions) => {
+                utils_1.sendJSONresponse(res, 200, transactions);
+            }).catch((err) => {
+                utils_1.sendJSONresponse(res, 404, err);
             });
         }
     }
@@ -21,32 +24,15 @@ class TransactionController {
             utils_1.sendJSONresponse(res, 404, { "message": "No transaction ID in request" });
             return;
         }
-        const transactionId = req.params.transactionId;
-        transaction_model_1.Transaction
-            .findById(transactionId)
-            .exec(function callback(err, transaction) {
+        transaction_model_1.Transaction.findById(req.params.transactionId).exec().then((transaction) => {
             if (!transaction) {
                 utils_1.sendJSONresponse(res, 404, { "message": "transaction ID not found" });
                 return;
             }
-            else if (err) {
-                utils_1.sendJSONresponse(res, 404, err);
-                return;
-            }
-            // success
             utils_1.sendJSONresponse(res, 200, transaction);
-        });
-    }
-    static readAllTransactionsCallback(res, err, transactions, fromAddress) {
-        if (transactions.length === 0) {
-            utils_1.EthereumBlockchainUtils.retrieveLatestTransactionsFromBlockchain(fromAddress, undefined, undefined);
-        }
-        if (err) {
+        }).catch((err) => {
             utils_1.sendJSONresponse(res, 404, err);
-        }
-        else {
-            utils_1.sendJSONresponse(res, 200, transactions);
-        }
+        });
     }
 }
 exports.TransactionController = TransactionController;
