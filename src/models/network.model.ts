@@ -20,8 +20,4 @@ const networkSchema = new Schema({
     }
 });
 
-const Network = mongoose.model("Network", networkSchema );
-
-export {
-    Network
-};
+export const Network = mongoose.model("Network", networkSchema );

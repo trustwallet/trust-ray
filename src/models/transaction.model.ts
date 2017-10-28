@@ -56,10 +56,4 @@ const transactionSchema = new Schema({
     }
 });
 
-const Transaction = mongoose.model("Transaction", transactionSchema );
-
-export {
-    Transaction
-};
-
-// removed for now: cumulativeGasUsed, confirmations, contract address, isError
+export const Transaction = mongoose.model("Transaction", transactionSchema );

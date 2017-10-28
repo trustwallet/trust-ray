@@ -8,8 +8,4 @@ const latestBlockSchema = new Schema({
     }
 });
 
-const LatestBlock = mongoose.model("LatestBlock", latestBlockSchema );
-
-export {
-    LatestBlock
-};
+export const LatestBlock = mongoose.model("LatestBlock", latestBlockSchema );
