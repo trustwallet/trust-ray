@@ -7,13 +7,16 @@ export class TransactionController {
 
     public readAllTransactions(req: Request, res: Response) {
         if (req.query.fromAddress) {
-            const fromAddress = req.query.fromAddress;
-            Transaction.find({from: fromAddress}, function(err: Error, transactions: any) {
-                TransactionController.readAllTransactionsCallback(res, err, transactions, fromAddress);
+            Transaction.find({from: req.query.fromAddress}).exec().then((transactions: any) => {
+                sendJSONresponse(res, 200, transactions);
+            }).catch((err: Error) => {
+                sendJSONresponse(res, 404, err);
             });
         } else {
-            Transaction.find({}, function(err: Error, transactions: any) {
-                TransactionController.readAllTransactionsCallback(res, err, transactions, "*");
+            Transaction.find({}).exec().then((transactions: any) => {
+                sendJSONresponse(res, 200, transactions);
+            }).catch((err: Error) => {
+                sendJSONresponse(res, 404, err);
             });
         }
     }
@@ -23,32 +26,15 @@ export class TransactionController {
             sendJSONresponse(res, 404, { "message": "No transaction ID in request" });
             return;
         }
-
-        const transactionId = req.params.transactionId;
-        Transaction
-            .findById(transactionId)
-            .exec(function callback(err: Error, transaction: any) {
-                if (!transaction) {
-                    sendJSONresponse(res, 404, {"message": "transaction ID not found"});
-                    return;
-                } else if (err) {
-                    sendJSONresponse(res, 404, err);
-                    return;
-                }
-                // success
-                sendJSONresponse(res, 200, transaction);
-        });
-    }
-
-    private static readAllTransactionsCallback(res: Response, err: Error, transactions: any, fromAddress: String) {
-        if (transactions.length === 0) {
-            EthereumBlockchainUtils.retrieveLatestTransactionsFromBlockchain(fromAddress, undefined, undefined);
-        }
-        if (err) {
+        Transaction.findById(req.params.transactionId).exec().then((transaction: any) => {
+            if (!transaction) {
+                sendJSONresponse(res, 404, {"message": "transaction ID not found"});
+                return;
+            }
+            sendJSONresponse(res, 200, transaction);
+        }).catch((err: Error) => {
             sendJSONresponse(res, 404, err);
-        } else {
-            sendJSONresponse(res, 200, transactions);
-        }
+        });
     }
 
 }
