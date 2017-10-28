@@ -31,6 +31,7 @@ export class EthereumBlockchainUtils {
 
                 // check if something is to do
                 if (latestBlockInDb.latestBlock < latestBlockInChain) {
+                    console.log("Retrieving new transactions between blocks " + latestBlockInDb.latestBlock + " and " + latestBlockInChain);
                     // retrieve new transactions
                     for (let i = latestBlockInDb.latestBlock; i <= latestBlockInChain; i++) {
                         this.web3.eth.getBlock(i, true).then((block: any) => {
@@ -40,13 +41,15 @@ export class EthereumBlockchainUtils {
                                     const promise = Device.findOne({wallets: {"$in": [transaction.to, transaction.from]}}).exec();
                                     promise.then((device: any) => {
                                         if (device) {
-                                            this.saveTransaction(block, transaction);
+                                            EthereumBlockchainUtils.saveTransaction(block, transaction);
                                         }
                                     }).catch((err: Error) => {
                                         console.log("Error while checking for user device: ", err);
                                     });
                                 });
                             }
+                        }).catch((err: Error) => {
+                          console.log("Error while getting block " + i + " from blockchain: " + err);
                         });
                     }
 
@@ -88,11 +91,8 @@ export class EthereumBlockchainUtils {
 
         const promise = Transaction.findOneAndUpdate({hash: transaction_data.hash}, transaction_data,
             {upsert: true, returnNewDocument: true}).exec();
-
         promise.then((transaction: any) => {
-            if (transaction) {
-                console.log("Saved transaction to database");
-            }
+            console.log("Saved transaction to database");
         }).catch((err: Error) => {
             console.log("Error while upserting transaction: ", err);
         });
