@@ -1,5 +1,11 @@
 import * as mongoose from "mongoose";
 
+require("../models/latestBlock.model");
+require("../models/device.model");
+require("../models/transaction.model");
+require("../models/token.model");
+
+
 export class Database {
 
     private dbURI: string;
