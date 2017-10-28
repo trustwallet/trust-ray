@@ -11,12 +11,9 @@ export class EthereumBlockchainUtils {
 
     public static retrieveTransactionsFromBlockchain() {
         web3.eth.getBlockNumber().then((latestBlockInChain: any) => {
+            LatestBlock.findOne({}).exec().then((latestBlockInDb: any) => {
 
-            // check if something is to do
-            LatestBlock.findOne({}, (err: Error, latestBlockInDb: any) => {
-                if (err) {
-                    return console.log("Error while finding latest block in DB");
-                }
+                // no block in DB yet, create
                 if (!latestBlockInDb) {
                     // no block in database exists yet, initially store first
                     new LatestBlock({latestBlock: latestBlockInChain}).save().then((block: any) => {
@@ -27,22 +24,22 @@ export class EthereumBlockchainUtils {
                     return;
                 }
 
+                // check if something is to do
                 if (latestBlockInDb.latestBlock < latestBlockInChain) {
-
                     // retrieve new transactions
                     for (let i = latestBlockInDb.latestBlock; i <= latestBlockInChain; i++) {
                         web3.eth.getBlock(i, true).then((block: any) => {
                             if (block !== null && block.transactions !== null) {
                                 block.transactions.forEach(function (transaction: any) {
-
                                     // save transaction if to/from address in any of our user wallets
-                                    Device.findOne({wallets: {address: {"$in": [transaction.to, transaction.from]}}},
-                                        (err: Error, device: any) => {
-                                            if (!err && device) {
-                                                this.saveTransaction(block, transaction);
-                                            }
-                                        });
-
+                                    const promise = Device.findOne({wallets: {address: {"$in": [String(transaction.to), String(transaction.from)]}}}).exec();
+                                    promise.then((device: any) => {
+                                        if (device) {
+                                            this.saveTransaction(block, transaction);
+                                        }
+                                    }).catch((err: Error) => {
+                                        console.log("Error while checking for user device: ", err);
+                                    });
                                 });
                             }
                         });
@@ -50,18 +47,22 @@ export class EthereumBlockchainUtils {
 
                     // update latest block in DB
                     LatestBlock.findOneAndUpdate({}, {latestBlock: latestBlockInChain},
-                        {upsert: true}, (err: Error, transaction: any) => {
-                            if (err) {
-                                console.log("Error: " + err);
-                            } else {
-                                console.log("Success saving new latest block from chain into db");
-                            }
+                        {upsert: true}).exec().then((transaction: any) => {
+                        console.log("Saved latest block in DB");
+                    }).catch((err: Error) => {
+                        console.log("Error updating latest block in database");
                     });
+
                 }
+
+
+            }).catch((err: Error) => {
+                console.log("Error while finding latest block in DB: ", err);
             });
+        }).catch((err: Error) => {
+            console.log("Could not get latest block from blockchain with error: ", err);
         });
     }
-
 
     private static saveTransaction(block: any, transaction: any) {
         const transaction_data = {
@@ -81,13 +82,14 @@ export class EthereumBlockchainUtils {
         };
 
         Transaction.findOneAndUpdate({hash: transaction_data.hash}, transaction_data, {upsert: true,
-            returnNewDocument: true}, function(err: Error, transaction: any) {
-            if (err) {
-                console.log("Error: " + err);
-            } else {
-                console.log("Success saving: transaction" + transaction);
+            returnNewDocument: true}).exec().then((transaction: any) => {
+            if (transaction) {
+                console.log("Saved transaction to database");
             }
+        }).catch((err: Error) => {
+            console.log("Error while upserting transaction: ", err);
         });
+
     }
 
     private static convertPrivateKeyToKeystore(keyString: string) {
