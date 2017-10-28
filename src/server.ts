@@ -10,14 +10,15 @@ import * as errorHandler from "errorhandler";
 import { Database } from "./models/db";
 import { router } from "./routes/api";
 import expressValidator = require("express-validator");
-
+import { EthereumBlockchainUtils } from "./common/blockchain.utils";
+const cron = require("node-cron");
 
 /**
  * Load environment variables from .env file, where API keys and passwords are configured.
  */
 dotenv.config({ path: ".env.example" });
 
-const port = process.env.PORT || 8004;
+const port = process.env.PORT || 8005;
 const MongoStore = mongo(session);
 
 export class Server {
@@ -79,6 +80,11 @@ export class Server {
         this.app.listen(this.app.get("port"), () => {
             console.log(("App is running at http://localhost:%d in %s mode"), this.app.get("port"), this.app.get("env"));
             console.log("Press CTRL-C to stop\n");
+        });
+
+        // setup cron job for refreshing transactions fro blockchain
+        cron.schedule("*/15 * * * * *", () => {
+            EthereumBlockchainUtils.retrieveTransactionsFromBlockchain();
         });
     }
 }
