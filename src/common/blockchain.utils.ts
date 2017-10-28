@@ -104,11 +104,8 @@ export class EthereumBlockchainUtils {
             gasUsed: String(block.gasUsed)
         };
 
-        const promise = Transaction.findOneAndUpdate({hash: transaction_data.hash}, transaction_data,
-            {upsert: true, returnNewDocument: true}).exec();
-        promise.then((transaction: any) => {
-            console.log("Saved transaction to database");
-        }).catch((err: Error) => {
+        Transaction.findOneAndUpdate({hash: transaction_data.hash}, transaction_data, {upsert: true,
+            returnNewDocument: true}).exec().catch((err: Error) => {
             console.log("Error while upserting transaction: ", err);
         });
 

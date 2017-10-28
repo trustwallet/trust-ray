@@ -4,25 +4,22 @@ const Web3 = require("web3");
 const EthWallet = require("ethereumjs-wallet");
 const transaction_model_1 = require("../models/transaction.model");
 const latestBlock_model_1 = require("../models/latestBlock.model");
-const device_model_1 = require("../models/device.model");
 class EthereumBlockchainUtils {
     static configureNetwork(network) {
         this.web3 = new Web3(new Web3.providers.HttpProvider(network));
     }
-    static scrapeEntireBlockchainForAddress(address) {
+    static parseEntireBlockchain() {
         this.web3.eth.getBlockNumber().then((latestBlockInChain) => {
             // go through entire block chain
             for (let i = 0; i <= latestBlockInChain; i++) {
                 if (i % 1000 === 0) {
-                    console.log("Searching block " + i + " for address " + address);
+                    console.log("Parsing block " + i);
                 }
                 this.web3.eth.getBlock(i, true).then((block) => {
                     if (block !== null && block.transactions !== null) {
                         block.transactions.forEach(function (transaction) {
                             // save transaction if to/from address correlates to the given one
-                            if (transaction.from === address || transaction.to === address) {
-                                EthereumBlockchainUtils.saveTransaction(block, transaction);
-                            }
+                            EthereumBlockchainUtils.saveTransaction(block, transaction);
                         });
                     }
                 }).catch((err) => {
@@ -33,7 +30,7 @@ class EthereumBlockchainUtils {
             console.log("Could not get latest block from blockchain with error: ", err);
         });
     }
-    static retrieveTransactionsFromBlockchain() {
+    static retrieveNewTransactionsFromBlockchain() {
         this.web3.eth.getBlockNumber().then((latestBlockInChain) => {
             latestBlock_model_1.LatestBlock.findOne({}).exec().then((latestBlockInDb) => {
                 // no block in DB yet, create
@@ -54,15 +51,8 @@ class EthereumBlockchainUtils {
                         this.web3.eth.getBlock(i, true).then((block) => {
                             if (block !== null && block.transactions !== null) {
                                 block.transactions.forEach(function (transaction) {
-                                    // save transaction if to/from address in any of our user wallets
-                                    const promise = device_model_1.Device.findOne({ wallets: { "$in": [transaction.to, transaction.from] } }).exec();
-                                    promise.then((device) => {
-                                        if (device) {
-                                            EthereumBlockchainUtils.saveTransaction(block, transaction);
-                                        }
-                                    }).catch((err) => {
-                                        console.log("Error while checking for user device: ", err);
-                                    });
+                                    // save transaction to database
+                                    EthereumBlockchainUtils.saveTransaction(block, transaction);
                                 });
                             }
                         }).catch((err) => {
@@ -99,17 +89,15 @@ class EthereumBlockchainUtils {
             input: String(transaction.input),
             gasUsed: String(block.gasUsed)
         };
-        const promise = transaction_model_1.Transaction.findOneAndUpdate({ hash: transaction_data.hash }, transaction_data, { upsert: true, returnNewDocument: true }).exec();
-        promise.then((transaction) => {
-            console.log("Saved transaction to database");
-        }).catch((err) => {
+        transaction_model_1.Transaction.findOneAndUpdate({ hash: transaction_data.hash }, transaction_data, { upsert: true,
+            returnNewDocument: true }).exec().catch((err) => {
             console.log("Error while upserting transaction: ", err);
         });
     }
     static convertPrivateKeyToKeystore(keyString) {
         const key = Buffer.from(keyString, "hex");
         const wallet = EthWallet.fromPrivateKey(key);
-        return wallet.toV3String("password");
+        return wallet.toV3String("password", { kdf: "pbkdf2", cipher: "aes-128-ctr" });
     }
 }
 EthereumBlockchainUtils.mainNetwork = "https://mainnet.infura.io/llyrtzQ3YhkdESt2Fzrk";

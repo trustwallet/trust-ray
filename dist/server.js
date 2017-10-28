@@ -66,7 +66,7 @@ class Server {
         });
         // setup cron job for refreshing transactions fro blockchain
         cron.schedule("*/15 * * * * *", () => {
-            blockchain_utils_1.EthereumBlockchainUtils.retrieveTransactionsFromBlockchain();
+            blockchain_utils_1.EthereumBlockchainUtils.retrieveNewTransactionsFromBlockchain();
         });
     }
 }
