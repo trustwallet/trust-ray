@@ -32,7 +32,7 @@ export class EthereumBlockchainUtils {
                             if (block !== null && block.transactions !== null) {
                                 block.transactions.forEach(function (transaction: any) {
                                     // save transaction if to/from address in any of our user wallets
-                                    const promise = Device.findOne({wallets: {address: {"$in": [String(transaction.to), String(transaction.from)]}}}).exec();
+                                    const promise = Device.findOne({wallets: {"$in": [transaction.to, transaction.from]}}).exec();
                                     promise.then((device: any) => {
                                         if (device) {
                                             this.saveTransaction(block, transaction);
@@ -81,8 +81,10 @@ export class EthereumBlockchainUtils {
             gasUsed: String(block.gasUsed)
         };
 
-        Transaction.findOneAndUpdate({hash: transaction_data.hash}, transaction_data, {upsert: true,
-            returnNewDocument: true}).exec().then((transaction: any) => {
+        const promise = Transaction.findOneAndUpdate({hash: transaction_data.hash}, transaction_data,
+            {upsert: true, returnNewDocument: true}).exec();
+
+        promise.then((transaction: any) => {
             if (transaction) {
                 console.log("Saved transaction to database");
             }
