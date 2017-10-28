@@ -4,13 +4,17 @@ import { Transaction } from "../models/transaction.model";
 import { LatestBlock } from "../models/latestBlock.model";
 import { Device } from "../models/device.model";
 
-
-const web3 = new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io/llyrtzQ3YhkdESt2Fzrk"));
-
 export class EthereumBlockchainUtils {
 
+    static mainNetwork = "https://mainnet.infura.io/llyrtzQ3YhkdESt2Fzrk";
+    static web3 = new Web3(new Web3.providers.HttpProvider(EthereumBlockchainUtils.mainNetwork));
+
+    public static configureNetwork(network: string) {
+        this.web3 = new Web3(new Web3.providers.HttpProvider(network));
+    }
+
     public static retrieveTransactionsFromBlockchain() {
-        web3.eth.getBlockNumber().then((latestBlockInChain: any) => {
+        this.web3.eth.getBlockNumber().then((latestBlockInChain: any) => {
             LatestBlock.findOne({}).exec().then((latestBlockInDb: any) => {
 
                 // no block in DB yet, create
@@ -28,7 +32,7 @@ export class EthereumBlockchainUtils {
                 if (latestBlockInDb.latestBlock < latestBlockInChain) {
                     // retrieve new transactions
                     for (let i = latestBlockInDb.latestBlock; i <= latestBlockInChain; i++) {
-                        web3.eth.getBlock(i, true).then((block: any) => {
+                        this.web3.eth.getBlock(i, true).then((block: any) => {
                             if (block !== null && block.transactions !== null) {
                                 block.transactions.forEach(function (transaction: any) {
                                     // save transaction if to/from address in any of our user wallets
