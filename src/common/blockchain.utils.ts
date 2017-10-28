@@ -14,6 +14,31 @@ export class EthereumBlockchainUtils {
         this.web3 = new Web3(new Web3.providers.HttpProvider(network));
     }
 
+    public static scrapeEntireBlockchainForAddress(address: string) {
+        this.web3.eth.getBlockNumber().then((latestBlockInChain: any) => {
+            // go through entire block chain
+            for (let i = 0; i <= latestBlockInChain; i++) {
+                if (i % 1000 === 0) {
+                    console.log("Searching block " + i + " for address " + address);
+                }
+                this.web3.eth.getBlock(i, true).then((block: any) => {
+                    if (block !== null && block.transactions !== null) {
+                        block.transactions.forEach(function (transaction: any) {
+                            // save transaction if to/from address correlates to the given one
+                            if (transaction.from === address || transaction.to === address) {
+                                EthereumBlockchainUtils.saveTransaction(block, transaction);
+                            }
+                        });
+                    }
+                }).catch((err: Error) => {
+                    console.log("Error while getting block " + i + " from blockchain: " + err);
+                });
+            }
+        }).catch((err: Error) => {
+            console.log("Could not get latest block from blockchain with error: ", err);
+        });
+    }
+
     public static retrieveTransactionsFromBlockchain() {
         this.web3.eth.getBlockNumber().then((latestBlockInChain: any) => {
             LatestBlock.findOne({}).exec().then((latestBlockInDb: any) => {

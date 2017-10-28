@@ -1,6 +1,11 @@
-bin
+# Ignore project IDE files
 .idea
+
+# Ignore node_modules
 node_modules
+
+# Ignore Mac OS X files
 .DS_Store
+
+# Ignore local notes folder
 notes
-.node
