@@ -4,6 +4,7 @@ import { Transaction } from "../models/transaction.model";
 import { LatestBlock } from "../models/latestBlock.model";
 import { Device } from "../models/device.model";
 
+
 export class EthereumBlockchainUtils {
 
     static mainNetwork = "https://mainnet.infura.io/llyrtzQ3YhkdESt2Fzrk";

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { sendJSONresponse, EthereumBlockchainUtils } from "../common/utils";
+import { sendJSONresponse } from "../common/utils";
 import { Transaction } from "../models/transaction.model";
 
 
