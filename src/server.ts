@@ -10,6 +10,8 @@ import * as errorHandler from "errorhandler";
 import { Database } from "./models/db";
 import { router } from "./routes/api";
 import expressValidator = require("express-validator");
+import * as fs from "fs";
+import * as winston from "winston";
 import { EthereumBlockchainUtils } from "./common/blockchain.utils";
 const cron = require("node-cron");
 import { LatestBlock } from "./models/latestBlock.model";
@@ -49,6 +51,7 @@ export class Server {
     private configureMiddleware() {
         this.app.set("port", port);
         this.app.use(logger("dev"));
+        this.app.use(logger("common", {stream: fs.createWriteStream("./access.log", {flags: "a"})}));
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({ extended: true }));
         this.app.use(expressValidator());
@@ -63,6 +66,17 @@ export class Server {
         }));
         this.app.use(passport.initialize());
         this.app.use(passport.session());
+
+        // configure winston logger
+        winston.add(
+            winston.transports.File, {
+                filename: "trustwallet.log",
+                level: "info",
+                json: true,
+                eol: "rn",
+                timestamp: true
+            }
+        );
 
         // remove for production
         this.app.use(errorHandler());
@@ -79,8 +93,8 @@ export class Server {
 
     private launch() {
         this.app.listen(this.app.get("port"), () => {
-            console.log(("App is running at http://localhost:%d in %s mode"), this.app.get("port"), this.app.get("env"));
-            console.log("Press CTRL-C to stop\n");
+            winston.info(("App is running at http://localhost:%d in %s mode"), this.app.get("port"), this.app.get("env"));
+            winston.info("Press CTRL-C to stop\n");
         });
 
         // check if a latest block is in DB, if yes, parse new blocks in the
@@ -96,7 +110,7 @@ export class Server {
                 });
             }
         }).catch((err: Error) => {
-           console.log("Error retrieving latest block from DB while starting server");
+           winston.error("Error retrieving latest block from DB while starting server");
         });
     }
 }
