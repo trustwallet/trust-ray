@@ -9,3 +9,6 @@ node_modules
 
 # Ignore local notes folder
 notes
+
+$ Ignore the .env file for the server
+.env.example
