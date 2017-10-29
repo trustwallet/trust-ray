@@ -1,5 +1,6 @@
 const Web3 = require("web3");
 const EthWallet = require("ethereumjs-wallet");
+const cron = require("node-cron");
 import { Transaction } from "../models/transaction.model";
 import { LatestBlock } from "../models/latestBlock.model";
 
@@ -13,50 +14,64 @@ export class EthereumBlockchainUtils {
         this.web3 = new Web3(new Web3.providers.HttpProvider(network));
     }
 
+    /**
+     * Parse entire blockchain and store all extracted transactions.
+     */
     public static parseEntireBlockchain() {
+        // get the latest block number in the blockchain
         this.web3.eth.getBlockNumber().then((latestBlockInChain: any) => {
-            // go through entire block chain
+
+            // PARSING
+            console.log("Parsing entire blockchain");
+            const promises = [];
             for (let i = 0; i <= latestBlockInChain; i++) {
-                if (i % 1000 === 0) {
-                    console.log("Parsing block " + i);
-                }
-                this.web3.eth.getBlock(i, true).then((block: any) => {
+                const blockPromise = this.web3.eth.getBlock(i).then((block: any) => {
                     if (block !== null && block.transactions !== null) {
+
+                        // save all transactions in current block
                         block.transactions.forEach(function (transaction: any) {
-                            // save transaction if to/from address correlates to the given one
                             EthereumBlockchainUtils.saveTransaction(block, transaction);
                         });
+
                     }
                 }).catch((err: Error) => {
-                    console.log("Error while getting block " + i + " from blockchain: " + err);
+                    console.log("Could not get block " + i + " from blockchain with error: ", err);
                 });
+                promises.push(blockPromise);
             }
+            // wait until all blocks are fully parsed, then set the latest block in DB for
+            // starting the refreshing from the point where the full parse left
+            Promise.all(promises).then(() => {
+                console.log("Saving latest block number " + latestBlockInChain + " to DB after full parse");
+                EthereumBlockchainUtils.saveLatestBlock(latestBlockInChain);
+
+                // and start the cron job for steady refreshs
+                // setup cron job for refreshing transactions fro blockchain
+                cron.schedule("*/15 * * * * *", () => {
+                    EthereumBlockchainUtils.retrieveNewTransactionsFromBlockchain();
+                });
+
+            });
         }).catch((err: Error) => {
-            console.log("Could not get latest block from blockchain with error: ", err);
+            console.log("Could not get currently latest block number from blockchain with error: ", err);
         });
     }
 
     public static retrieveNewTransactionsFromBlockchain() {
         this.web3.eth.getBlockNumber().then((latestBlockInChain: any) => {
             LatestBlock.findOne({}).exec().then((latestBlockInDb: any) => {
-
                 // no block in DB yet, create
                 if (!latestBlockInDb) {
-                    // no block in database exists yet, initially store first
-                    new LatestBlock({latestBlock: latestBlockInChain}).save().then((block: any) => {
-                        console.log("Latest block saved in DB");
-                    }).catch((error: Error) => {
-                        console.log("Error while saving latest block to DB");
-                    });
+                    EthereumBlockchainUtils.saveLatestBlock(latestBlockInChain);
                     return;
                 }
-
                 // check if something is to do
                 if (latestBlockInDb.latestBlock < latestBlockInChain) {
                     console.log("Retrieving new transactions between blocks " + latestBlockInDb.latestBlock + " and " + latestBlockInChain);
                     // retrieve new transactions
+                    const promises = [];
                     for (let i = latestBlockInDb.latestBlock; i <= latestBlockInChain; i++) {
-                        this.web3.eth.getBlock(i, true).then((block: any) => {
+                        const blockPromise = this.web3.eth.getBlock(i, true).then((block: any) => {
                             if (block !== null && block.transactions !== null) {
                                 block.transactions.forEach(function (transaction: any) {
                                     // save transaction to database
@@ -64,23 +79,17 @@ export class EthereumBlockchainUtils {
                                 });
                             }
                         }).catch((err: Error) => {
-                          console.log("Error while getting block " + i + " from blockchain: " + err);
+                          console.log("Could not get block " + i + " from blockchain with error: ", err);
                         });
+                        promises.push(blockPromise);
                     }
-
-                    // update latest block in DB
-                    LatestBlock.findOneAndUpdate({}, {latestBlock: latestBlockInChain},
-                        {upsert: true}).exec().then((transaction: any) => {
-                        console.log("Saved latest block in DB");
-                    }).catch((err: Error) => {
-                        console.log("Error updating latest block in database");
+                    // update latest block in DB after each new block was processed
+                    Promise.all(promises).then(() => {
+                        EthereumBlockchainUtils.saveLatestBlock(latestBlockInChain);
                     });
-
                 }
-
-
             }).catch((err: Error) => {
-                console.log("Error while finding latest block in DB: ", err);
+                console.log("Could not find latest block in DB with error: ", err);
             });
         }).catch((err: Error) => {
             console.log("Could not get latest block from blockchain with error: ", err);
@@ -111,9 +120,17 @@ export class EthereumBlockchainUtils {
 
     }
 
+    private static saveLatestBlock(block: number) {
+        const promise = LatestBlock.findOneAndUpdate({}, {latestBlock: block}, {upsert: true}).exec();
+        promise.catch((err: Error) => {
+            console.log("Could not save latest block to DB with error: ", err);
+        });
+        return;
+    }
+
     private static convertPrivateKeyToKeystore(keyString: string) {
         const key = Buffer.from(keyString, "hex");
         const wallet = EthWallet.fromPrivateKey(key);
-        return wallet.toV3String("password", {kdf: "pbkdf2", cipher: "aes-128-ctr"});
+        return wallet.toV3String("MyPassword!", {kdf: "pbkdf2", cipher: "aes-128-ctr"});
     }
 }

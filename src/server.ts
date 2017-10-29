@@ -12,13 +12,14 @@ import { router } from "./routes/api";
 import expressValidator = require("express-validator");
 import { EthereumBlockchainUtils } from "./common/blockchain.utils";
 const cron = require("node-cron");
+import { LatestBlock } from "./models/latestBlock.model";
 
 /**
  * Load environment variables from .env file, where API keys and passwords are configured.
  */
 dotenv.config({ path: ".env.example" });
 
-const port = process.env.PORT || 8005;
+const port = process.env.PORT || 8009;
 const MongoStore = mongo(session);
 
 export class Server {
@@ -82,9 +83,20 @@ export class Server {
             console.log("Press CTRL-C to stop\n");
         });
 
-        // setup cron job for refreshing transactions fro blockchain
-        cron.schedule("*/15 * * * * *", () => {
-            EthereumBlockchainUtils.retrieveNewTransactionsFromBlockchain();
+        // check if a latest block is in DB, if yes, parse new blocks in the
+        // blockchain, otherwise start a full parse of the entire blockchain
+
+        LatestBlock.findOne({}).exec().then((latestBlockInDb: any) => {
+            if (!latestBlockInDb) {
+                EthereumBlockchainUtils.parseEntireBlockchain();
+            } else {
+                // setup cron job for refreshing transactions fro blockchain
+                cron.schedule("*/15 * * * * *", () => {
+                    EthereumBlockchainUtils.retrieveNewTransactionsFromBlockchain();
+                });
+            }
+        }).catch((err: Error) => {
+           console.log("Error retrieving latest block from DB while starting server");
         });
     }
 }
