@@ -13,21 +13,21 @@ class EthereumBlockchainUtils {
             // go through entire block chain
             for (let i = 0; i <= latestBlockInChain; i++) {
                 if (i % 1000 === 0) {
-                    console.log("Parsing block " + i);
+                    console.log(`Parsing block ${i}`);
                 }
                 this.web3.eth.getBlock(i, true).then((block) => {
                     if (block !== null && block.transactions !== null) {
-                        block.transactions.forEach(function (transaction) {
+                        block.transactions.forEach((transaction) => {
                             // save transaction if to/from address correlates to the given one
                             EthereumBlockchainUtils.saveTransaction(block, transaction);
                         });
                     }
                 }).catch((err) => {
-                    console.log("Error while getting block " + i + " from blockchain: " + err);
+                    console.log(`Error while getting block ${i} from blockchain: ${err}`);
                 });
             }
         }).catch((err) => {
-            console.log("Could not get latest block from blockchain with error: ", err);
+            console.log(`Could not get latest block from blockchain with error: ${err}`);
         });
     }
     static retrieveNewTransactionsFromBlockchain() {
@@ -45,18 +45,18 @@ class EthereumBlockchainUtils {
                 }
                 // check if something is to do
                 if (latestBlockInDb.latestBlock < latestBlockInChain) {
-                    console.log("Retrieving new transactions between blocks " + latestBlockInDb.latestBlock + " and " + latestBlockInChain);
+                    console.log(`Retrieving new transactions between blocks ${latestBlockInDb.latestBlock} and ${latestBlockInChain}`);
                     // retrieve new transactions
                     for (let i = latestBlockInDb.latestBlock; i <= latestBlockInChain; i++) {
                         this.web3.eth.getBlock(i, true).then((block) => {
                             if (block !== null && block.transactions !== null) {
-                                block.transactions.forEach(function (transaction) {
+                                block.transactions.forEach((transaction) => {
                                     // save transaction to database
                                     EthereumBlockchainUtils.saveTransaction(block, transaction);
                                 });
                             }
                         }).catch((err) => {
-                            console.log("Error while getting block " + i + " from blockchain: " + err);
+                            console.log(`Error while getting block ${i} from blockchain: ${err}`);
                         });
                     }
                     // update latest block in DB
@@ -67,10 +67,10 @@ class EthereumBlockchainUtils {
                     });
                 }
             }).catch((err) => {
-                console.log("Error while finding latest block in DB: ", err);
+                console.log(`Error while finding latest block in DB: ${err}`);
             });
         }).catch((err) => {
-            console.log("Could not get latest block from blockchain with error: ", err);
+            console.log(`Could not get latest block from blockchain with error: ${err}`);
         });
     }
     static saveTransaction(block, transaction) {
@@ -91,7 +91,7 @@ class EthereumBlockchainUtils {
         };
         transaction_model_1.Transaction.findOneAndUpdate({ hash: transaction_data.hash }, transaction_data, { upsert: true,
             returnNewDocument: true }).exec().catch((err) => {
-            console.log("Error while upserting transaction: ", err);
+            console.log(`Error while upserting transaction: ${err}`);
         });
     }
     static convertPrivateKeyToKeystore(keyString) {
