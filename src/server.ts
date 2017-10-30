@@ -21,7 +21,7 @@ import { LatestBlock } from "./models/latestBlock.model";
  */
 dotenv.config({ path: ".env.example" });
 
-const port = process.env.PORT || 8009;
+const port = process.env.PORT || 8000;
 const MongoStore = mongo(session);
 
 export class Server {
@@ -73,7 +73,7 @@ export class Server {
                 filename: "trustwallet.log",
                 level: "info",
                 json: true,
-                eol: "rn",
+                eol: "\r\n",
                 timestamp: true
             }
         );

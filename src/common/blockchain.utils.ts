@@ -48,7 +48,7 @@ export class EthereumBlockchainUtils {
                 let promises = [];
                 for (let i = lastParsedBlockInDb.lastBlock; i < latestBlockInChain; i++) {
 
-                    const blockPromise = this.web3.eth.getBlock(i).then((block: any) => {
+                    const blockPromise = this.web3.eth.getBlock(i, true).then((block: any) => {
                         if (block !== null && block.transactions !== null) {
 
                             // save all transactions in current block
@@ -81,22 +81,23 @@ export class EthereumBlockchainUtils {
                 }
 
                 // wait for the remaining blocks to be parsed if any remain
-                // await Promise.all(promises).then(() => {
-                //     winston.info("Processed rest of the blocks to block number " + latestBlockInChain);
-                //
-                //     // save last parsed block in DB
-                //     EthereumBlockchainUtils.saveLastParsedBlock(latestBlockInChain);
-                //
-                //     // AND also save last block in DB for the steady refreshes
-                //     EthereumBlockchainUtils.saveLatestBlock(latestBlockInChain);
-                //
-                //     // and start the cron job for steady refreshes
-                //     cron.schedule("*/15 * * * * *", () => {
-                //         EthereumBlockchainUtils.retrieveNewTransactionsFromBlockchain();
-                //     });
-                // }).catch((err: Error) => {
-                //     winston.error("Could not wait for rest of blocks (to " + latestBlockInChain + " ) to be processed with error: " , err);
-                // });
+                await Promise.all(promises).then(() => {
+                    winston.info("Processed rest of the blocks to block number " + latestBlockInChain);
+                    winston.info("Finished full parse, saving block number " + latestBlockInChain + " to last parsed block and latest block in DB");
+
+                    // save last parsed block in DB
+                    EthereumBlockchainUtils.saveLastParsedBlock(latestBlockInChain);
+
+                    // AND also save last block in DB for the steady refreshes
+                    EthereumBlockchainUtils.saveLatestBlock(latestBlockInChain);
+
+                    // and start the cron job for steady refreshes
+                    cron.schedule("*/15 * * * * *", () => {
+                        EthereumBlockchainUtils.retrieveNewTransactionsFromBlockchain();
+                    });
+                }).catch((err: Error) => {
+                    winston.error("Could not wait for rest of blocks (to " + latestBlockInChain + " ) to be processed with error: " , err);
+                });
             }).catch((err: Error) => {
                 winston.error("Could not find last parsed block in DB with error: ", err);
             });
