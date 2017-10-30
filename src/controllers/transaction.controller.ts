@@ -8,7 +8,16 @@ export class TransactionController {
     public readAllTransactions(req: Request, res: Response) {
         const queryParams = TransactionController.extractQueryParameters(req);
 
-        const promise = Transaction.paginate({from: queryParams.from}, {page: queryParams.page, limit: queryParams.limit});
+        // build up query
+        const query: any = {};
+        if (queryParams.from) {
+            query.from = queryParams.from;
+        }
+        if (queryParams.to) {
+            query.to = queryParams.from;
+        }
+
+        const promise = Transaction.paginate(query, {page: queryParams.page, limit: queryParams.limit});
         promise.then( (transactions: any) => {
             sendJSONresponse(res, 200, transactions);
         }).catch((err: Error) => {
@@ -48,8 +57,10 @@ export class TransactionController {
         }
 
         const from = req.query.from;
+        const to = req.query.to;
 
         return {
+            to: to,
             from: from,
             page: page,
             limit: limit
