@@ -6,19 +6,14 @@ import { Transaction } from "../models/transaction.model";
 export class TransactionController {
 
     public readAllTransactions(req: Request, res: Response) {
-        if (req.query.fromAddress) {
-            Transaction.find({from: req.query.fromAddress}).exec().then((transactions: any) => {
-                sendJSONresponse(res, 200, transactions);
-            }).catch((err: Error) => {
-                sendJSONresponse(res, 404, err);
-            });
-        } else {
-            Transaction.find({}).exec().then((transactions: any) => {
-                sendJSONresponse(res, 200, transactions);
-            }).catch((err: Error) => {
-                sendJSONresponse(res, 404, err);
-            });
-        }
+        const queryParams = TransactionController.extractQueryParameters(req);
+
+        const promise = Transaction.paginate({from: queryParams.from}, {page: queryParams.page, limit: queryParams.limit});
+        promise.then( (transactions: any) => {
+            sendJSONresponse(res, 200, transactions);
+        }).catch((err: Error) => {
+            sendJSONresponse(res, 404, err);
+        });
     }
 
     public readOneTransaction(req: Request, res: Response) {
@@ -35,6 +30,30 @@ export class TransactionController {
         }).catch((err: Error) => {
             sendJSONresponse(res, 404, err);
         });
+    }
+
+    private static extractQueryParameters(req: Request) {
+        let page = parseInt(req.query.page, 10);
+        if (isNaN(page) || page < 1) {
+            page = 1;
+        }
+
+        let limit = parseInt(req.query.limit, 10);
+        if (isNaN(limit)) {
+            limit = 10;
+        } else if (limit > 50) {
+            limit = 50;
+        } else if (limit < 1) {
+            limit = 1;
+        }
+
+        const from = req.query.from;
+
+        return {
+            page: page,
+            limit: limit,
+            from: from
+        };
     }
 
 }
