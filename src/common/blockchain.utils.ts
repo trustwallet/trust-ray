@@ -4,6 +4,7 @@ const cron = require("node-cron");
 import * as winston from "winston";
 import { Transaction } from "../models/transaction.model";
 import { LatestBlock } from "../models/latestBlock.model";
+import { LastParsedBlock } from "../models/lastParsedBlock.model";
 
 
 export class EthereumBlockchainUtils {
@@ -17,41 +18,87 @@ export class EthereumBlockchainUtils {
 
     /**
      * Parse entire blockchain and store all extracted transactions.
+     *
+     * Every X blocks are parsed in parallel, then the latest of those
+     * is saved in the last parsed block in the DB. Thereby, if the parsing
+     * process is interrupted, it can be continued from there on.
      */
     public static parseEntireBlockchain() {
         // get the latest block number in the blockchain
         this.web3.eth.getBlockNumber().then((latestBlockInChain: any) => {
 
-            // PARSING
-            winston.info("Parsing entire blockchain");
-            const promises = [];
-            for (let i = 0; i <= latestBlockInChain; i++) {
-                const blockPromise = this.web3.eth.getBlock(i).then((block: any) => {
-                    if (block !== null && block.transactions !== null) {
+            // find the last parsed block in the DB that indicates where
+            // to resume the full parse. If none is found, init it to 0
+            LastParsedBlock.findOne({}).exec().then(async (lastParsedBlockInDb: any) => {
 
-                        // save all transactions in current block
-                        block.transactions.forEach(function (transaction: any) {
-                            EthereumBlockchainUtils.saveTransaction(block, transaction);
+                if (!lastParsedBlockInDb) {
+                    // init to 0
+                    winston.info("No last parsed block found in DB, init with 0");
+                    EthereumBlockchainUtils.saveLastParsedBlock(0);
+                    lastParsedBlockInDb = new LastParsedBlock({lastBlock: 0});
+                }
+
+                // PARSING
+
+                // always parse x blocks simultaneously, wait for them to finish,
+                // save the last parsed block in DB and then continue with the next
+                // x blocks
+                winston.info("Picking up parsing at block " + lastParsedBlockInDb.lastBlock + " to current block " + latestBlockInChain);
+                const x = 100;
+                let promises = [];
+                for (let i = lastParsedBlockInDb.lastBlock; i < latestBlockInChain; i++) {
+
+                    const blockPromise = this.web3.eth.getBlock(i).then((block: any) => {
+                        if (block !== null && block.transactions !== null) {
+
+                            // save all transactions in current block
+                            block.transactions.forEach(function (transaction: any) {
+                                EthereumBlockchainUtils.saveTransaction(block, transaction);
+                            });
+
+                        }
+                    }).catch((err: Error) => {
+                        winston.error("Could not get block " + i + " from blockchain with error: ", err);
+                    });
+
+                    promises.push(blockPromise);
+
+                    // every x steps, wait for the blocks to be parsed
+                    if (i % x === 0 && i != lastParsedBlockInDb.lastBlock) {
+                        await Promise.all(promises).then(() => {
+                            winston.info("Processed " + x + " blocks, now at block " + i);
+
+                            // save last parsed block in DB
+                            EthereumBlockchainUtils.saveLastParsedBlock(i);
+
+                        }).catch((err: Error) => {
+                            winston.error("Could not wait for " + x + " blocks (to " + i + " ) to be processed with error: " , err);
                         });
 
+                        // reset promise array
+                        promises = [];
                     }
-                }).catch((err: Error) => {
-                    winston.error("Could not get block " + i + " from blockchain with error: ", err);
-                });
-                promises.push(blockPromise);
-            }
-            // wait until all blocks are fully parsed, then set the latest block in DB for
-            // starting the refreshing from the point where the full parse left
-            Promise.all(promises).then(() => {
-                winston.info("Saving latest block number " + latestBlockInChain + " to DB after full parse");
-                EthereumBlockchainUtils.saveLatestBlock(latestBlockInChain);
+                }
 
-                // and start the cron job for steady refreshs
-                // setup cron job for refreshing transactions fro blockchain
-                cron.schedule("*/15 * * * * *", () => {
-                    EthereumBlockchainUtils.retrieveNewTransactionsFromBlockchain();
-                });
-
+                // wait for the remaining blocks to be parsed if any remain
+                // await Promise.all(promises).then(() => {
+                //     winston.info("Processed rest of the blocks to block number " + latestBlockInChain);
+                //
+                //     // save last parsed block in DB
+                //     EthereumBlockchainUtils.saveLastParsedBlock(latestBlockInChain);
+                //
+                //     // AND also save last block in DB for the steady refreshes
+                //     EthereumBlockchainUtils.saveLatestBlock(latestBlockInChain);
+                //
+                //     // and start the cron job for steady refreshes
+                //     cron.schedule("*/15 * * * * *", () => {
+                //         EthereumBlockchainUtils.retrieveNewTransactionsFromBlockchain();
+                //     });
+                // }).catch((err: Error) => {
+                //     winston.error("Could not wait for rest of blocks (to " + latestBlockInChain + " ) to be processed with error: " , err);
+                // });
+            }).catch((err: Error) => {
+                winston.error("Could not find last parsed block in DB with error: ", err);
             });
         }).catch((err: Error) => {
             winston.error("Could not get currently latest block number from blockchain with error: ", err);
@@ -119,6 +166,14 @@ export class EthereumBlockchainUtils {
             winston.error("Error while upserting transaction: ", err);
         });
 
+    }
+
+    private static saveLastParsedBlock(block: number) {
+        const promise = LastParsedBlock.findOneAndUpdate({}, {lastBlock: block}, {upsert: true}).exec();
+        promise.catch((err: Error) => {
+            winston.error("Could not save last parsed block to DB with error: ", err);
+        });
+        return;
     }
 
     private static saveLatestBlock(block: number) {
