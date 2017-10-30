@@ -52,7 +52,7 @@ export class EthereumBlockchainUtils {
                         if (block !== null && block.transactions !== null) {
 
                             // save all transactions in current block
-                            block.transactions.forEach(function (transaction: any) {
+                            block.transactions.forEach((transaction: any) => {
                                 EthereumBlockchainUtils.saveTransaction(block, transaction);
                             });
 
@@ -82,8 +82,8 @@ export class EthereumBlockchainUtils {
 
                 // wait for the remaining blocks to be parsed if any remain
                 await Promise.all(promises).then(() => {
-                    winston.info("Processed rest of the blocks to block number " + latestBlockInChain);
-                    winston.info("Finished full parse, saving block number " + latestBlockInChain + " to last parsed block and latest block in DB");
+                    winston.info(`Processed rest of the blocks to block number ${latestBlockInChain}`);
+                    winston.info(`Finished full parse, saving block number ${latestBlockInChain} to last parsed block and latest block in DB`);
 
                     // save last parsed block in DB
                     EthereumBlockchainUtils.saveLastParsedBlock(latestBlockInChain);
@@ -96,13 +96,13 @@ export class EthereumBlockchainUtils {
                         EthereumBlockchainUtils.retrieveNewTransactionsFromBlockchain();
                     });
                 }).catch((err: Error) => {
-                    winston.error("Could not wait for rest of blocks (to " + latestBlockInChain + " ) to be processed with error: " , err);
+                    winston.error(`Could not wait for rest of blocks (to ${latestBlockInChain}) to be processed with error: ${err}`);
                 });
             }).catch((err: Error) => {
-                winston.error("Could not find last parsed block in DB with error: ", err);
+                winston.error(`Could not find last parsed block in DB with error: ${err}`);
             });
         }).catch((err: Error) => {
-            winston.error("Could not get currently latest block number from blockchain with error: ", err);
+            winston.error(`Could not get currently latest block number from blockchain with error: ${err}`);
         });
     }
 
@@ -116,19 +116,19 @@ export class EthereumBlockchainUtils {
                 }
                 // check if something is to do
                 if (latestBlockInDb.latestBlock < latestBlockInChain) {
-                    winston.info("Retrieving new transactions between blocks " + latestBlockInDb.latestBlock + " and " + latestBlockInChain);
+                    winston.info(`Retrieving new transactions between blocks ${latestBlockInDb.latestBlock} and ${latestBlockInChain}`);
                     // retrieve new transactions
                     const promises = [];
                     for (let i = latestBlockInDb.latestBlock; i <= latestBlockInChain; i++) {
                         const blockPromise = this.web3.eth.getBlock(i, true).then((block: any) => {
                             if (block !== null && block.transactions !== null) {
-                                block.transactions.forEach(function (transaction: any) {
+                                block.transactions.forEach((transaction: any) => {
                                     // save transaction to database
                                     EthereumBlockchainUtils.saveTransaction(block, transaction);
                                 });
                             }
                         }).catch((err: Error) => {
-                            winston.error("Could not get block " + i + " from blockchain with error: ", err);
+                            winston.error(`Could not get block ${i} from blockchain with error: ${err}`);
                         });
                         promises.push(blockPromise);
                     }
@@ -138,10 +138,10 @@ export class EthereumBlockchainUtils {
                     });
                 }
             }).catch((err: Error) => {
-                winston.error("Could not find latest block in DB with error: ", err);
+                winston.error(`Could not find latest block in DB with error: ${err}`);
             });
         }).catch((err: Error) => {
-            winston.error("Could not get latest block from blockchain with error: ", err);
+            winston.error(`Could not get latest block from blockchain with error: ${err}`);
         });
     }
 
@@ -166,7 +166,7 @@ export class EthereumBlockchainUtils {
             upsert: true,
             returnNewDocument: true
         }).exec().catch((err: Error) => {
-            winston.error("Error while upserting transaction: ", err);
+            winston.error(`Error while upserting transaction: ${err}`);
         });
 
     }
@@ -174,7 +174,7 @@ export class EthereumBlockchainUtils {
     private static saveLastParsedBlock(block: number) {
         const promise = LastParsedBlock.findOneAndUpdate({}, {lastBlock: block}, {upsert: true}).exec();
         promise.catch((err: Error) => {
-            winston.error("Could not save last parsed block to DB with error: ", err);
+            winston.error(`Could not save last parsed block to DB with error: ${err}`);
         });
         return;
     }
@@ -182,7 +182,7 @@ export class EthereumBlockchainUtils {
     private static saveLatestBlock(block: number) {
         const promise = LatestBlock.findOneAndUpdate({}, {latestBlock: block}, {upsert: true}).exec();
         promise.catch((err: Error) => {
-            winston.error("Could not save latest block to DB with error: ", err);
+            winston.error(`Could not save latest block to DB with error: ${err}`);
         });
         return;
     }

@@ -15,34 +15,34 @@ class Database {
         this.setupShutdownHandlers();
     }
     hookIntoConnectionMonitorEvents() {
-        mongoose.connection.on("connected", function () {
+        mongoose.connection.on("connected", () => {
             console.log("Mongoose connected");
         });
-        mongoose.connection.on("error", function (err) {
-            console.log("Mongoose connection error: " + err);
+        mongoose.connection.on("error", (err) => {
+            console.log(`Mongoose connection error: ${err}`);
         });
-        mongoose.connection.on("disconnected", function () {
+        mongoose.connection.on("disconnected", () => {
             console.log("Mongoose disconnected");
         });
     }
     setupShutdownHandlers() {
         // SIGUSR2 signal for nodemon shutdown
-        process.once("SIGUSR2", function () {
-            mongoose.connection.close(function () {
+        process.once("SIGUSR2", () => {
+            mongoose.connection.close(() => {
                 console.log("Mongoose disconnected through nodemon restart");
                 process.kill(process.pid, "SIGUSR2");
             });
         });
         // SIGINT signal for regular app shutdown
-        process.on("SIGINT", function () {
-            mongoose.connection.close(function () {
+        process.on("SIGINT", () => {
+            mongoose.connection.close(() => {
                 console.log("Mongoose disconnected through app termination");
                 process.exit(0);
             });
         });
         // SIGTERM signal for Heroku shutdown
-        process.on("SIGTERM", function () {
-            mongoose.connection.close(function () {
+        process.on("SIGTERM", () => {
+            mongoose.connection.close(() => {
                 console.log("Mongoose disconnected through Heroku app shutdown");
                 process.exit(0);
             });
