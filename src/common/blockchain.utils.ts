@@ -145,7 +145,7 @@ export class EthereumBlockchainUtils {
         });
     }
 
-    private static saveTransaction(block: any, transaction: any) {
+    private static async saveTransaction(block: any, transaction: any) {
         const transaction_data = {
             blockNumber: String(transaction.blockNumber),
             timeStamp: String(block.timestamp),
@@ -162,8 +162,10 @@ export class EthereumBlockchainUtils {
             gasUsed: String(block.gasUsed)
         };
 
-        Transaction.findOneAndUpdate({hash: transaction_data.hash}, transaction_data, {upsert: true,
-            returnNewDocument: true}).exec().catch((err: Error) => {
+        await Transaction.findOneAndUpdate({hash: transaction_data.hash}, transaction_data, {
+            upsert: true,
+            returnNewDocument: true
+        }).exec().catch((err: Error) => {
             winston.error(`Error while upserting transaction: ${err}`);
         });
 
