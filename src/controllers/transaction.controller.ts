@@ -50,9 +50,9 @@ export class TransactionController {
         const from = req.query.from;
 
         return {
+            from: from,
             page: page,
-            limit: limit,
-            from: from
+            limit: limit
         };
     }
 
