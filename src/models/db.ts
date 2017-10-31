@@ -1,4 +1,5 @@
 import * as mongoose from "mongoose";
+import * as winston from "winston";
 
 require("../models/latestBlock.model");
 require("../models/lastParsedBlock.model");
@@ -15,7 +16,13 @@ export class Database {
     }
 
     public connect() {
-        mongoose.connect(this.dbURI);
+        const options: any = {
+            autoIndex: false,
+            poolSize: 500
+        };
+        mongoose.connect(this.dbURI, options).catch((err: Error) => {
+           winston.error(`Could not connect to Mongo with error: ${err}`);
+        });
         this.hookIntoConnectionMonitorEvents();
         this.setupShutdownHandlers();
     }
