@@ -38,24 +38,27 @@ export class EthereumBlockchainUtils {
                     lastParsedBlockInDb = new LastParsedBlock({lastBlock: 0});
                 }
 
-                // PARSING
+                /* ============== PARSING ============== */
 
                 // always parse x blocks simultaneously, wait for them to finish,
                 // save the last parsed block in DB and then continue with the next
                 // x blocks
                 winston.info("Picking up parsing at block " + lastParsedBlockInDb.lastBlock + " to current block " + latestBlockInChain);
-                const x = 250;
+                const x = 10;
                 let promises = [];
                 for (let i = lastParsedBlockInDb.lastBlock; i < latestBlockInChain; i++) {
 
-                    const blockPromise = this.web3.eth.getBlock(i, true).then((block: any) => {
+                    const blockPromise = this.web3.eth.getBlock(i, true).then(async (block: any) => {
                         if (block !== null && block.transactions !== null) {
 
-                            // save all transactions in current block
+                            /* ============== save transactions ============== */
+                            const transactionPromises: any = [];
                             block.transactions.forEach((transaction: any) => {
-                                EthereumBlockchainUtils.saveTransaction(block, transaction);
+                                transactionPromises.push(EthereumBlockchainUtils.saveTransaction(block, transaction));
                             });
-
+                            await Promise.all(transactionPromises).catch((err: Error) => {
+                                winston.error(`Error while waiting for all transactions to be processed for block ${i} with error: ${err}`);
+                            });
                         }
                     }).catch((err: Error) => {
                         winston.error("Could not get block " + i + " from blockchain with error: ", err);
@@ -66,11 +69,13 @@ export class EthereumBlockchainUtils {
                     // every x steps, wait for the blocks to be parsed
                     if (i % x === 0 && i != lastParsedBlockInDb.lastBlock) {
                         await Promise.all(promises).then(() => {
-                            winston.info("Processed " + x + " blocks, now at block " + i);
-
                             // save last parsed block in DB
                             EthereumBlockchainUtils.saveLastParsedBlock(i);
-
+                        }).then(() => {
+                            // and every 100th parallel process, print statement
+                            if (i % (x * 100) === 0 && i != lastParsedBlockInDb.lastBlock) {
+                                winston.info("Processed " + (x * 100) + " blocks, now at block " + i);
+                            }
                         }).catch((err: Error) => {
                             winston.error("Could not wait for " + x + " blocks (to " + i + " ) to be processed with error: " , err);
                         });
@@ -162,13 +167,15 @@ export class EthereumBlockchainUtils {
             gasUsed: String(block.gasUsed)
         };
 
-        await Transaction.findOneAndUpdate({hash: transaction_data.hash}, transaction_data, {
+        const promise = Transaction.findOneAndUpdate({hash: transaction_data.hash}, transaction_data, {
             upsert: true,
             returnNewDocument: true
-        }).exec().catch((err: Error) => {
-            winston.error(`Error while upserting transaction: ${err}`);
+        }).exec();
+        promise.catch((err: Error) => {
+            winston.error(`Could not upsert transaction with error: ${err}`);
         });
 
+        return promise;
     }
 
     private static saveLastParsedBlock(block: number) {
