@@ -60,5 +60,7 @@ const transactionSchema = new Schema({
 transactionSchema.plugin(mongoosePaginate);
 
 transactionSchema.index({hash: 1}, {unique: true});
+transactionSchema.index({from: 1});
+transactionSchema.index({to: 1});
 
 export const Transaction = mongoose.model("Transaction", transactionSchema );
