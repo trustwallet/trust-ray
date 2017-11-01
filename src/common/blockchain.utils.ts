@@ -49,16 +49,10 @@ export class EthereumBlockchainUtils {
                 for (let i = lastParsedBlockInDb.lastBlock; i < latestBlockInChain; i++) {
 
                     const blockPromise = this.web3.eth.getBlock(i, true).then(async (block: any) => {
-                        if (block !== null && block.transactions !== null) {
+                        if (block !== null && block.transactions !== null && block.transactions.length > 0) {
 
                             /* ============== save transactions ============== */
-                            const transactionPromises: any = [];
-                            block.transactions.forEach((transaction: any) => {
-                                transactionPromises.push(EthereumBlockchainUtils.saveTransaction(block, transaction));
-                            });
-                            await Promise.all(transactionPromises).catch((err: Error) => {
-                                winston.error(`Error while waiting for all transactions to be processed for block ${i} with error: ${err}`);
-                            });
+                            EthereumBlockchainUtils.saveTransactions(block, i);
                         }
                     }).catch((err: Error) => {
                         winston.error("Could not get block " + i + " from blockchain with error: ", err);
@@ -126,11 +120,9 @@ export class EthereumBlockchainUtils {
                     const promises = [];
                     for (let i = latestBlockInDb.latestBlock; i <= latestBlockInChain; i++) {
                         const blockPromise = this.web3.eth.getBlock(i, true).then((block: any) => {
-                            if (block !== null && block.transactions !== null) {
-                                block.transactions.forEach((transaction: any) => {
-                                    // save transaction to database
-                                    EthereumBlockchainUtils.saveTransaction(block, transaction);
-                                });
+                            if (block !== null && block.transactions !== null && block.transactions.length > 0) {
+                                /* ============== save transactions ============== */
+                                EthereumBlockchainUtils.saveTransactions(block, i);
                             }
                         }).catch((err: Error) => {
                             winston.error(`Could not get block ${i} from blockchain with error: ${err}`);
@@ -150,32 +142,30 @@ export class EthereumBlockchainUtils {
         });
     }
 
-    private static async saveTransaction(block: any, transaction: any) {
-        const transaction_data = {
-            blockNumber: String(transaction.blockNumber),
-            timeStamp: String(block.timestamp),
-            hash: String(transaction.hash),
-            nonce: String(transaction.nonce),
-            blockHash: String(block.hash),
-            transactionIndex: String(transaction.transactionIndex),
-            from: String(transaction.from),
-            to: String(transaction.to),
-            value: String(transaction.value),
-            gas: String(transaction.gas),
-            gasPrice: String(transaction.gasPrice),
-            input: String(transaction.input),
-            gasUsed: String(block.gasUsed)
-        };
+    private static saveTransactions(block: any, i: number) {
+        const bulk = Transaction.collection.initializeUnorderedBulkOp();
+        block.transactions.forEach((transaction: any) => {
 
-        const promise = Transaction.findOneAndUpdate({hash: transaction_data.hash}, transaction_data, {
-            upsert: true,
-            returnNewDocument: true
-        }).exec();
-        promise.catch((err: Error) => {
-            winston.error(`Could not upsert transaction with error: ${err}`);
+            const transaction_data = {
+                blockNumber: String(transaction.blockNumber),
+                timeStamp: String(block.timestamp),
+                hash: String(transaction.hash),
+                nonce: String(transaction.nonce),
+                blockHash: String(block.hash),
+                transactionIndex: String(transaction.transactionIndex),
+                from: String(transaction.from),
+                to: String(transaction.to),
+                value: String(transaction.value),
+                gas: String(transaction.gas),
+                gasPrice: String(transaction.gasPrice),
+                input: String(transaction.input),
+                gasUsed: String(block.gasUsed)
+            };
+            bulk.find({hash: String(transaction.hash)}).upsert().updateOne(transaction_data);
         });
-
-        return promise;
+        bulk.execute().catch((err: Error) => {
+            winston.error(`Error for bulk upserting transactions for block ${i} with error: ${err}`);
+        });
     }
 
     private static saveLastParsedBlock(block: number) {
