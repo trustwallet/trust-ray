@@ -1,4 +1,5 @@
 const Web3 = require("web3");
+const abi = require("./abi");
 const EthWallet = require("ethereumjs-wallet");
 const cron = require("node-cron");
 import * as winston from "winston";
@@ -184,6 +185,14 @@ export class EthereumBlockchainUtils {
         return;
     }
 
+    public static getTokenBalance(address: string, tokenContractAddress: string) {
+        const token = this.web3.eth.Contract(abi, tokenContractAddress);
+        token.methods.balanceOf(address).call().then((result: any) => {
+            winston.info(`Got token balance: ${result}`);
+        }).catch((err: Error) => {
+            winston.error(`Could not save latest block to DB with error: ${err}`);
+        });
+    }
     private static convertPrivateKeyToKeystore(keyString: string) {
         const key = Buffer.from(keyString, "hex");
         const wallet = EthWallet.fromPrivateKey(key);
