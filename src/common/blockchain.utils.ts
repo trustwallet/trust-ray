@@ -9,8 +9,8 @@ import { LastParsedBlock } from "../models/lastParsedBlock.model";
 
 export class EthereumBlockchainUtils {
 
-    static mainNetwork = "https://mainnet.infura.io/llyrtzQ3YhkdESt2Fzrk";
-    static web3 = new Web3(new Web3.providers.HttpProvider(EthereumBlockchainUtils.mainNetwork));
+    static network = process.env.RPC_SERVER;
+    static web3 = new Web3(new Web3.providers.HttpProvider(EthereumBlockchainUtils.network));
 
     public static configureNetwork(network: string) {
         this.web3 = new Web3(new Web3.providers.HttpProvider(network));
