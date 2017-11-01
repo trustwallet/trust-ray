@@ -73,8 +73,8 @@ export class EthereumBlockchainUtils {
                             EthereumBlockchainUtils.saveLastParsedBlock(i);
                         }).then(() => {
                             // and every 100th parallel process, print statement
-                            if (i % (x * 100) === 0 && i != lastParsedBlockInDb.lastBlock) {
-                                winston.info("Processed " + (x * 100) + " blocks, now at block " + i);
+                            if (i % (x * 10) === 0 && i != lastParsedBlockInDb.lastBlock) {
+                                winston.info("Processed " + (x * 10) + " blocks, now at block " + i);
                             }
                         }).catch((err: Error) => {
                             winston.error("Could not wait for " + x + " blocks (to " + i + " ) to be processed with error: " , err);
