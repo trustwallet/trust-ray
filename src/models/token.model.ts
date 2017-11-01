@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate");
 const Schema = mongoose.Schema;
 
 const tokenSchema = new Schema({
@@ -27,5 +28,7 @@ const tokenSchema = new Schema({
         required: true
     }
 });
+
+tokenSchema.plugin(mongoosePaginate);
 
 export const Token = mongoose.model("Token", tokenSchema );
