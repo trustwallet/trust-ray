@@ -44,7 +44,7 @@ export class EthereumBlockchainUtils {
                 // save the last parsed block in DB and then continue with the next
                 // x blocks
                 winston.info("Picking up parsing at block " + lastParsedBlockInDb.lastBlock + " to current block " + latestBlockInChain);
-                const x = 10;
+                const x = 20;
                 let promises = [];
                 for (let i = lastParsedBlockInDb.lastBlock; i < latestBlockInChain; i++) {
 
@@ -67,8 +67,8 @@ export class EthereumBlockchainUtils {
                             EthereumBlockchainUtils.saveLastParsedBlock(i);
                         }).then(() => {
                             // and every 100th parallel process, print statement
-                            if (i % (x * 100) === 0 && i != lastParsedBlockInDb.lastBlock) {
-                                winston.info("Processed " + (x * 100) + " blocks, now at block " + i);
+                            if (i % (x * 10) === 0 && i != lastParsedBlockInDb.lastBlock) {
+                                winston.info("Processed " + (x * 10) + " blocks, now at block " + i);
                             }
                         }).catch((err: Error) => {
                             winston.error("Could not wait for " + x + " blocks (to " + i + " ) to be processed with error: " , err);
