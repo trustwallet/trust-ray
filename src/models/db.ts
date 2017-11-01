@@ -17,7 +17,7 @@ export class Database {
 
     public connect() {
         const options: any = {
-            autoIndex: false,
+            autoIndex: true,
             poolSize: 500
         };
         mongoose.connect(this.dbURI, options).catch((err: Error) => {
