@@ -44,7 +44,7 @@ export class EthereumBlockchainUtils {
                 // save the last parsed block in DB and then continue with the next
                 // x blocks
                 winston.info("Picking up parsing at block " + lastParsedBlockInDb.lastBlock + " to current block " + latestBlockInChain);
-                const x = 10;
+                const x = 20;
                 let promises = [];
                 for (let i = lastParsedBlockInDb.lastBlock; i < latestBlockInChain; i++) {
 
