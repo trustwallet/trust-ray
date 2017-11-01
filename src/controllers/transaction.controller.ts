@@ -10,11 +10,8 @@ export class TransactionController {
 
         // build up query
         const query: any = {};
-        if (queryParams.from) {
-            query.from = queryParams.from;
-        }
-        if (queryParams.to) {
-            query.to = queryParams.from;
+        if (queryParams.address) {
+            query.from = queryParams.address;
         }
 
         const promise = Transaction.paginate(query, {page: queryParams.page, limit: queryParams.limit});
@@ -56,12 +53,10 @@ export class TransactionController {
             limit = 1;
         }
 
-        const from = req.query.from;
-        const to = req.query.to;
+        const address = req.query.address;
 
         return {
-            to: to,
-            from: from,
+            address: address,
             page: page,
             limit: limit
         };
