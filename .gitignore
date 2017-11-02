@@ -14,8 +14,7 @@ $ Ignore the .env file for the server
 .env
 
 # Ignore local logs
-access.log
-trustwallet.log
+*.log
 
 dist
 package-lock.json
