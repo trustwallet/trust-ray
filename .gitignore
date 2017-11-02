@@ -11,6 +11,10 @@ node_modules
 notes
 
 $ Ignore the .env file for the server
-.env.example
+.env
+
+# Ignore local logs
+*.log
 
 dist
+package-lock.json
