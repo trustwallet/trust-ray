@@ -9,7 +9,14 @@ API for the Trust Ethereum Wallet. It provides functionalities for parsing the e
     * page: Used for pagination.
 * **GET /transactions/:hash** - Retrieves a single transaction given by its hash.
 * **GET /tokens** - Not yet implemented.
-* **POST /tokens/transfer** - Not yet implemented. 
 
 ## Deploy on Heroku
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
+## Locally
+* Install required modules:
+  ```$ npm install```
+* Compile TypeScript:
+  ```$ npm run build```
+* Start the app:
+   ```$ node dist/server.js```
