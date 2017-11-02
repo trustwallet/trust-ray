@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 
 const transactionSchema = new Schema({
     blockNumber: {
-        type: String,
+        type: Number,
         required: true
     },
     timeStamp: {

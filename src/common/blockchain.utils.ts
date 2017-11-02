@@ -148,7 +148,7 @@ export class EthereumBlockchainUtils {
         block.transactions.forEach((transaction: any) => {
 
             const transaction_data = {
-                blockNumber: String(transaction.blockNumber),
+                blockNumber: parseInt(transaction.blockNumber),
                 timeStamp: String(block.timestamp),
                 hash: String(transaction.hash),
                 nonce: String(transaction.nonce),
