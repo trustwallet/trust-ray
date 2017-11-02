@@ -19,10 +19,6 @@ const transactionSchema = new Schema({
         type: String,
         required: true
     },
-    blockHash: {
-        type: String,
-        required: true
-    },
     transactionIndex: {
         type: String,
         required: true

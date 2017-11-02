@@ -152,7 +152,6 @@ export class EthereumBlockchainUtils {
                 timeStamp: String(block.timestamp),
                 hash: String(transaction.hash),
                 nonce: String(transaction.nonce),
-                blockHash: String(block.hash),
                 transactionIndex: String(transaction.transactionIndex),
                 from: String(transaction.from),
                 to: String(transaction.to),
