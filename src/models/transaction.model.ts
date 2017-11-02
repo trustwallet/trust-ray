@@ -51,7 +51,7 @@ const transactionSchema = new Schema({
         type: String,
         required: true
     }
-});
+}, { versionKey: false });
 
 transactionSchema.plugin(mongoosePaginate);
 
