@@ -1,0 +1,22 @@
+{
+  "name": "Trust Wallet Backend",
+  "description": "Backend API for the Trust Wallet App",
+  "env": {
+    "MONGODB_URI": {
+      "description": "URI of your mongo DB.",
+      "value": "mongodb://localhost:27017/trust-wallet"
+    },
+    "RPC_SERVER": {
+      "description": "RPC URL of your blockchain node.",
+      "value": "http://127.0.0.1:8545"
+    },
+    "SESSION_SECRET": {
+      "description": "Secret for the session.",
+      "value": "ashdfjhasdlkjfhalksdjhflak"
+    },
+    "PORT": {
+      "description": "Port the API should be listening on.",
+      "value": "8000"
+    }
+  }
+}
