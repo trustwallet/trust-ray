@@ -146,13 +146,12 @@ export class EthereumBlockchainUtils {
     private static saveTransactions(block: any, i: number) {
         const bulk = Transaction.collection.initializeUnorderedBulkOp();
         block.transactions.forEach((transaction: any) => {
-
+            const hash = String(transaction.hash);
             const transaction_data = {
-                blockNumber: parseInt(transaction.blockNumber),
+                _id: hash,
+                blockNumber: Number(transaction.blockNumber),
                 timeStamp: String(block.timestamp),
-                hash: String(transaction.hash),
-                nonce: String(transaction.nonce),
-                transactionIndex: String(transaction.transactionIndex),
+                nonce: Number(transaction.nonce),
                 from: String(transaction.from),
                 to: String(transaction.to),
                 value: String(transaction.value),
@@ -161,7 +160,7 @@ export class EthereumBlockchainUtils {
                 input: String(transaction.input),
                 gasUsed: String(block.gasUsed)
             };
-            bulk.find({hash: String(transaction.hash)}).upsert().updateOne(transaction_data);
+            bulk.find({_id: hash}).upsert().updateOne(transaction_data);
         });
         bulk.execute().catch((err: Error) => {
             winston.error(`Error for bulk upserting transactions for block ${i} with error: ${err}`);

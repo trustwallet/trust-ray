@@ -3,6 +3,11 @@ const mongoosePaginate = require("mongoose-paginate");
 const Schema = mongoose.Schema;
 
 const transactionSchema = new Schema({
+    _id: {
+        type: String,
+        require: true,
+        unique: true
+    },
     blockNumber: {
         type: Number,
         required: true
@@ -11,16 +16,8 @@ const transactionSchema = new Schema({
         type: String,
         required: true
     },
-    hash: {
-        type: String,
-        required: true
-    },
     nonce: {
-        type: String,
-        required: true
-    },
-    transactionIndex: {
-        type: String,
+        type: Number,
         required: true
     },
     from: {
@@ -51,12 +48,14 @@ const transactionSchema = new Schema({
         type: String,
         required: true
     }
-}, { versionKey: false });
+}, { versionKey: false,
+     _id: false
+});
 
 transactionSchema.plugin(mongoosePaginate);
 
-transactionSchema.index({hash: 1}, {unique: true});
 transactionSchema.index({from: 1});
 transactionSchema.index({to: 1});
+transactionSchema.index({_id: 1});
 
 export const Transaction = mongoose.model("Transaction", transactionSchema );
