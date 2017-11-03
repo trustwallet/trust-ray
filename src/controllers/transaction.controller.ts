@@ -39,16 +39,16 @@ export class TransactionController {
     }
 
     private static extractQueryParameters(req: Request) {
-        let page = parseInt(req.query.page, 10);
+        let page = parseInt(req.query.page, 50);
         if (isNaN(page) || page < 1) {
             page = 1;
         }
 
-        let limit = parseInt(req.query.limit, 10);
+        let limit = parseInt(req.query.limit, 50);
         if (isNaN(limit)) {
-            limit = 10;
-        } else if (limit > 50) {
             limit = 50;
+        } else if (limit > 500) {
+            limit = 500;
         } else if (limit < 1) {
             limit = 1;
         }
