@@ -14,7 +14,7 @@ API for the Trust Ethereum Wallet. It provides functionalities for parsing the e
     * page: Used for pagination.
     
 ## Deploy on Heroku
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://www.heroku.com/deploy/?template=https://github.com/TrustWallet/trust-wallet-backend)
 
 ## Locally
 * Install required modules:
