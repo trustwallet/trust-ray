@@ -88,7 +88,7 @@ export class Server {
     }
 
     private addRoutes() {
-        this.app.use("/api", router);
+        this.app.use("/", router);
     }
 
     private launch() {
