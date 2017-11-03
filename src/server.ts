@@ -21,7 +21,7 @@ import { LatestBlock } from "./models/latestBlock.model";
  */
 dotenv.config({ path: ".env.example" });
 
-const port = 8000;
+const port = process.env.PORT || 8000
 const sessionSecret = "ashdfjhasdlkjfhalksdjhflak";
 const MongoStore = mongo(session);
 
