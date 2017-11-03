@@ -185,7 +185,7 @@ export class EthereumBlockchainUtils {
     }
 
     public static getTokenBalance(address: string, tokenContractAddress: string) {
-        const token = this.web3.eth.Contract(abi, tokenContractAddress);
+        const token = this.web3.eth.Contract(erc20abi, tokenContractAddress);
         token.methods.balanceOf(address).call().then((result: any) => {
             winston.info(`Got token balance: ${result}`);
         }).catch((err: Error) => {
