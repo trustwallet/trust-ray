@@ -2,8 +2,10 @@ const Web3 = require("web3");
 const erc20abi = require("./erc20abi");
 const EthWallet = require("ethereumjs-wallet");
 const cron = require("node-cron");
+const InputDataDecoder = require("ethereum-input-data-decoder");
 import * as winston from "winston";
 import { Transaction } from "../models/transaction.model";
+import { TokenTransaction } from "../models/tokenTransaction.model";
 import { LatestBlock } from "../models/latestBlock.model";
 import { LastParsedBlock } from "../models/lastParsedBlock.model";
 import { erc20tokens } from "./erc20tokens";
@@ -162,6 +164,8 @@ export class EthereumBlockchainUtils {
                 gasUsed: String(block.gasUsed)
             };
             bulk.find({_id: hash}).upsert().updateOne(transaction_data);
+            //TODO: Move to appropriate place
+            EthereumBlockchainUtils.processTransactionInput(transaction)
         });
         bulk.execute().catch((err: Error) => {
             winston.error(`Error for bulk upserting transactions for block ${i} with error: ${err}`);
@@ -182,6 +186,28 @@ export class EthereumBlockchainUtils {
             winston.error(`Could not save latest block to DB with error: ${err}`);
         });
         return;
+    }
+
+    public static processTransactionInput(transaction: any) {
+        let hasContract = erc20tokens.filter(contract => contract.address == transaction.to).length >= 1
+        if (!hasContract) {  return } //check if contract exist in our list
+        const decoder = new InputDataDecoder(erc20abi);
+        const result = decoder.decodeData(transaction.input);
+        if (result.name == "transfer") {
+            let to = result.inputs[0].toString(16);
+            let value = result.inputs[1].toString(10)
+            
+            TokenTransaction.findOneAndUpdate(
+                {transaction: transaction.hash},
+                {
+                    contract: transaction.to,
+                    to: to,
+                    from: transaction.from,
+                    value: value
+                },
+                {upsert: true}
+            ).exec();
+        }
     }
 
     public static getTokenBalance(address: string, tokenContractAddress: string, tokenName: string) {
