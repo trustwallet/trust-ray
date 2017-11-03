@@ -1299,4 +1299,9 @@ export const erc20tokens = [{
     "symbol": "PIPL",
     "decimal": 8,
     "type": "default"
+}, {
+    "address": "0xab95E915c123fdEd5BDfB6325e35ef5515F1EA69",
+    "symbol": "XENON",
+    "decimal": 18,
+    "type": "default"
 }];
