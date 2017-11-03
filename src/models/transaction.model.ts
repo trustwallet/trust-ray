@@ -59,6 +59,5 @@ transactionSchema.plugin(mongoosePaginate);
 
 transactionSchema.index({from: 1});
 transactionSchema.index({to: 1});
-transactionSchema.index({_id: 1});
 
 export const Transaction = mongoose.model("Transaction", transactionSchema );
