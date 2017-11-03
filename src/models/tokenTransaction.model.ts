@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const tokenTransactionSchema = new Schema({
+    transaction: {
+        type: String,
+        required: true
+    },
     contract: {
         type: String,
         required: true
@@ -14,10 +18,15 @@ const tokenTransactionSchema = new Schema({
         type: String,
         required: true
     },
-    amount: {
-        type: Number,
+    value: {
+        type: String,
         required: true
     },
+},
+{ 
+    versionKey: false
 });
+
+tokenTransactionSchema.index({transaction: 1});
 
 export const TokenTransaction = mongoose.model("TokenTransaction", tokenTransactionSchema );
