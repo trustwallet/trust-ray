@@ -8,11 +8,6 @@ import { LatestBlock } from "../models/latestBlock.model";
 import { LastParsedBlock } from "../models/lastParsedBlock.model";
 import { erc20tokens } from "./erc20tokens";
 
-const dotenv = require("dotenv");
-
-
-dotenv.config({ path: ".env.example" });
-
 
 export class EthereumBlockchainUtils {
 
