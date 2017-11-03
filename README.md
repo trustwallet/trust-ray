@@ -3,13 +3,16 @@ API for the Trust Ethereum Wallet. It provides functionalities for parsing the e
 
 ## Endpoints
 
-* **GET /transactions** - Retrieves all transactions limited to max 50. Query parameters:
+* **GET /transactions** - Retrieves all transactions limited to max 500. Query parameters:
     * address: Filters transactions for the given address
-    * limit: Used for pagination. A value between 1 and 50 (default: 10).
+    * limit: Used for pagination. A value between 1 and 500 (default: 50).
     * page: Used for pagination.
 * **GET /transactions/:hash** - Retrieves a single transaction given by its hash.
 * **GET /tokens** - Not yet implemented.
-
+    * address: Filters tokens for the given address
+    * limit: Used for pagination. A value between 1 and 500 (default: 50).
+    * page: Used for pagination.
+    
 ## Deploy on Heroku
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
