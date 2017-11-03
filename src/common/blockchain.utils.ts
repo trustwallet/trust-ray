@@ -7,6 +7,7 @@ import { Transaction } from "../models/transaction.model";
 import { LatestBlock } from "../models/latestBlock.model";
 import { LastParsedBlock } from "../models/lastParsedBlock.model";
 import { erc20tokens } from "./erc20tokens";
+
 const dotenv = require("dotenv");
 
 
