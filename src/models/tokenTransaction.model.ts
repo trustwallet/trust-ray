@@ -23,7 +23,7 @@ const tokenTransactionSchema = new Schema({
         required: true
     },
 },
-{ 
+{
     versionKey: false
 });
 

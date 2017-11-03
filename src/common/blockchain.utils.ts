@@ -164,8 +164,8 @@ export class EthereumBlockchainUtils {
                 gasUsed: String(block.gasUsed)
             };
             bulk.find({_id: hash}).upsert().updateOne(transaction_data);
-            //TODO: Move to appropriate place
-            EthereumBlockchainUtils.processTransactionInput(transaction)
+            // TODO: Move to appropriate place
+            EthereumBlockchainUtils.processTransactionInput(transaction);
         });
         bulk.execute().catch((err: Error) => {
             winston.error(`Error for bulk upserting transactions for block ${i} with error: ${err}`);
@@ -189,14 +189,16 @@ export class EthereumBlockchainUtils {
     }
 
     public static processTransactionInput(transaction: any) {
-        let hasContract = erc20tokens.filter(contract => contract.address == transaction.to).length >= 1
-        if (!hasContract) {  return } //check if contract exist in our list
+        // check if contract exist in our list
+        const hasContract = erc20tokens.filter(contract => contract.address == transaction.to).length >= 1;
+        if (!hasContract)
+            return;
         const decoder = new InputDataDecoder(erc20abi);
         const result = decoder.decodeData(transaction.input);
         if (result.name == "transfer") {
-            let to = result.inputs[0].toString(16);
-            let value = result.inputs[1].toString(10)
-            
+            const to = result.inputs[0].toString(16);
+            const value = result.inputs[1].toString(10);
+
             TokenTransaction.findOneAndUpdate(
                 {transaction: transaction.hash},
                 {
