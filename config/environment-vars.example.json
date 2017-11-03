@@ -1,6 +1,4 @@
 {
     "MONGODB_URI": "FILL_ME",
-    "MONGOLAB_URI": "FILL_ME",
-    "SESSION_SECRET": "FILL_ME",
-    "PORT": 8000
+    "RPC_SERVER": "FILL_ME"
 }
