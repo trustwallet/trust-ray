@@ -84,7 +84,7 @@ export class Server {
     }
 
     private setupDatabase() {
-        this.db = new Database(process.env.MONGODB_URI || process.env.MONGOLAB_URI);
+        this.db = new Database(process.env.MONGODB_URI);
         this.db.connect();
     }
 

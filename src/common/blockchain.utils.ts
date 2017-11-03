@@ -1,11 +1,16 @@
 const Web3 = require("web3");
-const abi = require("./abi");
+const erc20abi = require("./erc20abi");
 const EthWallet = require("ethereumjs-wallet");
 const cron = require("node-cron");
 import * as winston from "winston";
 import { Transaction } from "../models/transaction.model";
 import { LatestBlock } from "../models/latestBlock.model";
 import { LastParsedBlock } from "../models/lastParsedBlock.model";
+import { erc20tokens } from "./erc20tokens";
+const dotenv = require("dotenv");
+
+
+dotenv.config({ path: ".env.example" });
 
 
 export class EthereumBlockchainUtils {
@@ -183,14 +188,16 @@ export class EthereumBlockchainUtils {
         return;
     }
 
-    public static getTokenBalance(address: string, tokenContractAddress: string) {
-        const token = this.web3.eth.Contract(abi, tokenContractAddress);
-        token.methods.balanceOf(address).call().then((result: any) => {
-            winston.info(`Got token balance: ${result}`);
-        }).catch((err: Error) => {
-            winston.error(`Could not save latest block to DB with error: ${err}`);
+    public static getTokenBalance(address: string, tokenContractAddress: string, tokenName: string) {
+        const token = new this.web3.eth.Contract(erc20abi, tokenContractAddress);
+        const balancePromise = token.methods.balanceOf(address).call();
+        balancePromise.catch((err: Error) => {
+            winston.error(`Could not get token balance for token ${tokenName} with contract ` +
+            `address ${tokenContractAddress} for address ${address} with error: ${err}`);
         });
+        return balancePromise;
     }
+
     private static convertPrivateKeyToKeystore(keyString: string) {
         const key = Buffer.from(keyString, "hex");
         const wallet = EthWallet.fromPrivateKey(key);
