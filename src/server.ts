@@ -21,7 +21,7 @@ import { LatestBlock } from "./models/latestBlock.model";
  */
 dotenv.config({ path: ".env.example" });
 
-const port = process.env.PORT || 8000;
+const port = 8000;
 const MongoStore = mongo(session);
 
 export class Server {
@@ -58,9 +58,9 @@ export class Server {
         this.app.use(session({
             resave: true,
             saveUninitialized: true,
-            secret: process.env.SESSION_SECRET,
+            secret: "ashdfjhasdlkjfhalksdjhflak",
             store: new MongoStore({
-                url: process.env.MONGODB_URI || process.env.MONGOLAB_URI,
+                url: process.env.MONGODB_URI,
                 autoReconnect: true
             })
         }));
