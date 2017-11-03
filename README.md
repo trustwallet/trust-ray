@@ -23,3 +23,5 @@ API for the Trust Ethereum Wallet. It provides functionalities for parsing the e
   ```$ npm run build```
 * Start the app:
    ```$ node dist/server.js```
+* Run tests:
+   ```$ npm run build && npm test```
