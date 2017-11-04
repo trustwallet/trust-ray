@@ -195,8 +195,15 @@ export class EthereumBlockchainUtils {
             const contract = transaction.to.toLowerCase();
             const from = transaction.from.toLowerCase();
 
+            // pull token information directly from the contract
+            // const contractInstance = new this.web3.eth.Contract(erc20abi, contract);
+            // contractInstance.methods.name().call().then(() => {}).catch((err: Error) => {});
+            // contractInstance.methods.totalSupply().call().then(() => {}).catch((err: Error) => {});
+            // contractInstance.methods.decimals().call().then(() => {}).catch((err: Error) => {});
+            // contractInstance.methods.symbol().call().then(() => {}).catch((err: Error) => {});
+
             return {
-                transactionType: "transfer",
+                transactionType: "token_transfer",
                 contract: contract,
                 to: to,
                 from: from,
