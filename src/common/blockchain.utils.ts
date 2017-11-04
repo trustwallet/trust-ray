@@ -162,7 +162,7 @@ export class EthereumBlockchainUtils {
                 input: String(transaction.input),
                 gasUsed: String(block.gasUsed)
             };
-            bulk.find({_id: hash}).upsert().updateOne(transaction_data);
+            bulk.find({_id: hash}).upsert().replaceOne(transaction_data);
             // TODO: Move to appropriate place
             EthereumBlockchainUtils.processTransactionInput(transaction);
         });
