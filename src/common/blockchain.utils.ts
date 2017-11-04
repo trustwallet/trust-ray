@@ -8,7 +8,6 @@ import { Transaction } from "../models/transaction.model";
 import { TokenTransaction } from "../models/tokenTransaction.model";
 import { LatestBlock } from "../models/latestBlock.model";
 import { LastParsedBlock } from "../models/lastParsedBlock.model";
-import { erc20tokens } from "./erc20tokens";
 
 
 export class EthereumBlockchainUtils {
@@ -31,9 +30,12 @@ export class EthereumBlockchainUtils {
         // get the latest block number in the blockchain
         this.web3.eth.getBlockNumber().then((latestBlockInChain: any) => {
 
+            console.log("getBlockNumber");
             // find the last parsed block in the DB that indicates where
             // to resume the full parse. If none is found, init it to 0
             LastParsedBlock.findOne({}).exec().then(async (lastParsedBlockInDb: any) => {
+
+                console.log("LastParsedBlock");
 
                 if (!lastParsedBlockInDb) {
                     // init to 0
@@ -71,8 +73,8 @@ export class EthereumBlockchainUtils {
                             EthereumBlockchainUtils.saveLastParsedBlock(i);
                         }).then(() => {
                             // and every 100th parallel process, print statement
-                            if (i % (x * 10) === 0 && i != lastParsedBlockInDb.lastBlock) {
-                                winston.info("Processed " + (x * 10) + " blocks, now at block " + i);
+                            if (i % (x * 100) === 0 && i != lastParsedBlockInDb.lastBlock) {
+                                winston.info("Processed " + (x * 100) + " blocks, now at block " + i);
                             }
                         }).catch((err: Error) => {
                             winston.error("Could not wait for " + x + " blocks (to " + i + " ) to be processed with error: " , err);
@@ -96,7 +98,7 @@ export class EthereumBlockchainUtils {
 
                     // and start the cron job for steady refreshes
                     cron.schedule("*/15 * * * * *", () => {
-                        EthereumBlockchainUtils.retrieveNewTransactionsFromBlockchain();
+                        // EthereumBlockchainUtils.retrieveNewTransactionsFromBlockchain();
                     });
                 }).catch((err: Error) => {
                     winston.error(`Could not wait for rest of blocks (to ${latestBlockInChain}) to be processed with error: ${err}`);
@@ -189,10 +191,6 @@ export class EthereumBlockchainUtils {
     }
 
     public static processTransactionInput(transaction: any) {
-        // check if contract exist in our list
-        const hasContract = erc20tokens.filter(contract => contract.address == transaction.to).length >= 1;
-        if (!hasContract)
-            return;
         const decoder = new InputDataDecoder(erc20abi);
         const result = decoder.decodeData(transaction.input);
         if (result.name == "transfer") {
