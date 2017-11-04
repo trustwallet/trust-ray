@@ -10,8 +10,8 @@ export class TransactionController {
 
         // build up query
         const query: any = {};
-        const address = queryParams.address.toLowerCase();
-        if (address) {
+        if (queryParams.address) {
+            const address = queryParams.address.toLowerCase();
             query.$or = [{from: address}, {to: address}];
         }
 
