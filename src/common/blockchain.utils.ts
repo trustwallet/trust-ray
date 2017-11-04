@@ -175,7 +175,7 @@ export class EthereumBlockchainUtils {
                     .updateOne({$inc: {"tokens.$.balance": - action.value}});
                 bulkWallets
                     .find({address: action.to, "tokens.contractAddress": action.contract})
-                    .upset()
+                    .upsert()
                     .updateOne({$inc: {"tokens.$.balance": + action.value}});
             } else {
                 // update eth balance
