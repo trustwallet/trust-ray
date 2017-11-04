@@ -10,8 +10,9 @@ export class TransactionController {
 
         // build up query
         const query: any = {};
-        if (queryParams.address) {
-            query.$or = [{from: queryParams.address}, {to: queryParams.address}];
+        const address = queryParams.address.toLowerCase();
+        if (address) {
+            query.$or = [{from: address}, {to: address}];
         }
 
         const promise = Transaction.paginate(query, {page: queryParams.page, limit: queryParams.limit});
