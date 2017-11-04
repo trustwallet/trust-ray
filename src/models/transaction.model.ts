@@ -15,10 +15,6 @@ const tokenTransactionSchema = new Schema({
         type: String,
         required: true
     },
-    contract: {
-        type: String,
-        required: true
-    },
     from: {
         type: String,
         required: true
@@ -30,8 +26,35 @@ const tokenTransactionSchema = new Schema({
     value: {
         type: String,
         required: true
+    },
+    token: {
+        name: {
+            type: String,
+            required: true
+        },
+        symbol: {
+            type: String,
+            required: true
+        },
+        decimal: {
+            type: Number,
+            required: true
+        },
+        totalSupply: {
+            type: Number,
+            required: true
+        },
+        address: {
+            type: String,
+            required: true
+        },
+        owner: {
+            type: String,
+            required: true
+        }
     }
 });
+
 
 /**
  * Model for a single transaction.
