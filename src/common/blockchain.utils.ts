@@ -145,7 +145,7 @@ export class EthereumBlockchainUtils {
         });
     }
 
-    private static saveTransactions(block: any, i: number) {
+    private static async saveTransactions(block: any, i: number) {
         const bulk = Transaction.collection.initializeUnorderedBulkOp();
         block.transactions.forEach((transaction: any) => {
             const hash = String(transaction.hash);
@@ -166,7 +166,7 @@ export class EthereumBlockchainUtils {
             // TODO: Move to appropriate place
             EthereumBlockchainUtils.processTransactionInput(transaction);
         });
-        bulk.execute().catch((err: Error) => {
+        await bulk.execute().catch((err: Error) => {
             winston.error(`Error for bulk upserting transactions for block ${i} with error: ${err}`);
         });
     }
