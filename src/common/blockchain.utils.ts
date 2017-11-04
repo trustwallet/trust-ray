@@ -5,7 +5,6 @@ const cron = require("node-cron");
 const InputDataDecoder = require("ethereum-input-data-decoder");
 import * as winston from "winston";
 import { Transaction } from "../models/transaction.model";
-import { TokenTransaction } from "../models/tokenTransaction.model";
 import { LatestBlock } from "../models/latestBlock.model";
 import { LastParsedBlock } from "../models/lastParsedBlock.model";
 
@@ -149,7 +148,7 @@ export class EthereumBlockchainUtils {
         const bulk = Transaction.collection.initializeUnorderedBulkOp();
         block.transactions.forEach((transaction: any) => {
             const hash = String(transaction.hash);
-            const transaction_data = {
+            const transaction_data: any = {
                 _id: hash,
                 blockNumber: Number(transaction.blockNumber),
                 timeStamp: String(block.timestamp),
@@ -162,13 +161,35 @@ export class EthereumBlockchainUtils {
                 input: String(transaction.input),
                 gasUsed: String(block.gasUsed)
             };
+            const action = EthereumBlockchainUtils.processTransactionInput(transaction);
+            if (action) {
+                transaction_data.action = action;
+            }
             bulk.find({_id: hash}).upsert().replaceOne(transaction_data);
-            // TODO: Move to appropriate place
-            EthereumBlockchainUtils.processTransactionInput(transaction);
         });
         await bulk.execute().catch((err: Error) => {
             winston.error(`Error for bulk upserting transactions for block ${i} with error: ${err}`);
         });
+    }
+
+    public static processTransactionInput(transaction: any) {
+        const decoder = new InputDataDecoder(erc20abi);
+        const result = decoder.decodeData(transaction.input);
+
+        if (result.name === "transfer") {
+            const to = result.inputs[0].toString(16).toLowerCase();
+            const value = result.inputs[1].toString(10);
+            const contract = transaction.to.toLowerCase();
+            const from = transaction.from.toLowerCase();
+
+            return {
+                transactionType: "transfer",
+                contract: contract,
+                to: to,
+                from: from,
+                value: value
+            };
+        }
     }
 
     private static saveLastParsedBlock(block: number) {
@@ -185,19 +206,6 @@ export class EthereumBlockchainUtils {
             winston.error(`Could not save latest block to DB with error: ${err}`);
         });
         return;
-    }
-
-    public static processTransactionInput(transaction: any) {
-        const decoder = new InputDataDecoder(erc20abi);
-        const result = decoder.decodeData(transaction.input);
-        if (result.name === "transfer") {
-            const to = result.inputs[0].toString(16).toLowerCase();
-            const value = result.inputs[1].toString(10);
-            const contract = transaction.to.toLowerCase();
-            const from = transaction.from.toLowerCase();
-
-            TokenTransaction.findOneAndUpdate({transaction: transaction.hash}, {contract, to, from, value}, {upsert: true}).exec();
-        }
     }
 
     public static getTokenBalance(address: string, tokenContractAddress: string, tokenName: string) {
