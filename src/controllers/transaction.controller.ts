@@ -12,7 +12,6 @@ export class TransactionController {
         const query: any = {};
         if (queryParams.address) {
             query.from = queryParams.address;
-            query.to = queryParams.address;
         }
 
         const promise = Transaction.paginate(query, {page: queryParams.page, limit: queryParams.limit});
