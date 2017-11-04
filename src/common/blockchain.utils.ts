@@ -30,12 +30,9 @@ export class EthereumBlockchainUtils {
         // get the latest block number in the blockchain
         this.web3.eth.getBlockNumber().then((latestBlockInChain: any) => {
 
-            console.log("getBlockNumber");
             // find the last parsed block in the DB that indicates where
             // to resume the full parse. If none is found, init it to 0
             LastParsedBlock.findOne({}).exec().then(async (lastParsedBlockInDb: any) => {
-
-                console.log("LastParsedBlock");
 
                 if (!lastParsedBlockInDb) {
                     // init to 0
@@ -98,7 +95,7 @@ export class EthereumBlockchainUtils {
 
                     // and start the cron job for steady refreshes
                     cron.schedule("*/15 * * * * *", () => {
-                        // EthereumBlockchainUtils.retrieveNewTransactionsFromBlockchain();
+                        EthereumBlockchainUtils.retrieveNewTransactionsFromBlockchain();
                     });
                 }).catch((err: Error) => {
                     winston.error(`Could not wait for rest of blocks (to ${latestBlockInChain}) to be processed with error: ${err}`);
