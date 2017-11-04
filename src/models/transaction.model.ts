@@ -47,13 +47,6 @@ const tokenTransactionSchema = new Schema({
         address: {
             type: String,
             required: true
-        },
-        owner: {
-            type: String,
-            required: true
-        },
-        image: {
-            type: String
         }
     }
 });
