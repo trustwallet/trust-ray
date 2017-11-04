@@ -154,8 +154,8 @@ export class EthereumBlockchainUtils {
                 blockNumber: Number(transaction.blockNumber),
                 timeStamp: String(block.timestamp),
                 nonce: Number(transaction.nonce),
-                from: String(transaction.from),
-                to: String(transaction.to),
+                from: String(transaction.from).toLowerCase(),
+                to: String(transaction.to).toLowerCase(),
                 value: String(transaction.value),
                 gas: String(transaction.gas),
                 gasPrice: String(transaction.gasPrice),
@@ -191,19 +191,12 @@ export class EthereumBlockchainUtils {
         const decoder = new InputDataDecoder(erc20abi);
         const result = decoder.decodeData(transaction.input);
         if (result.name === "transfer") {
-            const to = result.inputs[0].toString(16);
+            const to = result.inputs[0].toString(16).toLowerCase();
             const value = result.inputs[1].toString(10);
+            const contract = transaction.to.toLowerCase();
+            const from = transaction.from.toLowerCase();
 
-            TokenTransaction.findOneAndUpdate(
-                {transaction: transaction.hash},
-                {
-                    contract: transaction.to,
-                    to,
-                    from: transaction.from,
-                    value
-                },
-                {upsert: true}
-            ).exec();
+            TokenTransaction.findOneAndUpdate({transaction: transaction.hash}, {contract, to, from, value}, {upsert: true}).exec();
         }
     }
 
