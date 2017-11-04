@@ -7,6 +7,7 @@ import * as winston from "winston";
 import { Transaction } from "../models/transaction.model";
 import { LatestBlock } from "../models/latestBlock.model";
 import { LastParsedBlock } from "../models/lastParsedBlock.model";
+import { Wallet } from "../models/wallet.model";
 
 
 export class EthereumBlockchainUtils {
@@ -145,7 +146,9 @@ export class EthereumBlockchainUtils {
     }
 
     private static async saveTransactions(block: any, i: number) {
-        const bulk = Transaction.collection.initializeUnorderedBulkOp();
+        const bulkTransactions = Transaction.collection.initializeUnorderedBulkOp();
+        const bulkWallets = Wallet.collection.initializeUnorderedBulkOp();
+
         block.transactions.forEach((transaction: any) => {
             const hash = String(transaction.hash);
             const transaction_data: any = {
@@ -164,15 +167,39 @@ export class EthereumBlockchainUtils {
             const action = EthereumBlockchainUtils.processTransactionInput(transaction);
             if (action) {
                 transaction_data.action = action;
+
+                // update balances for this token
+                bulkWallets
+                    .find({address: action.from, "tokens.contractAddress": action.contract})
+                    .upsert()
+                    .updateOne({$inc: {"tokens.$.balance": - action.value}});
+                bulkWallets
+                    .find({address: action.to, "tokens.contractAddress": action.contract})
+                    .upset()
+                    .updateOne({$inc: {"tokens.$.balance": + action.value}});
+            } else {
+                // update eth balance
+                bulkWallets
+                    .find({address: transaction_data.from})
+                    .upsert()
+                    .updateOne({$inc: {balance: - transaction_data.value}});
+                bulkWallets
+                    .find({address: transaction_data.to})
+                    .upsert()
+                    .updateOne({$inc: {balance: + transaction_data.value}});
             }
-            bulk.find({_id: hash}).upsert().replaceOne(transaction_data);
+
+            bulkTransactions.find({_id: hash}).upsert().replaceOne(transaction_data);
         });
-        await bulk.execute().catch((err: Error) => {
+        await bulkTransactions.execute().catch((err: Error) => {
             winston.error(`Error for bulk upserting transactions for block ${i} with error: ${err}`);
+        });
+        await bulkWallets.execute().catch((err: Error) => {
+            winston.error(`Error for bulk updating wallets for block ${i} with error: ${err}`);
         });
     }
 
-    public static processTransactionInput(transaction: any) {
+    private static processTransactionInput(transaction: any) {
         const decoder = new InputDataDecoder(erc20abi);
         const result = decoder.decodeData(transaction.input);
 
