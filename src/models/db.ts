@@ -7,6 +7,9 @@ require("./token.model");
 require("../models/transaction.model");
 require("../models/token.model");
 
+import Bluebird = require("bluebird");
+(<any>mongoose).Promise = Bluebird;
+
 export class Database {
 
     private dbURI: string;
@@ -18,13 +21,18 @@ export class Database {
     public connect() {
         const options: any = {
             autoIndex: true,
-            poolSize: 500
+            poolSize: 500,
+            useMongoClient: true,
         };
-        mongoose.connect(this.dbURI, options).catch((err: Error) => {
+
+        mongoose.connect(this.dbURI, options)
+        .then(() => {
+            this.hookIntoConnectionMonitorEvents();
+            this.setupShutdownHandlers();
+        })
+        .catch((err: Error) => {
            winston.error(`Could not connect to Mongo with error: ${err}`);
         });
-        this.hookIntoConnectionMonitorEvents();
-        this.setupShutdownHandlers();
     }
 
     private hookIntoConnectionMonitorEvents() {
