@@ -8,7 +8,7 @@ export class StatusController {
         StatusController.getTransactionsCount()
             .then((count: any) => {
                 sendJSONresponse(res, 200, {
-                    transactions: count, 
+                    transactions: count,
                     version: process.env.npm_package_version,
                 });
             })
