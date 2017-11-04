@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { sendJSONresponse } from "../common/utils";
 import { Transaction } from "../models/transaction.model";
-import { version } from "../../package.json";
 
 export class StatusController {
 
@@ -10,7 +9,7 @@ export class StatusController {
             .then((count: any) => {
                 sendJSONresponse(res, 200, {
                     transactions: count, 
-                    version,
+                    version: process.env.npm_package_version,
                 });
             })
             .catch((error: Error) => {
