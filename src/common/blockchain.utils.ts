@@ -190,12 +190,12 @@ export class EthereumBlockchainUtils {
 
     public static processTransactionInput(transaction: any) {
         // check if contract exist in our list
-        const hasContract = erc20tokens.filter(contract => contract.address == transaction.to).length >= 1;
+        const hasContract = erc20tokens.filter(contract => contract.address === transaction.to).length >= 1;
         if (!hasContract)
             return;
         const decoder = new InputDataDecoder(erc20abi);
         const result = decoder.decodeData(transaction.input);
-        if (result.name == "transfer") {
+        if (result.name === "transfer") {
             const to = result.inputs[0].toString(16);
             const value = result.inputs[1].toString(10);
 
@@ -203,9 +203,9 @@ export class EthereumBlockchainUtils {
                 {transaction: transaction.hash},
                 {
                     contract: transaction.to,
-                    to: to,
+                    to,
                     from: transaction.from,
-                    value: value
+                    value
                 },
                 {upsert: true}
             ).exec();
@@ -216,8 +216,8 @@ export class EthereumBlockchainUtils {
         const token = new this.web3.eth.Contract(erc20abi, tokenContractAddress);
         const balancePromise = token.methods.balanceOf(address).call();
         balancePromise.catch((err: Error) => {
-            winston.error(`Could not get token balance for token ${tokenName} with contract ` +
-            `address ${tokenContractAddress} for address ${address} with error: ${err}`);
+            winston.error(`Could not get token balance for token ${tokenName} with contract
+            address ${tokenContractAddress} for address ${address} with error: ${err}`);
         });
         return balancePromise;
     }
