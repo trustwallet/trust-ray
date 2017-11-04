@@ -15,11 +15,11 @@ const tokenSchema = new Schema({
         },
         symbol: {
             type: String,
-            required: true
+            // required: true
         },
         decimals: {
             type: Number,
-            required: true
+            // required: true
         },
         balance: {
             type: Number,

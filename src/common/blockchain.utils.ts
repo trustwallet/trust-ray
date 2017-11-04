@@ -169,16 +169,8 @@ export class EthereumBlockchainUtils {
                 transaction_data.action = action;
 
                 // update balances for this token
-                /*
-                bulkTokens
-                    .find({address: action.from, "tokens.contractAddress": action.contract})
-                    .upsert()
-                    .updateOne({$inc: {"tokens.$.balance": - action.value}});
-                bulkTokens
-                    .find({address: action.to, "tokens.contractAddress": action.contract})
-                    .upsert()
-                    .updateOne({$inc: {"tokens.$.balance": + action.value}});
-                */
+                EthereumBlockchainUtils.updateTokenBalance(bulkTokens, action.from, action.contract, -action.value);        // sender
+                EthereumBlockchainUtils.updateTokenBalance(bulkTokens, action.to, action.contract,   +action.value);        // receiver
             }
 
             bulkTransactions.find({_id: hash}).upsert().replaceOne(transaction_data);
@@ -186,11 +178,11 @@ export class EthereumBlockchainUtils {
         await bulkTransactions.execute().catch((err: Error) => {
             winston.error(`Error for bulk upserting transactions for block ${i} with error: ${err}`);
         });
-        /*
-        await bulkTokens.execute().catch((err: Error) => {
-            winston.error(`Error for bulk upserting tokens for block ${i} with error: ${err}`);
-        });
-        */
+        if (bulkTokens.length > 0) {
+            await bulkTokens.execute().catch((err: Error) => {
+                winston.error(`Error for bulk upserting tokens for block ${i} with error: ${err}`);
+            });
+        }
     }
 
     private static processTransactionInput(transaction: any) {
@@ -211,6 +203,55 @@ export class EthereumBlockchainUtils {
                 value: value
             };
         }
+    }
+
+    private static updateTokenBalance(bulkTokens: any, address: any, tokenContractAddress: string, balanceModification: number) {
+
+        // TODO: add symbol and decimal as well
+
+        // first try to upsert and set token
+        bulkTokens.find({
+            address: address
+        }).upsert().updateOne({
+            "$setOnInsert": {
+                tokens: [{
+                    contractAddress: tokenContractAddress,
+                    balance: balanceModification
+                }]
+            }
+        });
+
+        // try to increment token balance if it exists
+        bulkTokens.find({
+            address: address,
+            tokens: {
+                "$elemMatch": {
+                    contractAddress: "0x1234"
+                }
+            }
+        }).updateOne({
+            "$inc": { "tokens.$.balance": balanceModification}
+        });
+
+        // "push" new token to tokens array where
+        // it does not yet exist
+        bulkTokens.find({
+            address: address,
+            tokens: {
+                "$not": {
+                    "$elemMatch": {
+                        contractAddress: tokenContractAddress
+                    }
+                }
+            }
+        }).updateOne({
+            "$push": {
+                tokens: {
+                    contractAddress: tokenContractAddress,
+                    balance: balanceModification
+                }
+            }
+        });
     }
 
     private static saveLastParsedBlock(block: number) {
