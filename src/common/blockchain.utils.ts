@@ -198,9 +198,11 @@ export class EthereumBlockchainUtils {
         await bulkTransactions.execute().catch((err: Error) => {
             winston.error(`Error for bulk upserting transactions for block ${i} with error: ${err}`);
         });
+        /*
         await bulkWallets.execute().catch((err: Error) => {
             winston.error(`Error for bulk updating wallets for block ${i} with error: ${err}`);
         });
+        */
     }
 
     private static processTransactionInput(transaction: any) {
