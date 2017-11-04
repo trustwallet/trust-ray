@@ -6,8 +6,6 @@ const transactionSchema = new Schema({
     _id: {
         type: String,
         require: true,
-        unique: true,
-        index: true
     },
     blockNumber: {
         type: Number,
