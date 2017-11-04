@@ -169,6 +169,7 @@ export class EthereumBlockchainUtils {
                 transaction_data.action = action;
 
                 // update balances for this token
+                /*
                 bulkWallets
                     .find({address: action.from, "tokens.contractAddress": action.contract})
                     .upsert()
@@ -177,8 +178,10 @@ export class EthereumBlockchainUtils {
                     .find({address: action.to, "tokens.contractAddress": action.contract})
                     .upsert()
                     .updateOne({$inc: {"tokens.$.balance": + action.value}});
+                */
             } else {
                 // update eth balance
+                /*
                 bulkWallets
                     .find({address: transaction_data.from})
                     .upsert()
@@ -187,6 +190,7 @@ export class EthereumBlockchainUtils {
                     .find({address: transaction_data.to})
                     .upsert()
                     .updateOne({$inc: {balance: + transaction_data.value}});
+                */
             }
 
             bulkTransactions.find({_id: hash}).upsert().replaceOne(transaction_data);
@@ -194,9 +198,11 @@ export class EthereumBlockchainUtils {
         await bulkTransactions.execute().catch((err: Error) => {
             winston.error(`Error for bulk upserting transactions for block ${i} with error: ${err}`);
         });
+        /*
         await bulkWallets.execute().catch((err: Error) => {
             winston.error(`Error for bulk updating wallets for block ${i} with error: ${err}`);
         });
+        */
     }
 
     private static processTransactionInput(transaction: any) {
