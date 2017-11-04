@@ -1,37 +1,35 @@
 import { Request, Response } from "express";
-import { Token } from "../models/token.model";
 import { sendJSONresponse } from "../common/utils";
+import { Token } from "../models/token.model";
+
 
 export class TokenController {
+
+    public readOneToken(req: Request, res: Response) {
+        if (!req.params || !req.params.tokenWalletAddress) {
+            sendJSONresponse(res, 404, { "message": "No token wallet address in request" });
+            return;
+        }
+        Token.find({address: req.params.tokenWalletAddress}).exec().then((token: any) => {
+            if (!token) {
+                sendJSONresponse(res, 404, {"message": "token wallet address not found"});
+                return;
+            }
+            sendJSONresponse(res, 200, token);
+        }).catch((err: Error) => {
+            sendJSONresponse(res, 404, err);
+        });
+    }
 
     public readAllTokens(req: Request, res: Response) {
         const queryParams = TokenController.extractQueryParameters(req);
 
         // build up query
         const query: any = {};
-        if (queryParams.address) {
-            query.from = queryParams.address;
-        }
 
         const promise = Token.paginate(query, {page: queryParams.page, limit: queryParams.limit});
         promise.then( (tokens: any) => {
             sendJSONresponse(res, 200, tokens);
-        }).catch((err: Error) => {
-            sendJSONresponse(res, 404, err);
-        });
-    }
-
-    public readOneToken(req: Request, res: Response) {
-        if (!req.params || !req.params.tokenId) {
-            sendJSONresponse(res, 404, { "message": "No token ID in request" });
-            return;
-        }
-        Token.findById(req.params.tokenId).exec().then((token: any) => {
-            if (!token) {
-                sendJSONresponse(res, 404, {"message": "token ID not found"});
-                return;
-            }
-            sendJSONresponse(res, 200, token);
         }).catch((err: Error) => {
             sendJSONresponse(res, 404, err);
         });

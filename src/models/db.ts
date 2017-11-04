@@ -3,7 +3,7 @@ import * as winston from "winston";
 
 require("../models/latestBlock.model");
 require("../models/lastParsedBlock.model");
-require("./wallet.model");
+require("./token.model");
 require("../models/transaction.model");
 require("../models/token.model");
 

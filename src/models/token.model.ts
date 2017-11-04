@@ -5,30 +5,31 @@ const Schema = mongoose.Schema;
 const tokenSchema = new Schema({
     address: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
-    name: {
-        type: String,
-        required: true
-    },
-    symbol: {
-        type: String,
-        required: true
-    },
-    totalSupply: {
-        type: String,
-        required: true
-    },
-    balance: {
-        type: Number,
-        required: true
-    },
-    decimals: {
-        type: Number,
-        required: true
-    }
+    tokens: [{
+        contractAddress: {
+            type: String,
+            required: true
+        },
+        symbol: {
+            type: String,
+            required: true
+        },
+        decimals: {
+            type: Number,
+            required: true
+        },
+        balance: {
+            type: Number,
+            required: true
+        }
+    }]
 });
 
 tokenSchema.plugin(mongoosePaginate);
+
+tokenSchema.index({address: 1});
 
 export const Token = mongoose.model("Token", tokenSchema );
