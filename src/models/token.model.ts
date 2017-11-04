@@ -9,17 +9,32 @@ const tokenSchema = new Schema({
         unique: true
     },
     tokens: [{
-        contractAddress: {
+        name: {
             type: String,
             required: true
         },
         symbol: {
             type: String,
-            // required: true
+            required: true
         },
         decimals: {
             type: Number,
-            // required: true
+            required: true
+        },
+        totalSupply: {
+            type: Number,
+            required: true
+        },
+        address: {
+            type: String,
+            required: true
+        },
+        owner: {
+            type: String,
+            required: true
+        },
+        image: {
+            type: String
         },
         balance: {
             type: Number,

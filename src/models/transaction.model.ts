@@ -36,7 +36,7 @@ const tokenTransactionSchema = new Schema({
             type: String,
             required: true
         },
-        decimal: {
+        decimals: {
             type: Number,
             required: true
         },
