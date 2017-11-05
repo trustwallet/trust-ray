@@ -10,10 +10,10 @@ import { LastParsedBlock } from "../models/lastParsedBlock.model";
 import { Token } from "../models/token.model";
 
 
-export class EthereumBlockchainUtils {
+export class BlockchainUtils {
 
     static network = process.env.RPC_SERVER;
-    static web3 = new Web3(new Web3.providers.HttpProvider(EthereumBlockchainUtils.network));
+    static web3 = new Web3(new Web3.providers.HttpProvider(BlockchainUtils.network));
 
     public static configureNetwork(network: string) {
         this.web3 = new Web3(new Web3.providers.HttpProvider(network));
@@ -37,7 +37,7 @@ export class EthereumBlockchainUtils {
                 if (!lastParsedBlockInDb) {
                     // init to 0
                     winston.info("No last parsed block found in DB, init with 0");
-                    EthereumBlockchainUtils.saveLastParsedBlock(0);
+                    BlockchainUtils.saveLastParsedBlock(0);
                     lastParsedBlockInDb = new LastParsedBlock({lastBlock: 0});
                 }
 
@@ -55,7 +55,7 @@ export class EthereumBlockchainUtils {
                         if (block !== null && block.transactions !== null && block.transactions.length > 0) {
 
                             /* ============== save transactions ============== */
-                            EthereumBlockchainUtils.saveTransactions(block, i);
+                            BlockchainUtils.saveTransactions(block, i);
                         }
                     }).catch((err: Error) => {
                         winston.error("Could not get block " + i + " from blockchain with error: ", err);
@@ -67,7 +67,7 @@ export class EthereumBlockchainUtils {
                     if (i % x === 0 && i != lastParsedBlockInDb.lastBlock) {
                         await Promise.all(promises).then(() => {
                             // save last parsed block in DB
-                            EthereumBlockchainUtils.saveLastParsedBlock(i);
+                            BlockchainUtils.saveLastParsedBlock(i);
                         }).then(() => {
                             // and every 100th parallel process, print statement
                             if (i % (x * 10) === 0 && i != lastParsedBlockInDb.lastBlock) {
@@ -88,14 +88,14 @@ export class EthereumBlockchainUtils {
                     winston.info(`Finished full parse, saving block number ${latestBlockInChain} to last parsed block and latest block in DB`);
 
                     // save last parsed block in DB
-                    EthereumBlockchainUtils.saveLastParsedBlock(latestBlockInChain);
+                    BlockchainUtils.saveLastParsedBlock(latestBlockInChain);
 
                     // AND also save last block in DB for the steady refreshes
-                    EthereumBlockchainUtils.saveLatestBlock(latestBlockInChain);
+                    BlockchainUtils.saveLatestBlock(latestBlockInChain);
 
                     // and start the cron job for steady refreshes
                     cron.schedule("*/15 * * * * *", () => {
-                        EthereumBlockchainUtils.retrieveNewTransactionsFromBlockchain();
+                        BlockchainUtils.retrieveNewTransactionsFromBlockchain();
                     });
                 }).catch((err: Error) => {
                     winston.error(`Could not wait for rest of blocks (to ${latestBlockInChain}) to be processed with error: ${err}`);
@@ -113,7 +113,7 @@ export class EthereumBlockchainUtils {
             LatestBlock.findOne({}).exec().then((latestBlockInDb: any) => {
                 // no block in DB yet, create
                 if (!latestBlockInDb) {
-                    EthereumBlockchainUtils.saveLatestBlock(latestBlockInChain);
+                    BlockchainUtils.saveLatestBlock(latestBlockInChain);
                     return;
                 }
                 // check if something is to do
@@ -125,7 +125,7 @@ export class EthereumBlockchainUtils {
                         const blockPromise = this.web3.eth.getBlock(i, true).then((block: any) => {
                             if (block !== null && block.transactions !== null && block.transactions.length > 0) {
                                 /* ============== save transactions ============== */
-                                EthereumBlockchainUtils.saveTransactions(block, i);
+                                BlockchainUtils.saveTransactions(block, i);
                             }
                         }).catch((err: Error) => {
                             winston.error(`Could not get block ${i} from blockchain with error: ${err}`);
@@ -134,7 +134,7 @@ export class EthereumBlockchainUtils {
                     }
                     // update latest block in DB after each new block was processed
                     Promise.all(promises).then(() => {
-                        EthereumBlockchainUtils.saveLatestBlock(latestBlockInChain);
+                        BlockchainUtils.saveLatestBlock(latestBlockInChain);
                     });
                 }
             }).catch((err: Error) => {
@@ -149,7 +149,7 @@ export class EthereumBlockchainUtils {
         const bulkTransactions = Transaction.collection.initializeUnorderedBulkOp();
         const bulkTokens = Token.collection.initializeUnorderedBulkOp();
 
-        block.transactions.forEach((transaction: any) => {
+        block.transactions.forEach( async (transaction: any) => {
             const hash = String(transaction.hash);
             const transaction_data: any = {
                 _id: hash,
@@ -164,20 +164,32 @@ export class EthereumBlockchainUtils {
                 input: String(transaction.input),
                 gasUsed: String(block.gasUsed)
             };
-            const action = EthereumBlockchainUtils.processTransactionInput(transaction);
-            if (action) {
-                transaction_data.action = action;
 
-                // update balances for this token
-                EthereumBlockchainUtils.updateTokenBalance(bulkTokens, action.from, action.contract, -action.value);        // sender
-                EthereumBlockchainUtils.updateTokenBalance(bulkTokens, action.to, action.contract,   +action.value);        // receiver
-            }
+            // TODO: Fix errors first before using this
+            //
+            // await BlockchainUtils.processTransactionType(transaction).then((action: any) => {
+            //
+            //     if (action) {
+            //         transaction_data.action = action;
+            //
+            //         // update balances for this token
+            //
+            //         // sender
+            //         BlockchainUtils.updateTokenBalance(bulkTokens, action.from, action.contract, -action.value,
+            //             action.totalSupply, action.decimals, action.symbol, action.name);
+            //         // receiver
+            //         BlockchainUtils.updateTokenBalance(bulkTokens, action.to, action.contract,   +action.value,
+            //             action.totalSupply, action.decimals, action.symbol, action.name);
+            //     }
+            // });
 
             bulkTransactions.find({_id: hash}).upsert().replaceOne(transaction_data);
         });
-        await bulkTransactions.execute().catch((err: Error) => {
-            winston.error(`Error for bulk upserting transactions for block ${i} with error: ${err}`);
-        });
+        if (bulkTransactions.length > 0) {
+            await bulkTransactions.execute().catch((err: Error) => {
+                winston.error(`Error for bulk upserting transactions for block ${i} with error: ${err}`);
+            });
+        }
         if (bulkTokens.length > 0) {
             await bulkTokens.execute().catch((err: Error) => {
                 winston.error(`Error for bulk upserting tokens for block ${i} with error: ${err}`);
@@ -185,7 +197,7 @@ export class EthereumBlockchainUtils {
         }
     }
 
-    private static processTransactionInput(transaction: any) {
+    private static async processTransactionType(transaction: any) {
         const decoder = new InputDataDecoder(erc20abi);
         const result = decoder.decodeData(transaction.input);
 
@@ -196,25 +208,43 @@ export class EthereumBlockchainUtils {
             const from = transaction.from.toLowerCase();
 
             // pull token information directly from the contract
-            // const contractInstance = new this.web3.eth.Contract(erc20abi, contract);
-            // contractInstance.methods.name().call().then(() => {}).catch((err: Error) => {});
-            // contractInstance.methods.totalSupply().call().then(() => {}).catch((err: Error) => {});
-            // contractInstance.methods.decimals().call().then(() => {}).catch((err: Error) => {});
-            // contractInstance.methods.symbol().call().then(() => {}).catch((err: Error) => {});
+            const contractInstance = new this.web3.eth.Contract(erc20abi, contract);
 
-            return {
-                transactionType: "token_transfer",
-                contract: contract,
-                to: to,
-                from: from,
-                value: value
-            };
+            const p1 = contractInstance.methods.name().call().catch((err: Error) => {
+                winston.error(`Could not get name of contract ${contract} with error: ${err}`);
+            });
+            const p2 = contractInstance.methods.totalSupply().call().catch((err: Error) => {
+                winston.error(`Could not get total supply of contract ${contract} with error: ${err}`);
+            });
+            const p3 = contractInstance.methods.decimals().call().catch((err: Error) => {
+                winston.error(`Could not get decimals of contract ${contract} with error: ${err}`);
+            });
+            const p4 = contractInstance.methods.symbol().call().catch((err: Error) => {
+                winston.error(`Could not get symbol of contract ${contract} with error: ${err}`);
+            });
+
+            await Promise.all([p1, p2, p3, p4]).then((values: any) => {
+
+                return {
+                    transactionType: "token_transfer",
+                    contract: contract,
+                    to: to,
+                    from: from,
+                    value: value,
+                    name: values[0],
+                    totalSupply: values[1],
+                    decimals: values[2],
+                    symbol: values[3]
+                };
+
+            }).catch((err: Error) => {
+                winston.error(`Could not wait to get all information for contract ${contract} while processing its input with error: ${err}`);
+            });
         }
     }
 
-    private static updateTokenBalance(bulkTokens: any, address: any, tokenContractAddress: string, balanceModification: number) {
-
-        // TODO: add symbol and decimal as well
+    private static updateTokenBalance(bulkTokens: any, address: any, tokenContractAddress: string, balanceModification: number,
+                                      totalSupply: any, decimals: any, symbol: any, name: any) {
 
         // first try to upsert and set token
         bulkTokens.find({
@@ -223,6 +253,10 @@ export class EthereumBlockchainUtils {
             "$setOnInsert": {
                 tokens: [{
                     contractAddress: tokenContractAddress,
+                    totalSupply: totalSupply,
+                    name: name,
+                    symbol: symbol,
+                    decimals: decimals,
                     balance: balanceModification
                 }]
             }
@@ -255,6 +289,10 @@ export class EthereumBlockchainUtils {
             "$push": {
                 tokens: {
                     contractAddress: tokenContractAddress,
+                    totalSupply: totalSupply,
+                    name: name,
+                    symbol: symbol,
+                    decimals: decimals,
                     balance: balanceModification
                 }
             }

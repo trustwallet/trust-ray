@@ -1,1 +1,1 @@
-import { EthereumBlockchainUtils } from "../src/common/blockchain.utils";
+import { BlockchainUtils } from "../src/common/blockchain.utils";

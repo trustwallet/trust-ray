@@ -12,7 +12,7 @@ import { router } from "./routes/api";
 import expressValidator = require("express-validator");
 import * as fs from "fs";
 import * as winston from "winston";
-import { EthereumBlockchainUtils } from "./common/blockchain.utils";
+import { BlockchainUtils } from "./common/blockchain.utils";
 const cron = require("node-cron");
 import { LatestBlock } from "./models/latestBlock.model";
 
@@ -103,11 +103,11 @@ export class Server {
 
         LatestBlock.findOne({}).exec().then((latestBlockInDb: any) => {
             if (!latestBlockInDb) {
-                EthereumBlockchainUtils.parseEntireBlockchain();
+                BlockchainUtils.parseEntireBlockchain();
             } else {
                 // setup cron job for refreshing transactions fro blockchain
                 cron.schedule("*/15 * * * * *", () => {
-                    EthereumBlockchainUtils.retrieveNewTransactionsFromBlockchain();
+                    BlockchainUtils.retrieveNewTransactionsFromBlockchain();
                 });
             }
         }).catch((err: Error) => {
