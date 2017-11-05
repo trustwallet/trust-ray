@@ -149,7 +149,7 @@ export class BlockchainUtils {
         const bulkTransactions = Transaction.collection.initializeUnorderedBulkOp();
         const bulkTokens = Token.collection.initializeUnorderedBulkOp();
 
-        block.transactions.forEach( async (transaction: any) => {
+        await Promise.all(block.transactions.map(async (transaction: any) => {
             const hash = String(transaction.hash);
             const transaction_data: any = {
                 _id: hash,
@@ -165,7 +165,7 @@ export class BlockchainUtils {
                 gasUsed: String(block.gasUsed)
             };
 
-            // TODO: Fix errors first before using this
+            // TODO: first fix errors before using this
             //
             // await BlockchainUtils.processTransactionType(transaction).then((action: any) => {
             //
@@ -175,18 +175,19 @@ export class BlockchainUtils {
             //         // update balances for this token
             //
             //         // sender
-            //         BlockchainUtils.updateTokenBalance(bulkTokens, action.from, action.contract, -action.value,
-            //             action.totalSupply, action.decimals, action.symbol, action.name);
+            //         BlockchainUtils.updateTokenBalance(bulkTokens, action.from, action.contract, -action.value, action.totalSupply, action.decimals, action.symbol, action.name);
             //         // receiver
-            //         BlockchainUtils.updateTokenBalance(bulkTokens, action.to, action.contract,   +action.value,
-            //             action.totalSupply, action.decimals, action.symbol, action.name);
+            //         BlockchainUtils.updateTokenBalance(bulkTokens, action.to, action.contract, +action.value, action.totalSupply, action.decimals, action.symbol, action.name);
             //     }
-            // }).catch((err: Error) => {
-            //     winston.error(`Error while processing transaction type: ${err}`);
+            //
+            //     bulkTransactions.find({_id: hash}).upsert().replaceOne(transaction_data);
             // });
 
+            // TODO: remove later since this has to be in the previous block
             bulkTransactions.find({_id: hash}).upsert().replaceOne(transaction_data);
-        });
+
+        }));
+
         if (bulkTransactions.length > 0) {
             await bulkTransactions.execute().catch((err: Error) => {
                 winston.error(`Error for bulk upserting transactions for block ${i} with error: ${err}`);
@@ -245,8 +246,7 @@ export class BlockchainUtils {
         }
     }
 
-    private static updateTokenBalance(bulkTokens: any, address: any, tokenContractAddress: string, balanceModification: number,
-                                      totalSupply: any, decimals: any, symbol: any, name: any) {
+    private static updateTokenBalance(bulkTokens: any, address: any, tokenContractAddress: string, balanceModification: number, totalSupply: any, decimals: any, symbol: any, name: any) {
 
         // first try to upsert and set token
         bulkTokens.find({
