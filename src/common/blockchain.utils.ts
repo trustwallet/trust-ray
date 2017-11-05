@@ -186,7 +186,9 @@ export class BlockchainUtils {
             // TODO: remove later since this has to be in the previous block
             bulkTransactions.find({_id: hash}).upsert().replaceOne(transaction_data);
 
-        }));
+        })).catch((err: Error) => {
+            winston.error(`Could not process all transactions for block ${i} with error: ${err}`);
+        });
 
         if (bulkTransactions.length > 0) {
             await bulkTransactions.execute().catch((err: Error) => {
