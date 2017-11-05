@@ -27,7 +27,8 @@ const tokenSchema = new Schema({
         },
         address: {
             type: String,
-            required: true
+            required: true,
+            index: true
         },
         balance: {
             type: Number,
@@ -39,6 +40,5 @@ const tokenSchema = new Schema({
 tokenSchema.plugin(mongoosePaginate);
 
 tokenSchema.index({address: 1});
-tokenSchema.index({tokens: 1});
 
 export const Token = mongoose.model("Token", tokenSchema );
