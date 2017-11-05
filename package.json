@@ -63,7 +63,6 @@
     "@types/winston": "^2.3.7",
     "async": "^2.1.2",
     "bcrypt-nodejs": "^0.0.3",
-    "bluebird": "^3.5.1",
     "body-parser": "^1.15.2",
     "compression": "^1.6.2",
     "concurrently": "^3.4.0",
