@@ -181,6 +181,8 @@ export class BlockchainUtils {
             //         BlockchainUtils.updateTokenBalance(bulkTokens, action.to, action.contract,   +action.value,
             //             action.totalSupply, action.decimals, action.symbol, action.name);
             //     }
+            // }).catch((err: Error) => {
+            //     winston.error(`Error while processing transaction type: ${err}`);
             // });
 
             bulkTransactions.find({_id: hash}).upsert().replaceOne(transaction_data);
@@ -197,7 +199,7 @@ export class BlockchainUtils {
         }
     }
 
-    private static async processTransactionType(transaction: any) {
+    private static processTransactionType(transaction: any) {
         const decoder = new InputDataDecoder(erc20abi);
         const result = decoder.decodeData(transaction.input);
 
@@ -223,7 +225,7 @@ export class BlockchainUtils {
                 winston.error(`Could not get symbol of contract ${contract} with error: ${err}`);
             });
 
-            await Promise.all([p1, p2, p3, p4]).then((values: any) => {
+            return Promise.all([p1, p2, p3, p4]).then((values: any) => {
 
                 return {
                     transactionType: "token_transfer",
