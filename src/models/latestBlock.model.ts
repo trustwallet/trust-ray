@@ -6,6 +6,8 @@ const latestBlockSchema = new Schema({
         type: Number,
         required: true
     }
+}, {
+    versionKey: false,
 });
 
 export const LatestBlock = mongoose.model("LatestBlock", latestBlockSchema );

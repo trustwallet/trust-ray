@@ -28,7 +28,7 @@ export class ChainParser {
         });
     }
 
-    getBlockState(): Promise<[any, any]> {
+    getBlockState(): Promise<any[]> {
         const latestBlockOnChain = ChainParser.web3.eth.getBlockNumber();
         const latestBlockInDB = LastParsedBlock.findOne();
         return Promise.all([latestBlockOnChain, latestBlockInDB]);

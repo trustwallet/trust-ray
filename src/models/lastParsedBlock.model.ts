@@ -6,6 +6,8 @@ const lastParsedBlockSchema = new Schema({
         type: Number,
         required: true
     }
+}, {
+    versionKey: false,
 });
 
 export const LastParsedBlock = mongoose.model("LastParsedBlock", lastParsedBlockSchema );

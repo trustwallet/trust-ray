@@ -18,6 +18,8 @@ const networkSchema = new Schema({
         type: String,
         required: true
     }
+}, {
+    versionKey: false,
 });
 
 export const Network = mongoose.model("Network", networkSchema );

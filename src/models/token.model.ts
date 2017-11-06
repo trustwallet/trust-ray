@@ -35,6 +35,8 @@ const tokenSchema = new Schema({
             required: true
         }
     }]
+}, {
+    versionKey: false,
 });
 
 tokenSchema.plugin(mongoosePaginate);
