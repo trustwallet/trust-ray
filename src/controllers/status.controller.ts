@@ -15,8 +15,8 @@ export class StatusController {
             LastParsedBlock.findOne(),
             Config.web3.eth.getBlockNumber(),
         ]).then(([transactionsCount, lastParsedBlock, latestBlockNumberInBC]) => {
-            let latestBlockNumberInDB = lastParsedBlock.lastBlock
-            let blocksToSync = latestBlockNumberInBC - latestBlockNumberInDB
+            const latestBlockNumberInDB = lastParsedBlock.lastBlock
+            const blocksToSync = latestBlockNumberInBC - latestBlockNumberInDB
             sendJSONresponse(res, 200, {
                 transactions: parseInt(transactionsCount).toLocaleString(),
                 latestBlockNumberInBC,
