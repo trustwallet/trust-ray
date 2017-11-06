@@ -15,7 +15,7 @@ export class TransactionController {
             query.$or = [{from: address}, {to: address}];
         }
 
-        const promise = Transaction.paginate(query, {page: queryParams.page, limit: queryParams.limit});
+        const promise = Transaction.paginate(query, {page: queryParams.page, limit: queryParams.limit, sort: {timeStamp: -1}});
         promise.then( (transactions: any) => {
             sendJSONresponse(res, 200, transactions);
         }).catch((err: Error) => {
