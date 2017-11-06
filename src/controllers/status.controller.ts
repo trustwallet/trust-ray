@@ -1,26 +1,26 @@
 import { Request, Response } from "express";
 import { sendJSONresponse } from "../common/utils";
 import { Transaction } from "../models/transaction.model";
+import { LastParsedBlock } from "../models/lastParsedBlock.model";
+
+import * as winston from "winston";
 const packageJSON = require("../../package.json");
 
 export class StatusController {
 
-    public getStatus(req: Request, res: Response) {
-        StatusController.getTransactionsCount()
-            .then((count: any) => {
-                sendJSONresponse(res, 200, {
-                    transactions: count,
-                    version: packageJSON.version,
-                });
-            })
-            .catch((error: Error) => {
-                console.log("Erorr", error);
+    getStatus(req: Request, res: Response) {
+        Promise.all([
+            Transaction.count(),
+            LastParsedBlock.findOne()
+        ]).then(([transactionsCount, lastParsedBlock]) => {
+            sendJSONresponse(res, 200, {
+                transactions: parseInt(transactionsCount).toLocaleString(),
+                lastParsedBlock: lastParsedBlock.lastBlock,
+                version: packageJSON.version,
             });
-    }
-
-    public static async getTransactionsCount() {
-         return await Transaction.count({}).exec().then((count: any) => {
-             return parseInt(count).toLocaleString();
-         });
+        }).catch((err: Error) => {
+            winston.error("Failed to load initial block state: " + err);
+            sendJSONresponse(res, 200, {error: err})
+        });
     }
 }
