@@ -108,7 +108,7 @@ const transactionSchema = new Schema({
     },
     action: tokenTransactionSchema
 
-}, { 
+}, {
     versionKey: false
 });
 
