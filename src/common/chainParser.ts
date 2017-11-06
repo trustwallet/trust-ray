@@ -1,18 +1,11 @@
-const Web3 = require("web3");
 import { Transaction } from "../models/transaction.model";
 import { LastParsedBlock } from "../models/lastParsedBlock.model";
 import { LatestBlock } from "../models/latestBlock.model";
+import { Config } from "../common/config";
 
 import * as winston from "winston";
 
 export class ChainParser {
-
-    static network = process.env.RPC_SERVER;
-    static web3 = new Web3(new Web3.providers.HttpProvider(ChainParser.network));
-
-    public static configureNetwork(network: string) {
-        this.web3 = new Web3(new Web3.providers.HttpProvider(network));
-    }
 
     start() {
         winston.info("start chain parsing...");
@@ -29,7 +22,7 @@ export class ChainParser {
     }
 
     getBlockState(): Promise<any[]> {
-        const latestBlockOnChain = ChainParser.web3.eth.getBlockNumber();
+        const latestBlockOnChain = Config.web3.eth.getBlockNumber();
         const latestBlockInDB = LastParsedBlock.findOne();
         return Promise.all([latestBlockOnChain, latestBlockInDB]);
     }
@@ -58,7 +51,7 @@ export class ChainParser {
     }
 
     private parseBlock(i: number): Promise<any> {
-        return ChainParser.web3.eth.getBlock(i, true).then((block: any) => {
+        return Config.web3.eth.getBlock(i, true).then((block: any) => {
             return this.saveTransactions(block, i);
         })
     }
