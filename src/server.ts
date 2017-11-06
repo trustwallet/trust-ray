@@ -13,6 +13,7 @@ import expressValidator = require("express-validator");
 import * as fs from "fs";
 import * as winston from "winston";
 import { BlockchainUtils } from "./common/blockchain.utils";
+import { ChainParser } from "./common/chainParser";
 const cron = require("node-cron");
 import { LatestBlock } from "./models/latestBlock.model";
 
@@ -24,6 +25,7 @@ dotenv.config({ path: ".env.example" });
 const port = process.env.PORT || 8000;
 const sessionSecret = "ashdfjhasdlkjfhalksdjhflak";
 const MongoStore = mongo(session);
+const chainParser = new ChainParser
 
 export class Server {
 
@@ -103,7 +105,7 @@ export class Server {
 
         LatestBlock.findOne({}).exec().then((latestBlockInDb: any) => {
             if (!latestBlockInDb) {
-                BlockchainUtils.parseEntireBlockchain();
+                chainParser.start()
             } else {
                 // setup cron job for refreshing transactions fro blockchain
                 cron.schedule("*/15 * * * * *", () => {
