@@ -58,9 +58,11 @@ const tokenTransactionSchema = new Schema({
  * @type {"mongoose".Schema}
  */
 const transactionSchema = new Schema({
-    _id: {
+    hash: {
         type: String,
-        require: true,
+        required: true,
+        unique: true,
+        index: true
     },
     blockNumber: {
         type: Number,
@@ -106,12 +108,13 @@ const transactionSchema = new Schema({
     },
     action: tokenTransactionSchema
 
-}, { versionKey: false,
-    _id: false
+}, { 
+    versionKey: false
 });
 
 transactionSchema.plugin(mongoosePaginate);
 
+transactionSchema.index({hash: 1});
 transactionSchema.index({from: 1});
 transactionSchema.index({to: 1});
 transactionSchema.index({timeStamp: -1});
