@@ -114,5 +114,6 @@ transactionSchema.plugin(mongoosePaginate);
 
 transactionSchema.index({from: 1});
 transactionSchema.index({to: 1});
+transactionSchema.index({timeStamp: -1});
 
 export const Transaction = mongoose.model("Transaction", transactionSchema );
