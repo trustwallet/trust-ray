@@ -114,19 +114,21 @@ export class ChainParser {
 
             if (this.contractsCache.hasOwnProperty(contract)) {
 
-                // contract is cached, returned immediately
+                // contract is cached, no further work needed
 
-                return {
-                    transactionType: "token_transfer",
-                    contract: contract,
-                    to: to,
-                    from: from,
-                    value: value,
-                    name: this.contractsCache[contract].name,
-                    totalSupply: this.contractsCache[contract].totalSupply,
-                    decimals: this.contractsCache[contract].decimals,
-                    symbol: this.contractsCache[contract].symbol
-                };
+                return new Promise((resolve) => {
+                    resolve({
+                        transactionType: "token_transfer",
+                        contract: contract,
+                        to: to,
+                        from: from,
+                        value: value,
+                        name: this.contractsCache[contract].name,
+                        totalSupply: this.contractsCache[contract].totalSupply,
+                        decimals: this.contractsCache[contract].decimals,
+                        symbol: this.contractsCache[contract].symbol
+                    });
+                });
 
             } else {
 
