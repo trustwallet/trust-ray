@@ -17,7 +17,7 @@ export class ChainParser {
     start() {
         winston.info("start chain parsing...");
         this.getBlockState().then(([blockInChain, blockInDB]) => {
-            let lastBlock = blockInDB.lastBlock || 0
+            const lastBlock = blockInDB.lastBlock || 0
             winston.info("blockInChain: " + blockInChain + " blockInDB: " + lastBlock);
             this.startBlock(lastBlock, blockInChain);
         }).catch((err: Error) => {
