@@ -178,4 +178,59 @@ export class ChainParser {
             }
         }
     }
+
+    private updateTokenBalance(bulkTokens: any, address: any, tokenContractAddress: string, balanceModification: number, totalSupply: any, decimals: any, symbol: any, name: any) {
+
+        // first try to upsert and set token
+        bulkTokens.find({
+            address: address
+        }).upsert().updateOne({
+            "$setOnInsert": {
+                tokens: [{
+                    contractAddress: tokenContractAddress,
+                    totalSupply: totalSupply,
+                    name: name,
+                    symbol: symbol,
+                    decimals: decimals,
+                    balance: balanceModification
+                }]
+            }
+        });
+
+        // try to increment token balance if it exists
+        bulkTokens.find({
+            address: address,
+            tokens: {
+                "$elemMatch": {
+                    contractAddress: "0x1234"
+                }
+            }
+        }).updateOne({
+            "$inc": { "tokens.$.balance": balanceModification}
+        });
+
+        // "push" new token to tokens array where
+        // it does not yet exist
+        bulkTokens.find({
+            address: address,
+            tokens: {
+                "$not": {
+                    "$elemMatch": {
+                        contractAddress: tokenContractAddress
+                    }
+                }
+            }
+        }).updateOne({
+            "$push": {
+                tokens: {
+                    contractAddress: tokenContractAddress,
+                    totalSupply: totalSupply,
+                    name: name,
+                    symbol: symbol,
+                    decimals: decimals,
+                    balance: balanceModification
+                }
+            }
+        });
+    }
 }
