@@ -17,8 +17,9 @@ export class ChainParser {
     start() {
         winston.info("start chain parsing...");
         this.getBlockState().then(([blockInChain, blockInDB]) => {
-            winston.info("blockInChain: " + blockInChain + " blockInDB: " + blockInDB.lastBlock);
-            this.startBlock(blockInDB.lastBlock, blockInChain);
+            let lastBlock = blockInDB.lastBlock || 0
+            winston.info("blockInChain: " + blockInChain + " blockInDB: " + lastBlock);
+            this.startBlock(lastBlock, blockInChain);
         }).catch((err: Error) => {
             winston.error("Failed to load initial block state: " + err);
         });
