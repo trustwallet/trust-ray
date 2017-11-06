@@ -1,13 +1,19 @@
 import { Transaction } from "../models/transaction.model";
 import { LastParsedBlock } from "../models/lastParsedBlock.model";
 import { LatestBlock } from "../models/latestBlock.model";
-import { Config } from "../common/config";
+import { Config } from "./config";
 
 import * as winston from "winston";
 
+const InputDataDecoder = require("ethereum-input-data-decoder");
+const erc20abi = require("./erc20abi");
+
+
 export class ChainParser {
 
-    start() {
+    private contractsCache: any = {};
+
+    public start() {
         winston.info("start chain parsing...");
         this.getBlockState().then(([blockInChain, blockInDB]) => {
             winston.info("blockInChain: " + blockInChain + " blockInDB: " + blockInDB);
@@ -21,13 +27,13 @@ export class ChainParser {
         });
     }
 
-    getBlockState(): Promise<any[]> {
+    public getBlockState(): Promise<any[]> {
         const latestBlockOnChain = Config.web3.eth.getBlockNumber();
         const latestBlockInDB = LastParsedBlock.findOne();
         return Promise.all([latestBlockOnChain, latestBlockInDB]);
     }
 
-    startBlock(startBlock: number, lastBlock: number) {
+    public startBlock(startBlock: number, lastBlock: number) {
         if (startBlock % 200 == 0) {
             winston.info("processing block: " + startBlock);
         }
@@ -94,5 +100,80 @@ export class ChainParser {
         await bulkTransactions.execute().catch((err: Error) => {
             winston.error("Could not wait for blocks (to " + i + " ) to be processed with error: " , err);
         });
+    }
+
+    private processTransactionType(transaction: any) {
+        const decoder = new InputDataDecoder(erc20abi);
+        const result = decoder.decodeData(transaction.input);
+
+        if (result.name === "transfer") {
+            const to = result.inputs[0].toString(16).toLowerCase();
+            const value = result.inputs[1].toString(10);
+            const contract = transaction.to.toLowerCase();
+            const from = transaction.from.toLowerCase();
+
+            if (this.contractsCache.hasOwnProperty(contract)) {
+
+                // contract is cached, returned immediately
+
+                return {
+                    transactionType: "token_transfer",
+                    contract: contract,
+                    to: to,
+                    from: from,
+                    value: value,
+                    name: this.contractsCache[contract].name,
+                    totalSupply: this.contractsCache[contract].totalSupply,
+                    decimals: this.contractsCache[contract].decimals,
+                    symbol: this.contractsCache[contract].symbol
+                };
+
+            } else {
+
+                // contract is not cached, initiate contract
+                // in order to get required attributes
+
+                const contractInstance = new Config.web3.eth.Contract(erc20abi, contract);
+
+                const p1 = contractInstance.methods.name().call().catch((err: Error) => {
+                    winston.error(`Could not get name of contract ${contract} with error: ${err}`);
+                });
+                const p2 = contractInstance.methods.totalSupply().call().catch((err: Error) => {
+                    winston.error(`Could not get total supply of contract ${contract} with error: ${err}`);
+                });
+                const p3 = contractInstance.methods.decimals().call().catch((err: Error) => {
+                    winston.error(`Could not get decimals of contract ${contract} with error: ${err}`);
+                });
+                const p4 = contractInstance.methods.symbol().call().catch((err: Error) => {
+                    winston.error(`Could not get symbol of contract ${contract} with error: ${err}`);
+                });
+
+                return Promise.all([p1, p2, p3, p4]).then((values: any) => {
+
+                    // cache values for next access
+                    this.contractsCache[contract] = {
+                        name: values[0],
+                        totalSupply: values[1],
+                        decimals: values[2],
+                        symbol: values[3]
+                    };
+
+                    return {
+                        transactionType: "token_transfer",
+                        contract: contract,
+                        to: to,
+                        from: from,
+                        value: value,
+                        name: values[0],
+                        totalSupply: values[1],
+                        decimals: values[2],
+                        symbol: values[3]
+                    };
+
+                }).catch((err: Error) => {
+                    winston.error(`Could not wait to get all information for contract ${contract} while processing its input with error: ${err}`);
+                });
+            }
+        }
     }
 }
