@@ -25,7 +25,7 @@ dotenv.config({ path: ".env.example" });
 const port = process.env.PORT || 8000;
 const sessionSecret = "ashdfjhasdlkjfhalksdjhflak";
 const MongoStore = mongo(session);
-const chainParser = new ChainParser
+const chainParser = new ChainParser;
 
 export class Server {
 
