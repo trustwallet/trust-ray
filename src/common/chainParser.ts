@@ -92,7 +92,7 @@ export class ChainParser {
             block.transactions.map((transaction: any) => {
                 const hash = String(transaction.hash);
                 const transaction_data: any = {
-                    hash: hash,
+                    _id: hash,
                     blockNumber: Number(transaction.blockNumber),
                     timeStamp: String(block.timestamp),
                     nonce: Number(transaction.nonce),
@@ -104,7 +104,7 @@ export class ChainParser {
                     input: String(transaction.input),
                     gasUsed: String(block.gasUsed)
                 };
-                bulkTransactions.find({hash: hash}).upsert().replaceOne(transaction_data);
+                bulkTransactions.find({_id: hash}).upsert().replaceOne(transaction_data);
             })
         })
         if (bulkTransactions.length === 0) {

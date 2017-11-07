@@ -58,12 +58,6 @@ const tokenTransactionSchema = new Schema({
  * @type {"mongoose".Schema}
  */
 const transactionSchema = new Schema({
-    hash: {
-        type: String,
-        required: true,
-        unique: true,
-        index: true
-    },
     blockNumber: {
         type: Number,
         required: true
@@ -78,13 +72,11 @@ const transactionSchema = new Schema({
     },
     from: {
         type: String,
-        required: true,
-        index: true
+        required: true
     },
     to: {
         type: String,
-        required: true,
-        index: true
+        required: true
     },
     value: {
         type: String,
@@ -109,14 +101,15 @@ const transactionSchema = new Schema({
     action: tokenTransactionSchema
 
 }, {
-    versionKey: false
+    versionKey: false,
+    _id: false
 });
 
 transactionSchema.plugin(mongoosePaginate);
 
-transactionSchema.index({hash: 1});
-transactionSchema.index({from: 1});
-transactionSchema.index({to: 1});
-transactionSchema.index({timeStamp: -1});
+//transactionSchema.index({hash: 1});
+//transactionSchema.index({from: 1});
+//transactionSchema.index({to: 1});
+//transactionSchema.index({timeStamp: -1});
 
 export const Transaction = mongoose.model("Transaction", transactionSchema );
