@@ -16,11 +16,12 @@ export class ChainParser {
     public start() {
         winston.info("start chain parsing...");
         this.getBlockState().then(([blockInChain, blockInDB]) => {
+            const concurentBlocks = 10
             winston.info("blockInChain: " + blockInChain + " blockInDB: " + blockInDB);
             if (!blockInDB) {
-                this.startBlock(0, blockInChain);
+                this.startBlock(0, blockInChain, concurentBlocks);
             } else {
-                this.startBlock(blockInDB.lastBlock, blockInChain);
+                this.startBlock(blockInDB.lastBlock, blockInChain, concurentBlocks);
             }
         }).catch((err: Error) => {
             winston.error("Failed to load initial block state: " + err);
@@ -33,19 +34,29 @@ export class ChainParser {
         return Promise.all([latestBlockOnChain, latestBlockInDB]);
     }
 
-    public startBlock(startBlock: number, lastBlock: number) {
+    public startBlock(startBlock: number, lastBlock: number, concurentBlocks: number) {
         if (startBlock % 200 == 0) {
             winston.info("processing block: " + startBlock);
         }
-        this.parseBlock(startBlock).then((res: any) => {
-            this.saveLastParsedBlock(startBlock);
+        const range = (start: number, end: number) => (
+            Array.from(Array(end - start + 1).keys()).map(i => i + start)
+        );
+        const endBlock = startBlock + Math.max(concurentBlocks - 1, 1)
+        const numberBlocks = range(startBlock, endBlock)
+        let promises = numberBlocks.map((number) => { return this.parseBlock(number)});
+        Promise.all(promises).then((blocks: any[]) => {
+            this.saveTransactions(blocks);
+        }).then((results: any) => {
+            this.saveLastParsedBlock(endBlock);
             if (startBlock < lastBlock) {
-                this.startBlock(startBlock + 1, lastBlock);
+                this.startBlock(endBlock, lastBlock, concurentBlocks);
+            } else {
+                this.start()
             }
         }).catch((err: Error) => {
             winston.error("failed to parse: " + err + ". restart again startBlock: " + startBlock + ", lastBlock: " + lastBlock);
             this.delay(1000).then(() => {
-                this.startBlock(startBlock, lastBlock);
+                this.startBlock(startBlock, lastBlock, concurentBlocks);
             })
         })
     }
@@ -57,9 +68,7 @@ export class ChainParser {
     }
 
     private parseBlock(i: number): Promise<any> {
-        return Config.web3.eth.getBlock(i, true).then((block: any) => {
-            return this.saveTransactions(block, i);
-        })
+        return Config.web3.eth.getBlock(i, true)
     }
 
     private saveLatestBlock(block: number) {
@@ -75,31 +84,31 @@ export class ChainParser {
         });
     }
 
-    private async saveTransactions(block: any, i: number): Promise<void> {
+    private async saveTransactions(blocks: any[]): Promise<void> {
         const bulkTransactions = Transaction.collection.initializeUnorderedBulkOp();
-        block.transactions.map(async (transaction: any) => {
-            const hash = String(transaction.hash);
-            const transaction_data: any = {
-                hash: hash,
-                blockNumber: Number(transaction.blockNumber),
-                timeStamp: String(block.timestamp),
-                nonce: Number(transaction.nonce),
-                from: String(transaction.from).toLowerCase(),
-                to: String(transaction.to).toLowerCase(),
-                value: String(transaction.value),
-                gas: String(transaction.gas),
-                gasPrice: String(transaction.gasPrice),
-                input: String(transaction.input),
-                gasUsed: String(block.gasUsed)
-            };
-            bulkTransactions.find({hash: hash}).upsert().replaceOne(transaction_data);
+        blocks.map((block: any) => { 
+            block.transactions.map((transaction: any) => {
+                const hash = String(transaction.hash);
+                const transaction_data: any = {
+                    hash: hash,
+                    blockNumber: Number(transaction.blockNumber),
+                    timeStamp: String(block.timestamp),
+                    nonce: Number(transaction.nonce),
+                    from: String(transaction.from).toLowerCase(),
+                    to: String(transaction.to).toLowerCase(),
+                    value: String(transaction.value),
+                    gas: String(transaction.gas),
+                    gasPrice: String(transaction.gasPrice),
+                    input: String(transaction.input),
+                    gasUsed: String(block.gasUsed)
+                };
+                bulkTransactions.find({hash: hash}).upsert().replaceOne(transaction_data);
+            })
         })
         if (bulkTransactions.length === 0) {
             return Promise.resolve()
         }
-        await bulkTransactions.execute().catch((err: Error) => {
-            winston.error("Could not wait for blocks (to " + i + " ) to be processed with error: " , err);
-        });
+        await bulkTransactions.execute()
     }
 
     private processTransactionType(transaction: any) {
