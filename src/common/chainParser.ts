@@ -16,7 +16,7 @@ export class ChainParser {
     public start() {
         winston.info("start chain parsing...");
         this.getBlockState().then(([blockInChain, blockInDB]) => {
-            const concurentBlocks = 10
+            const concurentBlocks = 30
             winston.info("blockInChain: " + blockInChain + " blockInDB: " + blockInDB);
             if (!blockInDB) {
                 this.startBlock(0, blockInChain, concurentBlocks);
@@ -35,7 +35,7 @@ export class ChainParser {
     }
 
     public startBlock(startBlock: number, lastBlock: number, concurentBlocks: number) {
-        if (startBlock % 200 == 0) {
+        if (startBlock % 20 == 0) {
             winston.info("processing block: " + startBlock);
         }
         const range = (start: number, end: number) => (
@@ -45,7 +45,7 @@ export class ChainParser {
         const numberBlocks = range(startBlock, endBlock)
         let promises = numberBlocks.map((number) => { return this.parseBlock(number)});
         Promise.all(promises).then((blocks: any[]) => {
-            this.saveTransactions(blocks);
+            return this.saveTransactions(blocks);
         }).then((results: any) => {
             this.saveLastParsedBlock(endBlock);
             if (startBlock < lastBlock) {
@@ -84,7 +84,7 @@ export class ChainParser {
         });
     }
 
-    private async saveTransactions(blocks: any[]): Promise<void> {
+    private saveTransactions(blocks: any[]): Promise<void> {
         const bulkTransactions = Transaction.collection.initializeUnorderedBulkOp();
         blocks.map((block: any) => { 
             block.transactions.map((transaction: any) => {
@@ -108,7 +108,7 @@ export class ChainParser {
         if (bulkTransactions.length === 0) {
             return Promise.resolve()
         }
-        await bulkTransactions.execute()
+        return bulkTransactions.execute()
     }
 
     private processTransactionType(transaction: any) {
