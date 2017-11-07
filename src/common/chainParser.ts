@@ -40,8 +40,8 @@ export class ChainParser {
         const range = (start: number, end: number) => (
             Array.from(Array(end - start + 1).keys()).map(i => i + start)
         );
-        const endBlock = startBlock + Math.max(concurentBlocks - 1, 1)
-        const numberBlocks = range(startBlock, endBlock)
+        const endBlock = startBlock + Math.max(concurentBlocks - 1, 1);
+        const numberBlocks = range(startBlock, endBlock);
         const promises = numberBlocks.map((number) => { return this.parseBlock(number)});
         Promise.all(promises).then((blocks: any[]) => {
             return this.saveTransactions(blocks);
@@ -106,7 +106,7 @@ export class ChainParser {
                 };
                 bulkTransactions.find({_id: hash}).upsert().replaceOne(transaction_data);
             })
-        })
+        });
         if (bulkTransactions.length === 0) {
             return Promise.resolve()
         }
