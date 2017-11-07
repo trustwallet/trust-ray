@@ -103,18 +103,7 @@ export class Server {
         // check if a latest block is in DB, if yes, parse new blocks in the
         // blockchain, otherwise start a full parse of the entire blockchain
 
-        LatestBlock.findOne({}).exec().then((latestBlockInDb: any) => {
-            if (!latestBlockInDb) {
-                chainParser.start()
-            } else {
-                // setup cron job for refreshing transactions fro blockchain
-                cron.schedule("*/15 * * * * *", () => {
-                    BlockchainUtils.retrieveNewTransactionsFromBlockchain();
-                });
-            }
-        }).catch((err: Error) => {
-           winston.error("Error retrieving latest block from DB while starting server");
-        });
+        chainParser.start()
     }
 }
 
