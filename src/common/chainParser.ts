@@ -8,7 +8,6 @@ import * as winston from "winston";
 const InputDataDecoder = require("ethereum-input-data-decoder");
 const erc20abi = require("./erc20abi");
 
-
 export class ChainParser {
 
     private contractsCache: any = {};
@@ -16,7 +15,7 @@ export class ChainParser {
     public start() {
         winston.info("start chain parsing...");
         this.getBlockState().then(([blockInChain, blockInDB]) => {
-            const concurentBlocks = 30
+            const concurentBlocks = 40
             winston.info("blockInChain: " + blockInChain + " blockInDB: " + blockInDB);
             if (!blockInDB) {
                 this.startBlock(0, blockInChain, concurentBlocks);
@@ -51,7 +50,10 @@ export class ChainParser {
             if (startBlock < lastBlock) {
                 this.startBlock(endBlock, lastBlock, concurentBlocks);
             } else {
-                this.start()
+                winston.info("Last block is parsed on the blockchain, waiting for new blocks");
+                this.delay(5000).then(() => {
+                    this.start()
+                })
             }
         }).catch((err: Error) => {
             winston.error("failed to parse: " + err + ". restart again startBlock: " + startBlock + ", lastBlock: " + lastBlock);
