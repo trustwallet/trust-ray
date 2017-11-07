@@ -23,6 +23,9 @@ export class StatusController {
                 latestBlockNumberInDB,
                 blocksToSync,
                 version: packageJSON.version,
+                config: {
+                    rpc_server: process.env.RPC_SERVER
+                }
             });
         }).catch((err: Error) => {
             winston.error("Failed to load initial block state: " + err);
