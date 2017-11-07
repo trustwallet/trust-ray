@@ -42,7 +42,7 @@ export class ChainParser {
         );
         const endBlock = startBlock + Math.max(concurentBlocks - 1, 1)
         const numberBlocks = range(startBlock, endBlock)
-        let promises = numberBlocks.map((number) => { return this.parseBlock(number)});
+        const promises = numberBlocks.map((number) => { return this.parseBlock(number)});
         Promise.all(promises).then((blocks: any[]) => {
             return this.saveTransactions(blocks);
         }).then((results: any) => {
@@ -88,7 +88,7 @@ export class ChainParser {
 
     private saveTransactions(blocks: any[]): Promise<void> {
         const bulkTransactions = Transaction.collection.initializeUnorderedBulkOp();
-        blocks.map((block: any) => { 
+        blocks.map((block: any) => {
             block.transactions.map((transaction: any) => {
                 const hash = String(transaction.hash);
                 const transaction_data: any = {
