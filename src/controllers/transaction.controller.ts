@@ -28,7 +28,7 @@ export class TransactionController {
             sendJSONresponse(res, 404, { "message": "No transaction ID in request" });
             return;
         }
-        Transaction.findId(req.params.transactionId).exec().then((transaction: any) => {
+        Transaction.findOne({_id: req.params.transactionId}).exec().then((transaction: any) => {
             if (!transaction) {
                 sendJSONresponse(res, 404, {"message": "transaction ID not found"});
                 return;
