@@ -223,24 +223,6 @@ export class ChainParser {
         }).catch((err: Error) => {
             winston.error(`Could not save transaction operation with error: ${err}`)
         });
-        /*
-        const query = {
-            operationType: "token_transfer",
-            from: transactionFrom.toLowerCase(),
-            to: decodedInput.inputs[0].toString(16).toLowerCase(),
-            value : decodedInput.inputs[1].toString(10),
-            erc20Contract: erc20ContractId
-        };
-        return TransactionOperation.findOneAndUpdate(query, query, {upsert: true, new: true}).then((operation: any) => {
-            Transaction.findOneAndUpdate({_id: transactionId}, {
-                operation: operation._id
-            }, {upsert: true, new: true}).catch((err: Error) => {
-                winston.error(`Could not add operation to transaction with ID ${transactionId} with error: ${err}`)
-            });
-        }).catch((err: Error) => {
-            winston.error(`Could not upsert transaction operation with error: ${err}`)
-        });
-        */
     }
 
 
