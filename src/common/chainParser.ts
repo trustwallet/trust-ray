@@ -142,7 +142,7 @@ export class ChainParser {
     }
 
     private findOrCreateERC20Contract(contract: String): Promise<void> {
-        return ERC20Contract.findOne({_id: contract}).exec().then((erc20contract: any) => {
+        return ERC20Contract.findOne({address: contract}).exec().then((erc20contract: any) => {
             if (!erc20contract) {
                 return this.getContract(contract)
             } else {
@@ -175,14 +175,14 @@ export class ChainParser {
     }
 
     private updateERC20Token(contract: String, obj: any): Promise<void> {
-        return ERC20Contract.findOneAndUpdate({_id: contract}, {
-                _id: contract,
+        return ERC20Contract.findOneAndUpdate({address: contract}, {
+                 address: contract,
                  name: obj.name,
                  totalSupply: obj.totalSupply,
                  decimals: obj.decimals,
                  symbol: obj.symbol
             }, {upsert: true, returnNewDocument: true}).then((res: any) => {
-            return ERC20Contract.findOne({_id: contract}).exec();
+            return ERC20Contract.findOne({address: contract}).exec();
         })
     }
 
@@ -194,7 +194,7 @@ export class ChainParser {
     public parseOperationFromTransaction(transaction: any) {
         const decodedInput = new InputDataDecoder(erc20abi).decodeData(transaction.input);
         if (decodedInput.name === "transfer") {
-            ERC20Contract.findOne({_id: transaction.to}).then((erc20Contract: any) => {
+            ERC20Contract.findOne({address: transaction.to}).then((erc20Contract: any) => {
                 if (erc20Contract) {
                     this.findOrCreateTransactionOperation(transaction._id, transaction.from, decodedInput, erc20Contract._id).then(() => {
                         // TODO: check later on
@@ -213,7 +213,7 @@ export class ChainParser {
             from: transactionFrom.toLowerCase(),
             to: decodedInput.inputs[0].toString(16).toLowerCase(),
             value : decodedInput.inputs[1].toString(10),
-            erc20Contract: erc20ContractId
+            contract: erc20ContractId
         }).save().then((operation: any) => {
             Transaction.findOneAndUpdate({_id: transactionId}, {
                 operation: operation._id

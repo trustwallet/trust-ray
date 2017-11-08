@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { sendJSONresponse } from "../common/utils";
 import { Transaction } from "../models/transaction.model";
+import { TransactionOperation } from "../models/transactionOperation.model";
+import { ERC20Contract } from "../models/erc20Contract.model";
 
 
 export class TransactionController {
@@ -15,12 +17,23 @@ export class TransactionController {
             query.$or = [{from: address}, {to: address}];
         }
 
-        const promise = Transaction.paginate(query, {page: queryParams.page, limit: queryParams.limit, sort: {timeStamp: -1}});
-        promise.then( (transactions: any) => {
+        Transaction.paginate(query, {
+            page: queryParams.page,
+            limit: queryParams.limit,
+            sort: {timeStamp: -1},
+            populate: {
+                path: "operation",
+                populate: {
+                    path: "contract",
+                    model: "ERC20Contract"
+                }
+            }
+        }).then((transactions: any) => {
             sendJSONresponse(res, 200, transactions);
         }).catch((err: Error) => {
             sendJSONresponse(res, 404, err);
         });
+
     }
 
     public readOneTransaction(req: Request, res: Response) {
@@ -28,7 +41,15 @@ export class TransactionController {
             sendJSONresponse(res, 404, { "message": "No transaction ID in request" });
             return;
         }
-        Transaction.findOne({_id: req.params.transactionId}).exec().then((transaction: any) => {
+        Transaction.findOne({
+            _id: req.params.transactionId
+        }).populate({
+            path: "operation",
+            populate: {
+                path: "contract",
+                model: "ERC20Contract"
+            }
+        }).exec().then((transaction: any) => {
             if (!transaction) {
                 sendJSONresponse(res, 404, {"message": "transaction ID not found"});
                 return;
@@ -61,6 +82,22 @@ export class TransactionController {
             page: page,
             limit: limit
         };
+    }
+
+    private async populateOperationForTransaction(transaction: any) {
+        if (transaction.operation) {
+            await TransactionOperation.findOne(transaction.operation).then((operation: any) => {
+                transaction.operation = operation;
+                return operation.contract;
+            }).then(async (contract: any) => {
+                await ERC20Contract.findOne(contract).then((contract: any) => {
+                    transaction.operation.contract = contract;
+                    return transaction;
+                });
+            })
+        } else {
+            return transaction
+        }
     }
 
 }
