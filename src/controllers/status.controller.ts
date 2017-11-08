@@ -14,7 +14,8 @@ export class StatusController {
             Transaction.count(),
             LastParsedBlock.findOne(),
             Config.web3.eth.getBlockNumber(),
-        ]).then(([transactionsCount, lastParsedBlock, latestBlockNumberInBC]) => {
+            Config.web3.eth.net.getId()
+        ]).then(([transactionsCount, lastParsedBlock, latestBlockNumberInBC, networkId]) => {
             const latestBlockNumberInDB = lastParsedBlock.lastBlock
             const blocksToSync = latestBlockNumberInBC - latestBlockNumberInDB
             sendJSONresponse(res, 200, {
@@ -24,7 +25,8 @@ export class StatusController {
                 blocksToSync,
                 version: packageJSON.version,
                 config: {
-                    rpc_server: process.env.RPC_SERVER
+                    rpc_server: process.env.RPC_SERVER,
+                    network_id: networkId
                 }
             });
         }).catch((err: Error) => {
