@@ -9,6 +9,10 @@ const Schema = mongoose.Schema;
  * @type {"mongoose".Schema}
  */
 const transactionSchema = new Schema({
+    _id: {
+        type: String,
+        required: true
+    },
     blockNumber: {
         type: Number,
         required: true
@@ -58,8 +62,7 @@ const transactionSchema = new Schema({
     }
 
 }, {
-    versionKey: false,
-    _id: false
+    versionKey: false
 });
 
 transactionSchema.plugin(mongoosePaginate);
