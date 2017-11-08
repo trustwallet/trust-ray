@@ -84,20 +84,4 @@ export class TransactionController {
         };
     }
 
-    private async populateOperationForTransaction(transaction: any) {
-        if (transaction.operation) {
-            await TransactionOperation.findOne(transaction.operation).then((operation: any) => {
-                transaction.operation = operation;
-                return operation.contract;
-            }).then(async (contract: any) => {
-                await ERC20Contract.findOne(contract).then((contract: any) => {
-                    transaction.operation.contract = contract;
-                    return transaction;
-                });
-            })
-        } else {
-            return transaction
-        }
-    }
-
 }
