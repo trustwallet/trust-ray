@@ -26,7 +26,7 @@ const transactionOperationSchema = new Schema({
         required: true
     },
     erc20Contract: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.String,
         ref: "ERC20Contract",
         required: true
     }

@@ -84,7 +84,7 @@ export class ChainParser {
         });
     }
 
-    private parseBlock(i: number): Promise<any> {
+    public parseBlock(i: number): Promise<any> {
         return Config.web3.eth.getBlock(i, true)
     }
 
@@ -94,7 +94,7 @@ export class ChainParser {
         });
     }
 
-    private saveTransactions(blocks: any[]): Promise<void> {
+    public saveTransactions(blocks: any[]): Promise<void> {
         const bulkTransactions = Transaction.collection.initializeUnorderedBulkOp();
         blocks.map((block: any) => {
             block.transactions.map((transaction: any) => {
@@ -127,7 +127,7 @@ export class ChainParser {
     /* ====================================================================================== */
 
 
-    private parseERC20ContractFromTransaction(transaction: any) {
+    public parseERC20ContractFromTransaction(transaction: any) {
         const result = new InputDataDecoder(erc20abi).decodeData(transaction.input);
 
         if (result.name === "transfer") {
@@ -191,13 +191,14 @@ export class ChainParser {
     /* ================================ PARSING   OPERATIONS ================================ */
     /* ====================================================================================== */
 
-    private parseOperationFromTransaction(transaction: any) {
+    public parseOperationFromTransaction(transaction: any) {
         const decodedInput = new InputDataDecoder(erc20abi).decodeData(transaction.input);
         if (decodedInput.name === "transfer") {
-            ERC20Contract.findOneById(transaction.to).then((erc20Contract: any) => {
+            ERC20Contract.findOne({_id: transaction.to}).then((erc20Contract: any) => {
                 if (erc20Contract) {
-                    this.findOrCreateTransactionOperation(transaction._id, decodedInput, erc20Contract._id).then(() => {
-                        this.updateTokenBalance(transaction.from, erc20Contract._id, decodedInput.inputs[1].toString(10))
+                    this.findOrCreateTransactionOperation(transaction._id, transaction.from, decodedInput, erc20Contract._id).then(() => {
+                        // TODO: check later on
+                        // this.updateTokenBalance(transaction.from, erc20Contract._id, parseInt(decodedInput.inputs[1].toString(10)))
                     });
                 }
             }).catch((err: Error) => {
@@ -206,14 +207,14 @@ export class ChainParser {
         }
     }
 
-    private findOrCreateTransactionOperation(transactionId: any, decodedInput: any, erc20ContractId: any) {
+    private findOrCreateTransactionOperation(transactionId: any, transactionFrom: any, decodedInput: any, erc20ContractId: any) {
         return TransactionOperation.findOneAndUpdate({}, {
             operationType: "token_transfer",
-            from: decodedInput.inputs[1].toString(10),
+            from: transactionFrom.toLowerCase(),
             to: decodedInput.inputs[0].toString(16).toLowerCase(),
             value : decodedInput.inputs[1].toString(10),
             erc20Contract: erc20ContractId
-        }).then((operation: any) => {
+        }, {upsert: true, new: true}).then((operation: any) => {
             Transaction.findByIdAndUpdate(transactionId, {
                 operation: operation._id
             }).catch((err: Error) => {
