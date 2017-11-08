@@ -1,6 +1,7 @@
 import { Transaction } from "../models/transaction.model";
 import { LastParsedBlock } from "../models/lastParsedBlock.model";
 import { LatestBlock } from "../models/latestBlock.model";
+import { ERC20Contract } from "../models/erc20Contract.model";
 import { Config } from "./config";
 
 import * as winston from "winston";
