@@ -8,8 +8,8 @@ const Schema = mongoose.Schema;
  *
  * @type {"mongoose".Schema}
  */
-const transactionActionSchema = new Schema({
-    actionType: {
+const transactionOperationSchema = new Schema({
+    operationType: {
         type: String,
         required: true
     },
@@ -32,4 +32,4 @@ const transactionActionSchema = new Schema({
     }
 });
 
-export const TransactionAction = mongoose.model("TransactionAction", transactionActionSchema );
+export const TransactionOperation = mongoose.model("TransactionOperation", transactionOperationSchema );

@@ -1,7 +1,7 @@
 import { Transaction } from "../models/transaction.model";
 import { LastParsedBlock } from "../models/lastParsedBlock.model";
 import { ERC20Contract } from "../models/erc20Contract.model";
-import { TransactionAction } from "../models/transactionAction.model";
+import { TransactionOperation } from "../models/transactionOperation.model";
 import { Token } from "../models/token.model";
 import { Config } from "./config";
 
@@ -188,15 +188,15 @@ export class ChainParser {
 
 
     /* ====================================================================================== */
-    /* ================================ PARSING TXS  ACTIONS ================================ */
+    /* ================================ PARSING   OPERATIONS ================================ */
     /* ====================================================================================== */
 
-    private parseActionFromTransaction(transaction: any) {
+    private parseOperationFromTransaction(transaction: any) {
         const decodedInput = new InputDataDecoder(erc20abi).decodeData(transaction.input);
         if (decodedInput.name === "transfer") {
             ERC20Contract.findOneById(transaction.to).then((erc20Contract: any) => {
                 if (erc20Contract) {
-                    this.findOrCreateTransactionAction(transaction._id, decodedInput, erc20Contract._id).then(() => {
+                    this.findOrCreateTransactionOperation(transaction._id, decodedInput, erc20Contract._id).then(() => {
                         this.updateTokenBalance(transaction.from, erc20Contract._id, decodedInput.inputs[1].toString(10))
                     });
                 }
@@ -206,21 +206,21 @@ export class ChainParser {
         }
     }
 
-    private findOrCreateTransactionAction(transactionId: any, decodedInput: any, erc20ContractId: any) {
-        return TransactionAction.findOneAndUpdate({}, {
-            actionType: "token_transfer",
+    private findOrCreateTransactionOperation(transactionId: any, decodedInput: any, erc20ContractId: any) {
+        return TransactionOperation.findOneAndUpdate({}, {
+            operationType: "token_transfer",
             from: decodedInput.inputs[1].toString(10),
             to: decodedInput.inputs[0].toString(16).toLowerCase(),
             value : decodedInput.inputs[1].toString(10),
             erc20Contract: erc20ContractId
-        }).then((action: any) => {
+        }).then((operation: any) => {
             Transaction.findByIdAndUpdate(transactionId, {
-                action: action._id
+                operation: operation._id
             }).catch((err: Error) => {
-                winston.error(`Could not add action to transaction with ID ${transactionId} with error: ${err}`)
+                winston.error(`Could not add operation to transaction with ID ${transactionId} with error: ${err}`)
             });
         }).catch((err: Error) => {
-            winston.error(`Could not upsert transaction action with error: ${err}`)
+            winston.error(`Could not upsert transaction operation with error: ${err}`)
         });
     }
 

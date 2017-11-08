@@ -52,9 +52,9 @@ const transactionSchema = new Schema({
         type: String,
         required: true
     },
-    action: {
+    operation: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "TransactionAction"
+        ref: "TransactionOperation"
     }
 
 }, {
