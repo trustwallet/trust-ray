@@ -4,55 +4,6 @@ const Schema = mongoose.Schema;
 
 
 /**
- * Sub document of a transaction -
- * filled when the transaction destination
- * is a ERC20 token contract.
- *
- * @type {"mongoose".Schema}
- */
-const tokenTransactionSchema = new Schema({
-    transactionType: {
-        type: String,
-        required: true
-    },
-    from: {
-        type: String,
-        required: true
-    },
-    to: {
-        type: String,
-        required: true
-    },
-    value: {
-        type: String,
-        required: true
-    },
-    token: {
-        name: {
-            type: String,
-            required: true
-        },
-        symbol: {
-            type: String,
-            required: true
-        },
-        decimals: {
-            type: Number,
-            required: true
-        },
-        totalSupply: {
-            type: Number,
-            required: true
-        },
-        address: {
-            type: String,
-            required: true
-        }
-    }
-});
-
-
-/**
  * Model for a single transaction.
  *
  * @type {"mongoose".Schema}
@@ -98,7 +49,10 @@ const transactionSchema = new Schema({
         type: String,
         required: true
     },
-    action: tokenTransactionSchema
+    action: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "TransactionAction"
+    }
 
 }, {
     versionKey: false,
@@ -107,9 +61,10 @@ const transactionSchema = new Schema({
 
 transactionSchema.plugin(mongoosePaginate);
 
-//transactionSchema.index({hash: 1});
-//transactionSchema.index({from: 1});
-//transactionSchema.index({to: 1});
-//transactionSchema.index({timeStamp: -1});
+// INDICES
+// transactionSchema.index({hash: 1});
+// transactionSchema.index({from: 1});
+// transactionSchema.index({to: 1});
+// transactionSchema.index({timeStamp: -1});
 
 export const Transaction = mongoose.model("Transaction", transactionSchema );

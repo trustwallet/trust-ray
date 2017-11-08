@@ -1,7 +1,13 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-
+/**
+ * Model for a transaction action
+ * specifying the purpose of a
+ * transaction.
+ *
+ * @type {"mongoose".Schema}
+ */
 const transactionActionSchema = new Schema({
     actionType: {
         type: String,
