@@ -2,8 +2,8 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const ERC20ContractScheme = new Schema({
-    _id :  { 
-        type: String 
+    _id :  {
+        type: String
     },
     name: {
         type: String,
