@@ -1,8 +1,8 @@
 import { Transaction } from "../models/transaction.model";
 import { LastParsedBlock } from "../models/lastParsedBlock.model";
-import { LatestBlock } from "../models/latestBlock.model";
 import { ERC20Contract } from "../models/erc20Contract.model";
 import { TransactionAction } from "../models/transactionAction.model";
+import { Token } from "../models/token.model";
 import { Config } from "./config";
 
 import * as winston from "winston";
@@ -188,15 +188,16 @@ export class ChainParser {
 
 
     /* ====================================================================================== */
-    /* ================================ PARSING ERC20 TOKENS ================================ */
+    /* ================================ PARSING TXS  ACTIONS ================================ */
     /* ====================================================================================== */
 
     private parseActionFromTransaction(transaction: any) {
-        const result = new InputDataDecoder(erc20abi).decodeData(transaction.input);
-        if (result.name === "transfer") {
+        const decodedInput = new InputDataDecoder(erc20abi).decodeData(transaction.input);
+        if (decodedInput.name === "transfer") {
             ERC20Contract.findOneById(transaction.to).then((erc20Contract: any) => {
                 if (erc20Contract) {
-                    this.findOrCreateTransactionAction(transaction._id, result, erc20Contract._id);
+                    this.findOrCreateTransactionAction(transaction._id, decodedInput, erc20Contract._id);
+                    this.updateTokenBalance(transaction.from, erc20Contract._id, decodedInput.inputs[1].toString(10))
                 }
             }).catch((err: Error) => {
                 winston.error(`Could not find contract by id for ${transaction.to} with error: ${err}`);
@@ -223,58 +224,57 @@ export class ChainParser {
     }
 
 
-    private updateTokenBalance(bulkTokens: any, address: any, tokenContractAddress: string, balanceModification: number, totalSupply: any, decimals: any, symbol: any, name: any) {
+    private updateTokenBalance(address: any, erc20ContractId: any, balanceModification: number) {
+
+        const bulk = Token.collection.initializeUnorderedBulkOp();
 
         // first try to upsert and set token
-        bulkTokens.find({
+        bulk.find({
             address: address
         }).upsert().updateOne({
             "$setOnInsert": {
                 tokens: [{
-                    contractAddress: tokenContractAddress,
-                    totalSupply: totalSupply,
-                    name: name,
-                    symbol: symbol,
-                    decimals: decimals,
+                    erc20Contract: erc20ContractId,
                     balance: balanceModification
                 }]
             }
         });
 
         // try to increment token balance if it exists
-        bulkTokens.find({
+        bulk.find({
             address: address,
             tokens: {
                 "$elemMatch": {
-                    contractAddress: "0x1234"
+                    erc20Contract: erc20ContractId
                 }
             }
         }).updateOne({
             "$inc": { "tokens.$.balance": balanceModification}
         });
 
-        // "push" new token to tokens array where
-        // it does not yet exist
-        bulkTokens.find({
+        // "push" new token to tokens array where it does not yet exist
+        bulk.find({
             address: address,
             tokens: {
                 "$not": {
                     "$elemMatch": {
-                        contractAddress: tokenContractAddress
+                        erc20Contract: erc20ContractId
                     }
                 }
             }
         }).updateOne({
             "$push": {
                 tokens: {
-                    contractAddress: tokenContractAddress,
-                    totalSupply: totalSupply,
-                    name: name,
-                    symbol: symbol,
-                    decimals: decimals,
+                    erc20Contract: erc20ContractId,
                     balance: balanceModification
                 }
             }
         });
+
+        if (bulk.length > 0) {
+            bulk.execute().catch((err: Error) => {
+               winston.error(`Could not update token balance for address ${address} and erc20 contract ${erc20ContractId} with error: ${err}`);
+            });
+        }
     }
 }
