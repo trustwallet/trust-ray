@@ -9,7 +9,7 @@ const Schema = mongoose.Schema;
  * @type {"mongoose".Schema}
  */
 const transactionOperationSchema = new Schema({
-    operationType: {
+    type: {
         type: String,
         required: true
     },
@@ -30,6 +30,8 @@ const transactionOperationSchema = new Schema({
         ref: "ERC20Contract",
         required: true
     }
+}, {
+    version: false
 });
 
 export const TransactionOperation = mongoose.model("TransactionOperation", transactionOperationSchema );

@@ -209,7 +209,7 @@ export class ChainParser {
 
     private findOrCreateTransactionOperation(transactionId: any, transactionFrom: any, decodedInput: any, erc20ContractId: any) {
         return new TransactionOperation({
-            operationType: "token_transfer",
+            type: "token_transfer",
             from: transactionFrom.toLowerCase(),
             to: decodedInput.inputs[0].toString(16).toLowerCase(),
             value : decodedInput.inputs[1].toString(10),
