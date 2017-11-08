@@ -25,27 +25,10 @@ const transactionActionSchema = new Schema({
         type: String,
         required: true
     },
-    token: {
-        name: {
-            type: String,
-            required: true
-        },
-        symbol: {
-            type: String,
-            required: true
-        },
-        decimals: {
-            type: Number,
-            required: true
-        },
-        totalSupply: {
-            type: Number,
-            required: true
-        },
-        address: {
-            type: String,
-            required: true
-        }
+    erc20Contract: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "ERC20Contract",
+        required: true
     }
 });
 
