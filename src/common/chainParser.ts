@@ -196,8 +196,9 @@ export class ChainParser {
         if (decodedInput.name === "transfer") {
             ERC20Contract.findOneById(transaction.to).then((erc20Contract: any) => {
                 if (erc20Contract) {
-                    this.findOrCreateTransactionAction(transaction._id, decodedInput, erc20Contract._id);
-                    this.updateTokenBalance(transaction.from, erc20Contract._id, decodedInput.inputs[1].toString(10))
+                    this.findOrCreateTransactionAction(transaction._id, decodedInput, erc20Contract._id).then(() => {
+                        this.updateTokenBalance(transaction.from, erc20Contract._id, decodedInput.inputs[1].toString(10))
+                    });
                 }
             }).catch((err: Error) => {
                 winston.error(`Could not find contract by id for ${transaction.to} with error: ${err}`);
@@ -206,7 +207,7 @@ export class ChainParser {
     }
 
     private findOrCreateTransactionAction(transactionId: any, decodedInput: any, erc20ContractId: any) {
-        TransactionAction.findOneAndUpdate({}, {
+        return TransactionAction.findOneAndUpdate({}, {
             actionType: "token_transfer",
             from: decodedInput.inputs[1].toString(10),
             to: decodedInput.inputs[0].toString(16).toLowerCase(),
@@ -272,9 +273,11 @@ export class ChainParser {
         });
 
         if (bulk.length > 0) {
-            bulk.execute().catch((err: Error) => {
+            return bulk.execute().catch((err: Error) => {
                winston.error(`Could not update token balance for address ${address} and erc20 contract ${erc20ContractId} with error: ${err}`);
             });
+        } else {
+            return Promise.resolve();
         }
     }
 }
