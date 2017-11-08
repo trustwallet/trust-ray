@@ -2,6 +2,7 @@ import { Transaction } from "../models/transaction.model";
 import { LastParsedBlock } from "../models/lastParsedBlock.model";
 import { LatestBlock } from "../models/latestBlock.model";
 import { ERC20Contract } from "../models/erc20Contract.model";
+import { TransactionAction } from "../models/transactionAction.model";
 import { Config } from "./config";
 
 import * as winston from "winston";
@@ -10,6 +11,10 @@ const InputDataDecoder = require("ethereum-input-data-decoder");
 const erc20abi = require("./erc20abi");
 
 export class ChainParser {
+
+    /* ====================================================================================== */
+    /* ================================ PARSING TRANSACTIONS ================================ */
+    /* ====================================================================================== */
 
     public start() {
         winston.info("start chain parsing...");
@@ -20,8 +25,8 @@ export class ChainParser {
             } else {
                 startBlock = blockInDB.lastBlock
             }
-            const concurentBlocks = 40
-            
+            const concurentBlocks = 40;
+
             winston.info("blockInDB: " + startBlock + ", blockInChain: " + blockInChain);
 
             if (startBlock < blockInChain) {
@@ -49,7 +54,7 @@ export class ChainParser {
         );
         const endBlock = startBlock + Math.min(concurentBlocks, lastBlock - startBlock);
         const numberBlocks = range(startBlock, endBlock);
-        
+
         const promises = numberBlocks.map((number) => { return this.parseBlock(number)});
         Promise.all(promises).then((blocks: any[]) => {
             return this.saveTransactions(blocks);
@@ -81,13 +86,6 @@ export class ChainParser {
 
     private parseBlock(i: number): Promise<any> {
         return Config.web3.eth.getBlock(i, true)
-    }
-
-    private saveLatestBlock(block: number) {
-        winston.info("saveLatestBlock: " + block);
-        return LatestBlock.findOneAndUpdate({}, {latestBlock: block}, {upsert: true}).catch((err: Error) => {
-            winston.error(`Could not save latest block to DB with error: ${err}`);
-        });
     }
 
     private saveLastParsedBlock(block: number) {
@@ -123,6 +121,26 @@ export class ChainParser {
         return bulkTransactions.execute();
     }
 
+
+    /* ====================================================================================== */
+    /* ================================ PARSING ERC20 TOKENS ================================ */
+    /* ====================================================================================== */
+
+
+    private parseERC20ContractFromTransaction(transaction: any) {
+        const result = new InputDataDecoder(erc20abi).decodeData(transaction.input);
+
+        if (result.name === "transfer") {
+            const contract = transaction.to.toLowerCase();
+
+            this.findOrCreateERC20Contract(contract).then((erc20contract: any) => {
+                winston.info("contract found: ", erc20contract)
+            }).catch((err: Error) => {
+                winston.error(`Could not find or create contract ${contract}, error: ${err}`);
+            });
+        }
+    }
+
     private findOrCreateERC20Contract(contract: String): Promise<void> {
         return ERC20Contract.findOne({_id: contract}).exec().then((erc20contract: any) => {
             if (!erc20contract) {
@@ -135,7 +153,7 @@ export class ChainParser {
 
     private getContract(contract: String): Promise<void> {
         const contractInstance = new Config.web3.eth.Contract(erc20abi, contract);
-        
+
         const p1 = contractInstance.methods.name().call().catch((err: Error) => {
             winston.error(`Could not get name of contract ${contract} with error: ${err}`);
         });
@@ -148,6 +166,7 @@ export class ChainParser {
         const p4 = contractInstance.methods.symbol().call().catch((err: Error) => {
             winston.error(`Could not get symbol of contract ${contract} with error: ${err}`);
         });
+
         return Promise.all([p1, p2, p3, p4]).then(([name, totalSupply, decimals, symbol]: any[]) => {
             return this.updateERC20Token(contract, {name, totalSupply, decimals, symbol});
         }).catch((err: Error) => {
@@ -156,11 +175,10 @@ export class ChainParser {
     }
 
     private updateERC20Token(contract: String, obj: any): Promise<void> {
-        return ERC20Contract.findOneAndUpdate({_id: contract}, 
-            {
+        return ERC20Contract.findOneAndUpdate({_id: contract}, {
                 _id: contract,
-                 name: obj.name, 
-                 totalSupply: obj.totalSupply, 
+                 name: obj.name,
+                 totalSupply: obj.totalSupply,
                  decimals: obj.decimals,
                  symbol: obj.symbol
             }, {upsert: true, returnNewDocument: true}).then((res: any) => {
@@ -168,23 +186,42 @@ export class ChainParser {
         })
     }
 
-    private processTransactionType(transaction: any) {
-        const decoder = new InputDataDecoder(erc20abi);
-        const result = decoder.decodeData(transaction.input);
 
+    /* ====================================================================================== */
+    /* ================================ PARSING ERC20 TOKENS ================================ */
+    /* ====================================================================================== */
+
+    private parseActionFromTransaction(transaction: any) {
+        const result = new InputDataDecoder(erc20abi).decodeData(transaction.input);
         if (result.name === "transfer") {
-            const to = result.inputs[0].toString(16).toLowerCase();
-            const value = result.inputs[1].toString(10);
-            const contract = transaction.to.toLowerCase();
-            const from = transaction.from.toLowerCase();
-
-            this.findOrCreateERC20Contract(contract).then((erc20contract: any) => {
-                winston.info("contract found: ", erc20contract)
+            ERC20Contract.findOneById(transaction.to).then((erc20Contract: any) => {
+                if (erc20Contract) {
+                    this.findOrCreateTransactionAction(transaction._id, result, erc20Contract._id);
+                }
             }).catch((err: Error) => {
-                winston.error(`Could find or create contract ${contract}, error: ${err}`);
-            });
+                winston.error(`Could not find contract by id for ${transaction.to} with error: ${err}`);
+            })
         }
     }
+
+    private findOrCreateTransactionAction(transactionId: any, decodedInput: any, erc20ContractId: any) {
+        TransactionAction.findOneAndUpdate({}, {
+            actionType: "token_transfer",
+            from: decodedInput.inputs[1].toString(10),
+            to: decodedInput.inputs[0].toString(16).toLowerCase(),
+            value : decodedInput.inputs[1].toString(10),
+            erc20Contract: erc20ContractId
+        }).then((action: any) => {
+            Transaction.findByIdAndUpdate(transactionId, {
+                action: action._id
+            }).catch((err: Error) => {
+                winston.error(`Could not add action to transaction with ID ${transactionId} with error: ${err}`)
+            });
+        }).catch((err: Error) => {
+            winston.error(`Could not upsert transaction action with error: ${err}`)
+        });
+    }
+
 
     private updateTokenBalance(bulkTokens: any, address: any, tokenContractAddress: string, balanceModification: number, totalSupply: any, decimals: any, symbol: any, name: any) {
 
