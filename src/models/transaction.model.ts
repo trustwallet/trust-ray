@@ -29,6 +29,9 @@ const transactionSchema = new Schema({
         type: String,
         required: true
     },
+    addresses: [{
+        type: String
+    }],
     value: {
         type: String,
         required: true
