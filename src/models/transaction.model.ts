@@ -34,7 +34,8 @@ const transactionSchema = new Schema({
         required: true
     },
     addresses: [{
-        type: String
+        type: String,
+        index: "2d"
     }],
     value: {
         type: String,
@@ -72,5 +73,6 @@ transactionSchema.plugin(mongoosePaginate);
 // transactionSchema.index({from: 1});
 // transactionSchema.index({to: 1});
 // transactionSchema.index({timeStamp: -1});
+
 
 export const Transaction = mongoose.model("Transaction", transactionSchema );
