@@ -7,8 +7,9 @@ import { Config } from "./config";
 
 import * as winston from "winston";
 
-const InputDataDecoder = require("ethereum-input-data-decoder");
 const erc20abi = require("./erc20abi");
+const erc20ABIDecoder = require('abi-decoder');
+erc20ABIDecoder.addABI(erc20abi);
 
 export class ChainParser {
 
@@ -126,21 +127,6 @@ export class ChainParser {
     /* ================================ PARSING ERC20 TOKENS ================================ */
     /* ====================================================================================== */
 
-
-    public parseERC20ContractFromTransaction(transaction: any) {
-        const result = new InputDataDecoder(erc20abi).decodeData(transaction.input);
-
-        if (result.name === "transfer") {
-            const contract = transaction.to.toLowerCase();
-
-            this.findOrCreateERC20Contract(contract).then((erc20contract: any) => {
-                winston.info("contract found: ", erc20contract)
-            }).catch((err: Error) => {
-                winston.error(`Could not find or create contract ${contract}, error: ${err}`);
-            });
-        }
-    }
-
     private findOrCreateERC20Contract(contract: String): Promise<void> {
         return ERC20Contract.findOne({address: contract}).exec().then((erc20contract: any) => {
             if (!erc20contract) {
@@ -186,45 +172,38 @@ export class ChainParser {
         })
     }
 
-
     /* ====================================================================================== */
     /* ================================ PARSING   OPERATIONS ================================ */
     /* ====================================================================================== */
 
     public parseOperationFromTransaction(transaction: any) {
-        const decodedInput = new InputDataDecoder(erc20abi).decodeData(transaction.input);
+        const decodedInput = erc20ABIDecoder.decodeMethod(transaction.input);
         if (decodedInput.name === "transfer") {
-            ERC20Contract.findOne({address: transaction.to}).then((erc20Contract: any) => {
-                if (erc20Contract) {
-                    this.findOrCreateTransactionOperation(transaction._id, transaction.from, decodedInput, erc20Contract._id).then(() => {
-                        // TODO: check later on
-                        // this.updateTokenBalance(transaction.from, erc20Contract._id, parseInt(decodedInput.inputs[1].toString(10)))
-                    });
-                }
+            this.findOrCreateERC20Contract(transaction.to).then((erc20contract: any) => {
+                this.findOrCreateTransactionOperation(transaction._id, transaction.from, decodedInput, erc20contract._id).then(() => {
+                    // TODO: check later on
+                    // this.updateTokenBalance(transaction.from, erc20Contract._id, parseInt(decodedInput.inputs[1].toString(10)))
+                })
             }).catch((err: Error) => {
                 winston.error(`Could not find contract by id for ${transaction.to} with error: ${err}`);
-            })
+            });
         }
     }
 
-    private findOrCreateTransactionOperation(transactionId: any, transactionFrom: any, decodedInput: any, erc20ContractId: any) {
-        return new TransactionOperation({
-            type: "token_transfer",
-            from: transactionFrom.toLowerCase(),
-            to: decodedInput.inputs[0].toString(16).toLowerCase(),
-            value : decodedInput.inputs[1].toString(10),
-            contract: erc20ContractId
-        }).save().then((operation: any) => {
-            Transaction.findOneAndUpdate({_id: transactionId}, {
+    private findOrCreateTransactionOperation(transactionID: any, transactionFrom: any, decodedInput: any, erc20ContractId: any): Promise<void> {
+        let from = transactionFrom.toLowerCase()
+        let to = decodedInput.params[0].value.toLowerCase()
+        let value = decodedInput.params[1].value
+        return TransactionOperation.findOneAndUpdate({transactionID}, {transactionID, type: "token_transfer", from, to, value, contract: erc20ContractId}, {upsert: true, new: true}).then((operation: any) => {
+            return Transaction.findOneAndUpdate({_id: transactionID}, {
                 operation: operation._id
             }).catch((err: Error) => {
-                winston.error(`Could not add operation to transaction with ID ${transactionId} with error: ${err}`)
+                winston.error(`Could not add operation to transaction with ID ${transactionID} with error: ${err}`)
             });
         }).catch((err: Error) => {
             winston.error(`Could not save transaction operation with error: ${err}`)
         });
     }
-
 
     private updateTokenBalance(address: any, erc20ContractId: any, balanceModification: number) {
 
