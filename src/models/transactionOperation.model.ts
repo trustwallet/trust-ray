@@ -9,7 +9,7 @@ const Schema = mongoose.Schema;
  * @type {"mongoose".Schema}
  */
 const transactionOperationSchema = new Schema({
-    transactionID: {
+    transactionId: {
         type: String,
         required: true
     },

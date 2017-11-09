@@ -35,7 +35,7 @@ const transactionSchema = new Schema({
     },
     addresses: [{
         type: String,
-        index: "2d"
+        index: true
     }],
     value: {
         type: String,

@@ -58,7 +58,19 @@ export class ChainParser {
 
         const promises = numberBlocks.map((number) => { return this.parseBlock(number)});
         Promise.all(promises).then((blocks: any[]) => {
-            return this.saveTransactions(blocks);
+
+            // ============ saving transactions ========== //
+            return this.saveTransactions(blocks).then((bulkResult: any) => {
+                blocks.map((block: any) => {
+                    block.transactions.map((transaction: any) => {
+                        if (transaction.input !== "0x") {
+                            this.parseOperationFromTransaction(transaction);
+                        }
+                    });
+                });
+            });
+
+
         }).then((results: any) => {
             this.saveLastParsedBlock(endBlock);
             if (endBlock < lastBlock) {
@@ -181,7 +193,7 @@ export class ChainParser {
 
     public parseOperationFromTransaction(transaction: any) {
         const decodedInput = erc20ABIDecoder.decodeMethod(transaction.input);
-        if (decodedInput.name === "transfer") {
+        if (decodedInput && decodedInput.name === "transfer") {
             this.findOrCreateERC20Contract(transaction.to).then((erc20contract: any) => {
                 this.findOrCreateTransactionOperation(transaction._id, transaction.from, decodedInput, erc20contract._id).then(() => {
                     // TODO: check later on
@@ -193,16 +205,25 @@ export class ChainParser {
         }
     }
 
-    private findOrCreateTransactionOperation(transactionID: any, transactionFrom: any, decodedInput: any, erc20ContractId: any): Promise<void> {
+    private findOrCreateTransactionOperation(transactionId: any, transactionFrom: any, decodedInput: any, erc20ContractId: any): Promise<void> {
         const from = transactionFrom.toLowerCase();
         const to = decodedInput.params[0].value.toLowerCase();
         const value = decodedInput.params[1].value;
-        return TransactionOperation.findOneAndUpdate({transactionID}, {transactionID, type: "token_transfer", from, to, value, contract: erc20ContractId}, {upsert: true, new: true}).then((operation: any) => {
-            return Transaction.findOneAndUpdate({_id: transactionID}, {
+
+        const data = {
+            transactionID: transactionId,
+            type: "token_transfer",
+            from: from,
+            to: to,
+            value: value,
+            contract: erc20ContractId
+        };
+        return TransactionOperation.findOneAndUpdate(data, data, {upsert: true, new: true}).then((operation: any) => {
+            return Transaction.findOneAndUpdate({_id: transactionId}, {
                 operation: operation._id,
                 addresses: [from, to]
             }).catch((err: Error) => {
-                winston.error(`Could not add operation to transaction with ID ${transactionID} with error: ${err}`)
+                winston.error(`Could not add operation to transaction with ID ${transactionId} with error: ${err}`)
             });
         }).catch((err: Error) => {
             winston.error(`Could not save transaction operation with error: ${err}`)
