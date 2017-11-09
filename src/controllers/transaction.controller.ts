@@ -14,7 +14,7 @@ export class TransactionController {
         const query: any = {};
         if (queryParams.address) {
             const address = queryParams.address.toLowerCase();
-            query.$or = [{from: address}, {to: address}];
+            query.addresses = { "$in": [address] };
         }
 
         Transaction.paginate(query, {
