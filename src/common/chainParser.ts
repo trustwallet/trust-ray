@@ -191,12 +191,13 @@ export class ChainParser {
     }
 
     private findOrCreateTransactionOperation(transactionID: any, transactionFrom: any, decodedInput: any, erc20ContractId: any): Promise<void> {
-        let from = transactionFrom.toLowerCase()
-        let to = decodedInput.params[0].value.toLowerCase()
-        let value = decodedInput.params[1].value
+        const from = transactionFrom.toLowerCase();
+        const to = decodedInput.params[0].value.toLowerCase();
+        const value = decodedInput.params[1].value;
         return TransactionOperation.findOneAndUpdate({transactionID}, {transactionID, type: "token_transfer", from, to, value, contract: erc20ContractId}, {upsert: true, new: true}).then((operation: any) => {
             return Transaction.findOneAndUpdate({_id: transactionID}, {
-                operation: operation._id
+                operation: operation._id,
+                addresses: [from, to]
             }).catch((err: Error) => {
                 winston.error(`Could not add operation to transaction with ID ${transactionID} with error: ${err}`)
             });
