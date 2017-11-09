@@ -9,6 +9,10 @@ const Schema = mongoose.Schema;
  * @type {"mongoose".Schema}
  */
 const transactionOperationSchema = new Schema({
+    transactionID: {
+        type: String,
+        required: true
+    },
     type: {
         type: String,
         required: true
@@ -31,7 +35,7 @@ const transactionOperationSchema = new Schema({
         required: true
     }
 }, {
-    version: false
+    versionKey: false
 });
 
 export const TransactionOperation = mongoose.model("TransactionOperation", transactionOperationSchema );
