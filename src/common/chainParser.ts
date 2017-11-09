@@ -13,6 +13,8 @@ erc20ABIDecoder.addABI(erc20abi);
 
 export class ChainParser {
 
+    private blacklist: any = [];
+
     /* ====================================================================================== */
     /* ================================ PARSING TRANSACTIONS ================================ */
     /* ====================================================================================== */
@@ -155,23 +157,16 @@ export class ChainParser {
     private getContract(contract: String): Promise<void> {
         const contractInstance = new Config.web3.eth.Contract(erc20abi, contract);
 
-        const p1 = contractInstance.methods.name().call().catch((err: Error) => {
-            winston.error(`Could not get name of contract ${contract} with error: ${err}`);
-        });
-        const p2 = contractInstance.methods.totalSupply().call().catch((err: Error) => {
-            winston.error(`Could not get total supply of contract ${contract} with error: ${err}`);
-        });
-        const p3 = contractInstance.methods.decimals().call().catch((err: Error) => {
-            winston.error(`Could not get decimals of contract ${contract} with error: ${err}`);
-        });
-        const p4 = contractInstance.methods.symbol().call().catch((err: Error) => {
-            winston.error(`Could not get symbol of contract ${contract} with error: ${err}`);
-        });
+        const p1 = contractInstance.methods.name().call();
+        const p2 = contractInstance.methods.totalSupply().call();
+        const p3 = contractInstance.methods.decimals().call();
+        const p4 = contractInstance.methods.symbol().call();
 
         return Promise.all([p1, p2, p3, p4]).then(([name, totalSupply, decimals, symbol]: any[]) => {
             return this.updateERC20Token(contract, {name, totalSupply, decimals, symbol});
         }).catch((err: Error) => {
-            winston.error(`Could not wait to get all information for contract ${contract} while processing its input with error: ${err}`);
+            winston.error(`Could not parse input for contract ${contract} with error: ${err}.`);
+            this.blacklist.push(contract);
         });
     }
 
@@ -194,14 +189,16 @@ export class ChainParser {
     public parseOperationFromTransaction(transaction: any) {
         const decodedInput = erc20ABIDecoder.decodeMethod(transaction.input);
         if (decodedInput && decodedInput.name === "transfer") {
-            this.findOrCreateERC20Contract(transaction.to).then((erc20contract: any) => {
-                this.findOrCreateTransactionOperation(transaction._id, transaction.from, decodedInput, erc20contract._id).then(() => {
-                    // TODO: check later on
-                    // this.updateTokenBalance(transaction.from, erc20Contract._id, parseInt(decodedInput.inputs[1].toString(10)))
-                })
-            }).catch((err: Error) => {
-                winston.error(`Could not find contract by id for ${transaction.to} with error: ${err}`);
-            });
+            if (!this.blacklist.includes(transaction.to)) {
+                this.findOrCreateERC20Contract(transaction.to).then((erc20contract: any) => {
+                    this.findOrCreateTransactionOperation(transaction._id, transaction.from, decodedInput, erc20contract._id).then(() => {
+                        // TODO: check later on
+                        // this.updateTokenBalance(transaction.from, erc20Contract._id, parseInt(decodedInput.inputs[1].toString(10)))
+                    })
+                }).catch((err: Error) => {
+                    winston.error(`Could not find contract by id for ${transaction.to} with error: ${err}`);
+                });
+            }
         }
     }
 
@@ -211,7 +208,7 @@ export class ChainParser {
         const value = decodedInput.params[1].value;
 
         const data = {
-            transactionID: transactionId,
+            transactionId: transactionId,
             type: "token_transfer",
             from: from,
             to: to,
