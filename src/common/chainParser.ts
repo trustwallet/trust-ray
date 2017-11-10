@@ -188,9 +188,10 @@ export class ChainParser {
 
     public parseOperationFromTransaction(transaction: any) {
         const decodedInput = erc20ABIDecoder.decodeMethod(transaction.input);
-        if (decodedInput && decodedInput.name === "transfer") {
-            if (!this.blacklist.includes(transaction.to)) {
-                this.findOrCreateERC20Contract(transaction.to).then((erc20contract: any) => {
+        if (decodedInput && decodedInput.name === "transfer" && Array.isArray(decodedInput.params) && decodedInput.params.length == 2) {
+            let contract = transaction.to.toLowerCase();
+            if (!this.blacklist.includes(contract)) {
+                this.findOrCreateERC20Contract(contract).then((erc20contract: any) => {
                     this.findOrCreateTransactionOperation(transaction.hash, transaction.from, decodedInput, erc20contract._id).then(() => {
                         // TODO: check later on
                         // this.updateTokenBalance(transaction.from, erc20Contract._id, parseInt(decodedInput.inputs[1].toString(10)))
@@ -215,7 +216,7 @@ export class ChainParser {
             value: value,
             contract: erc20ContractId
         };
-        return TransactionOperation.findOneAndUpdate(data, data, {upsert: true, new: true}).then((operation: any) => {
+        return TransactionOperation.findOneAndUpdate({transactionId}, data, {upsert: true, new: true}).then((operation: any) => {
             return Transaction.findOneAndUpdate({_id: transactionId}, {
                 operation: operation._id,
                 addresses: [from, to]
