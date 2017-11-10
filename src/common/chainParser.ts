@@ -197,7 +197,7 @@ export class ChainParser {
                         // this.updateTokenBalance(transaction.from, erc20Contract._id, parseInt(decodedInput.inputs[1].toString(10)))
                     })
                 }).catch((err: Error) => {
-                    winston.error(`Could not find contract by id for ${transaction.to} with error: ${err}`);
+                    winston.error(`Could not find contract by id for ${contract} with error: ${err}`);
                 });
             }
         }
