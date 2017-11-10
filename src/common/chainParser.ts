@@ -191,7 +191,7 @@ export class ChainParser {
         if (decodedInput && decodedInput.name === "transfer") {
             if (!this.blacklist.includes(transaction.to)) {
                 this.findOrCreateERC20Contract(transaction.to).then((erc20contract: any) => {
-                    this.findOrCreateTransactionOperation(transaction._id, transaction.from, decodedInput, erc20contract._id).then(() => {
+                    this.findOrCreateTransactionOperation(transaction.hash, transaction.from, decodedInput, erc20contract._id).then(() => {
                         // TODO: check later on
                         // this.updateTokenBalance(transaction.from, erc20Contract._id, parseInt(decodedInput.inputs[1].toString(10)))
                     })
