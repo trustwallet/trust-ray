@@ -8,7 +8,7 @@ import { Config } from "./config";
 import * as winston from "winston";
 
 const erc20abi = require("./erc20abi");
-const erc20ABIDecoder = require('abi-decoder');
+const erc20ABIDecoder = require("abi-decoder");
 erc20ABIDecoder.addABI(erc20abi);
 
 export class ChainParser {
@@ -191,7 +191,7 @@ export class ChainParser {
     public parseOperationFromTransaction(transaction: any) {
         const decodedInput = erc20ABIDecoder.decodeMethod(transaction.input);
         if (decodedInput && decodedInput.name === "transfer" && Array.isArray(decodedInput.params) && decodedInput.params.length == 2) {
-            let contract = transaction.to.toLowerCase();
+            const contract = transaction.to.toLowerCase();
             if (!this.blacklist.includes(contract)) {
                 this.findOrCreateERC20Contract(contract).then((erc20contract: any) => {
                     this.findOrCreateTransactionOperation(transaction.hash, transaction.from, decodedInput, erc20contract._id).then(() => {
