@@ -6,6 +6,9 @@ import { Config } from "./config";
 import { LastParsedBlock } from "../models/lastParsedBlock.model";
 
 
+// TODO: Update token balances
+
+
 export class BlockchainParser {
 
     private transactionParser: TransactionParser;
