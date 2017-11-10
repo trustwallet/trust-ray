@@ -8,7 +8,7 @@ import { Config } from "./config";
 import * as winston from "winston";
 
 const erc20abi = require("./erc20abi");
-const erc20ABIDecoder = require('abi-decoder');
+const erc20ABIDecoder = require("abi-decoder");
 erc20ABIDecoder.addABI(erc20abi);
 
 export class ChainParser {
@@ -60,10 +60,12 @@ export class ChainParser {
 
         const promises = numberBlocks.map((number) => { return this.parseBlock(number)});
         Promise.all(promises).then((blocks: any[]) => {
+            // Flat map blocks with missing transactions
+            const validBlocks = blocks.map(block => (block !== null && block.transactions !== null && block.transactions.length > 0) ? [block] : []).reduce( (a: any, b: any) => a.concat(b), [] )
 
             // ============ saving transactions ========== //
-            return this.saveTransactions(blocks).then((bulkResult: any) => {
-                blocks.map((block: any) => {
+            return this.saveTransactions(validBlocks).then((bulkResult: any) => {
+                validBlocks.map((block: any) => {
                     block.transactions.map((transaction: any) => {
                         if (transaction.input !== "0x") {
                             this.parseOperationFromTransaction(transaction);
@@ -71,8 +73,6 @@ export class ChainParser {
                     });
                 });
             });
-
-
         }).then((results: any) => {
             this.saveLastParsedBlock(endBlock);
             if (endBlock < lastBlock) {
@@ -83,7 +83,9 @@ export class ChainParser {
             }
         }).catch((err: Error) => {
             winston.error("failed to parse: " + err + ". restart again startBlock: " + startBlock + ", lastBlock: " + lastBlock);
-            this.startBlock(startBlock, lastBlock, concurentBlocks);
+            this.delay(1000).then(() => {
+                this.startBlock(startBlock, lastBlock, concurentBlocks);
+            })
         })
     }
 
@@ -112,28 +114,26 @@ export class ChainParser {
     public saveTransactions(blocks: any[]): Promise<void> {
         const bulkTransactions = Transaction.collection.initializeUnorderedBulkOp();
         blocks.map((block: any) => {
-            if (block !== null && block.transactions !== null && block.transactions.length > 0) {
-                block.transactions.map((transaction: any) => {
-                    const hash = String(transaction.hash);
-                    const from = String(transaction.from).toLowerCase();
-                    const to = String(transaction.to).toLowerCase();
-                    const transaction_data: any = {
-                        _id: hash,
-                        blockNumber: Number(transaction.blockNumber),
-                        timeStamp: String(block.timestamp),
-                        nonce: Number(transaction.nonce),
-                        from: from,
-                        to: to,
-                        value: String(transaction.value),
-                        gas: String(transaction.gas),
-                        gasPrice: String(transaction.gasPrice),
-                        input: String(transaction.input),
-                        gasUsed: String(block.gasUsed),
-                        addresses: [from, to]
-                    };
-                    bulkTransactions.find({_id: hash}).upsert().replaceOne(transaction_data);
-                })
-            }
+            block.transactions.map((transaction: any) => {
+                const hash = String(transaction.hash);
+                const from = String(transaction.from).toLowerCase();
+                const to = String(transaction.to).toLowerCase();
+                const transaction_data: any = {
+                    _id: hash,
+                    blockNumber: Number(transaction.blockNumber),
+                    timeStamp: String(block.timestamp),
+                    nonce: Number(transaction.nonce),
+                    from: from,
+                    to: to,
+                    value: String(transaction.value),
+                    gas: String(transaction.gas),
+                    gasPrice: String(transaction.gasPrice),
+                    input: String(transaction.input),
+                    gasUsed: String(block.gasUsed),
+                    addresses: [from, to]
+                };
+                bulkTransactions.find({_id: hash}).upsert().replaceOne(transaction_data);
+            })
         });
         if (bulkTransactions.length === 0) {
             return Promise.resolve()
@@ -190,8 +190,8 @@ export class ChainParser {
 
     public parseOperationFromTransaction(transaction: any) {
         const decodedInput = erc20ABIDecoder.decodeMethod(transaction.input);
-        if (decodedInput && decodedInput.name === "transfer" && Array.isArray(decodedInput.params) && decodedInput.params.length == 2) {
-            let contract = transaction.to.toLowerCase();
+        if (decodedInput && decodedInput.name === "transfer" && Array.isArray(decodedInput.params) && decodedInput.params.length == 2 && transaction.to !== null) {
+            const contract = transaction.to.toLowerCase();
             if (!this.blacklist.includes(contract)) {
                 this.findOrCreateERC20Contract(contract).then((erc20contract: any) => {
                     this.findOrCreateTransactionOperation(transaction.hash, transaction.from, decodedInput, erc20contract._id).then(() => {
