@@ -3,7 +3,8 @@ const Schema = mongoose.Schema;
 
 const ERC20ContractScheme = new Schema({
     address :  {
-        type: String
+        type: String,
+        index: true
     },
     name: {
         type: String,

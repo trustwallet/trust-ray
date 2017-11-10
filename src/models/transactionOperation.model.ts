@@ -11,7 +11,8 @@ const Schema = mongoose.Schema;
 const transactionOperationSchema = new Schema({
     transactionId: {
         type: String,
-        required: true
+        required: true, 
+        index: true
     },
     type: {
         type: String,
