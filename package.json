@@ -69,7 +69,7 @@
     "body-parser": "^1.15.2",
     "compression": "^1.6.2",
     "concurrently": "^3.4.0",
-    "connect-mongo": "^1.3.2",
+    "connect-mongo": "^2.0.0",
     "cors": "^2.8.4",
     "dotenv": "^2.0.0",
     "errorhandler": "^1.4.3",
