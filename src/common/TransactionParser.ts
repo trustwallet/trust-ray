@@ -92,7 +92,7 @@ export class TransactionParser {
         };
         return TransactionOperation.findOneAndUpdate({transactionId: transactionId}, data, {upsert: true, new: true}).then((operation: any) => {
             return Transaction.findOneAndUpdate({_id: transactionId}, {
-                operation: operation._id,
+                operations: [operation._id],
                 addresses: [from, to]
             }).catch((err: Error) => {
                 winston.error(`Could not add operation to transaction with ID ${transactionId} with error: ${err}`)
