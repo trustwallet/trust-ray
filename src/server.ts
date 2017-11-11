@@ -14,6 +14,7 @@ import * as fs from "fs";
 import * as winston from "winston";
 import { BlockchainParser } from "./common/BlockchainParser";
 
+
 /**
  * Load environment variables from .env file, where API keys and passwords are configured.
  */
