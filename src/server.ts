@@ -12,10 +12,7 @@ import { router } from "./routes/api";
 import expressValidator = require("express-validator");
 import * as fs from "fs";
 import * as winston from "winston";
-import { BlockchainUtils } from "./common/blockchain.utils";
-import { ChainParser } from "./common/chainParser";
-const cron = require("node-cron");
-import { LatestBlock } from "./models/latestBlock.model";
+import { BlockchainParser } from "./common/BlockchainParser";
 
 /**
  * Load environment variables from .env file, where API keys and passwords are configured.
@@ -25,7 +22,7 @@ dotenv.config({ path: ".env.example" });
 const port = process.env.PORT || 8000;
 const sessionSecret = "ashdfjhasdlkjfhalksdjhflak";
 const MongoStore = mongo(session);
-const chainParser = new ChainParser;
+const parser = new BlockchainParser();
 
 export class Server {
 
@@ -100,11 +97,9 @@ export class Server {
             winston.info("Press CTRL-C to stop\n");
         });
 
-        // check if a latest block is in DB, if yes, parse new blocks in the
-        // blockchain, otherwise start a full parse of the entire blockchain
-
-        chainParser.start()
+        parser.startParsing();
     }
+
 }
 
 

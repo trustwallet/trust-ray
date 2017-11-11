@@ -6,9 +6,6 @@ import { Config } from "./Config";
 import { LastParsedBlock } from "../models/lastParsedBlock.model";
 
 
-// TODO: Update token balances
-
-
 export class BlockchainParser {
 
     private transactionParser: TransactionParser;
@@ -47,7 +44,7 @@ export class BlockchainParser {
         return Promise.all([latestBlockOnChain, latestBlockInDB]);
     }
 
-    public parse(startBlock: number, lastBlock: number) {
+    private parse(startBlock: number, lastBlock: number) {
         // indicate process
         if (startBlock % 20 === 0) {
             winston.info("Currently processing block: " + startBlock);
