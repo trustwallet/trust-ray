@@ -58,10 +58,10 @@ const transactionSchema = new Schema({
         type: String,
         required: true
     },
-    operation: {
+    operations: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "TransactionOperation"
-    }
+    }]
 
 }, {
     versionKey: false

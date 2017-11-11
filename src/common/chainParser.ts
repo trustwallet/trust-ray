@@ -115,7 +115,6 @@ export class ChainParser {
         const bulkTransactions = Transaction.collection.initializeUnorderedBulkOp();
         blocks.map((block: any) => {
             block.transactions.map((transaction: any) => {
-                console.log("transaction", transaction);
                 const hash = String(transaction.hash);
                 const from = String(transaction.from).toLowerCase();
                 const to = String(transaction.to).toLowerCase();
@@ -192,7 +191,6 @@ export class ChainParser {
     public parseOperationFromTransaction(transaction: any) {
         const decodedInput = erc20ABIDecoder.decodeMethod(transaction.input);
         if (decodedInput && decodedInput.name === "transfer" && Array.isArray(decodedInput.params) && decodedInput.params.length == 2 && transaction.to !== null) {
-            console.log("transaction", transaction);
             const contract = transaction.to.toLowerCase();
             if (!this.blacklist.includes(contract)) {
                 this.findOrCreateERC20Contract(contract).then((erc20contract: any) => {

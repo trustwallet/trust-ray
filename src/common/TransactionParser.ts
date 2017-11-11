@@ -2,6 +2,7 @@ import * as winston from "winston";
 
 import { Transaction } from "../models/transaction.model";
 import { TransactionOperation } from "../models/transactionOperation.model";
+import { removeScientificNotationFromNumbString } from "./utils";
 
 const erc20abi = require("./erc20abi");
 const erc20ABIDecoder = require("abi-decoder");
@@ -17,14 +18,12 @@ export class TransactionParser {
         const bulkTransactions = Transaction.collection.initializeUnorderedBulkOp();
         const transactions: any = [];
         blocks.map((block: any) => {
-            if (block !== null && block.transactions !== null && block.transactions.length > 0) {
                 block.transactions.map((transaction: any) => {
                     const hash = String(transaction.hash);
                     const transaction_data = this.extractTransactionData(block, transaction);
                     transactions.push(new Transaction(transaction_data));
                     bulkTransactions.find({_id: hash}).upsert().replaceOne(transaction_data);
                 });
-            }
         });
 
         // execute the bulk
@@ -63,20 +62,25 @@ export class TransactionParser {
         transactions.map((transaction: any) => {
             // find contract for this transaction
             const contract = contracts.find((c: any) => c.address === transaction.to);
+
             if (contract) {
                 const decodedInput = erc20ABIDecoder.decodeMethod(transaction.input);
-                const p = this.findOrCreateTransactionOperation(transaction.hash, transaction.from, decodedInput, contract._id);
-                operationPromises.push(p);
+                if (decodedInput && decodedInput.name === "transfer" && Array.isArray(decodedInput.params) && decodedInput.params.length == 2) {
+                    const p = this.findOrCreateTransactionOperation(transaction._id, transaction.from, decodedInput, contract._id);
+                    operationPromises.push(p);
+                }
             }
         });
 
-        return Promise.all(operationPromises);
+        return Promise.all(operationPromises).catch((err: Error) => {
+            winston.error(`Could not parse transaction operations with error: ${err}`);
+        });
     }
 
     private findOrCreateTransactionOperation(transactionId: any, transactionFrom: any, decodedInput: any, erc20ContractId: any): Promise<void> {
         const from = transactionFrom.toLowerCase();
         const to = decodedInput.params[0].value.toLowerCase();
-        const value = decodedInput.params[1].value;
+        const value = removeScientificNotationFromNumbString(decodedInput.params[1].value);
 
         const data = {
             transactionId: transactionId,
@@ -86,9 +90,9 @@ export class TransactionParser {
             value: value,
             contract: erc20ContractId
         };
-        return TransactionOperation.findOneAndUpdate({transactionId}, data, {upsert: true, new: true}).then((operation: any) => {
+        return TransactionOperation.findOneAndUpdate({transactionId: transactionId}, data, {upsert: true, new: true}).then((operation: any) => {
             return Transaction.findOneAndUpdate({_id: transactionId}, {
-                operation: operation._id,
+                operations: [operation._id],
                 addresses: [from, to]
             }).catch((err: Error) => {
                 winston.error(`Could not add operation to transaction with ID ${transactionId} with error: ${err}`)
