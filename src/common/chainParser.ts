@@ -60,10 +60,12 @@ export class ChainParser {
 
         const promises = numberBlocks.map((number) => { return this.parseBlock(number)});
         Promise.all(promises).then((blocks: any[]) => {
-
+            //Flat map blocks with missing transactions
+            const validBlocks = blocks.map(block => (block !== null && block.transactions !== null && block.transactions.length > 0) ? [block] : []).reduce( (a: any, b: any) => a.concat(b), [] )
+            
             // ============ saving transactions ========== //
-            return this.saveTransactions(blocks).then((bulkResult: any) => {
-                blocks.map((block: any) => {
+            return this.saveTransactions(validBlocks).then((bulkResult: any) => {
+                validBlocks.map((block: any) => {
                     block.transactions.map((transaction: any) => {
                         if (transaction.input !== "0x") {
                             this.parseOperationFromTransaction(transaction);
@@ -112,28 +114,26 @@ export class ChainParser {
     public saveTransactions(blocks: any[]): Promise<void> {
         const bulkTransactions = Transaction.collection.initializeUnorderedBulkOp();
         blocks.map((block: any) => {
-            if (block !== null && block.transactions !== null && block.transactions.length > 0) {
-                block.transactions.map((transaction: any) => {
-                    const hash = String(transaction.hash);
-                    const from = String(transaction.from).toLowerCase();
-                    const to = String(transaction.to).toLowerCase();
-                    const transaction_data: any = {
-                        _id: hash,
-                        blockNumber: Number(transaction.blockNumber),
-                        timeStamp: String(block.timestamp),
-                        nonce: Number(transaction.nonce),
-                        from: from,
-                        to: to,
-                        value: String(transaction.value),
-                        gas: String(transaction.gas),
-                        gasPrice: String(transaction.gasPrice),
-                        input: String(transaction.input),
-                        gasUsed: String(block.gasUsed),
-                        addresses: [from, to]
-                    };
-                    bulkTransactions.find({_id: hash}).upsert().replaceOne(transaction_data);
-                })
-            }
+            block.transactions.map((transaction: any) => {
+                const hash = String(transaction.hash);
+                const from = String(transaction.from).toLowerCase();
+                const to = String(transaction.to).toLowerCase();
+                const transaction_data: any = {
+                    _id: hash,
+                    blockNumber: Number(transaction.blockNumber),
+                    timeStamp: String(block.timestamp),
+                    nonce: Number(transaction.nonce),
+                    from: from,
+                    to: to,
+                    value: String(transaction.value),
+                    gas: String(transaction.gas),
+                    gasPrice: String(transaction.gasPrice),
+                    input: String(transaction.input),
+                    gasUsed: String(block.gasUsed),
+                    addresses: [from, to]
+                };
+                bulkTransactions.find({_id: hash}).upsert().replaceOne(transaction_data);
+            })
         });
         if (bulkTransactions.length === 0) {
             return Promise.resolve()
