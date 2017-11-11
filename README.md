@@ -1,5 +1,13 @@
 # Trust Wallet Backend
-API for the Trust Ethereum Wallet. It provides functionalities for parsing the entire blockchain, retrieving transactions and tokens as well as sending tokens. Push Notification services will be included in the future.
+
+:cloud: API for the Trust Ethereum Wallet.
+
+## Features
+
+* Parsing entire blockchain
+* Retrieving transactions with operations field for ERC20 contract actions
+* Retrieving ERC20 token balances
+* Push notification service (not yet implemented)
 
 ## Endpoints
 
@@ -25,3 +33,7 @@ API for the Trust Ethereum Wallet. It provides functionalities for parsing the e
    ```$ node dist/server.js```
 * Run tests:
    ```$ npm run build && npm test```
+
+## Authors
+
+* Philipp Rieger
