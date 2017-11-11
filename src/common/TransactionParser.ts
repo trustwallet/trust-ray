@@ -2,7 +2,7 @@ import * as winston from "winston";
 
 import { Transaction } from "../models/transaction.model";
 import { TransactionOperation } from "../models/transactionOperation.model";
-import { removeScientificNotationFromNumbString } from "./utils";
+import { removeScientificNotationFromNumbString } from "./Utils";
 
 const erc20abi = require("./erc20abi");
 const erc20ABIDecoder = require("abi-decoder");

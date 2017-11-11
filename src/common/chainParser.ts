@@ -3,7 +3,7 @@ import { LastParsedBlock } from "../models/lastParsedBlock.model";
 import { ERC20Contract } from "../models/erc20Contract.model";
 import { TransactionOperation } from "../models/transactionOperation.model";
 import { Token } from "../models/token.model";
-import { Config } from "./config";
+import { Config } from "./Config";
 
 import * as winston from "winston";
 
@@ -197,7 +197,7 @@ export class ChainParser {
                     this.findOrCreateTransactionOperation(transaction.hash, transaction.from, decodedInput, erc20contract._id).then(() => {
                         // TODO: check later on
                         // this.updateTokenBalance(transaction.from, erc20Contract._id, parseInt(decodedInput.inputs[1].toString(10)))
-                    })
+                    });
                 }).catch((err: Error) => {
                     winston.error(`Could not find contract by id for ${contract} with error: ${err}`);
                 });

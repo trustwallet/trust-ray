@@ -1,17 +1,17 @@
 import { Request, Response } from "express";
-import { sendJSONresponse } from "../common/utils";
+import { sendJSONresponse} from "../common/Utils";
 import { Transaction } from "../models/transaction.model";
 import { TransactionOperation } from "../models/transactionOperation.model";
 import { ERC20Contract } from "../models/erc20Contract.model";
 import { LastParsedBlock } from "../models/lastParsedBlock.model";
-import { Config } from "../common/config";
+import { Config } from "../common/Config";
 
 import * as winston from "winston";
 const packageJSON = require("../../package.json");
 
 export class StatusController {
 
-    getStatus(req: Request, res: Response) {
+    public getStatus(req: Request, res: Response) {
         Promise.all([
             Transaction.count(),
             TransactionOperation.count(),

@@ -2,7 +2,7 @@ import * as winston from "winston";
 
 import { TransactionParser } from "./TransactionParser";
 import { TokenParser } from "./TokenParser";
-import { Config } from "./config";
+import { Config } from "./Config";
 import { LastParsedBlock } from "../models/lastParsedBlock.model";
 
 

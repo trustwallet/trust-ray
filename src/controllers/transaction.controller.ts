@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
-import { sendJSONresponse } from "../common/utils";
+import { sendJSONresponse } from "../common/Utils";
 import { Transaction } from "../models/transaction.model";
-import { TransactionOperation } from "../models/transactionOperation.model";
 import { ERC20Contract } from "../models/erc20Contract.model";
 
 

@@ -1,7 +1,7 @@
 import * as winston from "winston";
 
 import { ERC20Contract } from "../models/erc20Contract.model";
-import { Config } from "./config";
+import { Config } from "./Config";
 import { BlacklistedContract } from "../models/blacklistedContract.model";
 import {Token} from "../models/token.model";
 
