@@ -2,6 +2,7 @@ import * as winston from "winston";
 
 import { Transaction } from "../models/transaction.model";
 import { TransactionOperation } from "../models/transactionOperation.model";
+import { removeScientificNotationFromNumbString } from "./utils";
 
 const erc20abi = require("./erc20abi");
 const erc20ABIDecoder = require("abi-decoder");
@@ -79,7 +80,7 @@ export class TransactionParser {
     private findOrCreateTransactionOperation(transactionId: any, transactionFrom: any, decodedInput: any, erc20ContractId: any): Promise<void> {
         const from = transactionFrom.toLowerCase();
         const to = decodedInput.params[0].value.toLowerCase();
-        const value = decodedInput.params[1].value;
+        const value = removeScientificNotationFromNumbString(decodedInput.params[1].value);
 
         const data = {
             transactionId: transactionId,
