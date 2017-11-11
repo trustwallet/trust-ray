@@ -12,7 +12,7 @@ import { router } from "./routes/api";
 import expressValidator = require("express-validator");
 import * as fs from "fs";
 import * as winston from "winston";
-import { BlockchainUtils } from "./common/blockchain.utils";
+// import { BlockchainUtils } from "./common/blockchain.utils";
 import { ChainParser } from "./common/chainParser";
 const cron = require("node-cron");
 import { LatestBlock } from "./models/latestBlock.model";
