@@ -191,6 +191,7 @@ export class ChainParser {
     public parseOperationFromTransaction(transaction: any) {
         const decodedInput = erc20ABIDecoder.decodeMethod(transaction.input);
         if (decodedInput && decodedInput.name === "transfer" && Array.isArray(decodedInput.params) && decodedInput.params.length == 2 && transaction.to !== null) {
+            console.log("transaction", transaction);
             const contract = transaction.to.toLowerCase();
             if (!this.blacklist.includes(contract)) {
                 this.findOrCreateERC20Contract(contract).then((erc20contract: any) => {
@@ -206,6 +207,8 @@ export class ChainParser {
     }
 
     private findOrCreateTransactionOperation(transactionId: any, transactionFrom: any, decodedInput: any, erc20ContractId: any): Promise<void> {
+        console.log("transactionFrom", transactionFrom);
+        console.log("decodedInput", decodedInput);
         const from = transactionFrom.toLowerCase();
         const to = decodedInput.params[0].value.toLowerCase();
         const value = decodedInput.params[1].value;
