@@ -60,9 +60,9 @@ export class ChainParser {
 
         const promises = numberBlocks.map((number) => { return this.parseBlock(number)});
         Promise.all(promises).then((blocks: any[]) => {
-            //Flat map blocks with missing transactions
+            // Flat map blocks with missing transactions
             const validBlocks = blocks.map(block => (block !== null && block.transactions !== null && block.transactions.length > 0) ? [block] : []).reduce( (a: any, b: any) => a.concat(b), [] )
-            
+
             // ============ saving transactions ========== //
             return this.saveTransactions(validBlocks).then((bulkResult: any) => {
                 validBlocks.map((block: any) => {
@@ -83,7 +83,9 @@ export class ChainParser {
             }
         }).catch((err: Error) => {
             winston.error("failed to parse: " + err + ". restart again startBlock: " + startBlock + ", lastBlock: " + lastBlock);
-            this.startBlock(startBlock, lastBlock, concurentBlocks);
+            this.delay(1000).then(() => {
+                this.startBlock(startBlock, lastBlock, concurentBlocks);
+            })
         })
     }
 
