@@ -115,6 +115,7 @@ export class ChainParser {
         const bulkTransactions = Transaction.collection.initializeUnorderedBulkOp();
         blocks.map((block: any) => {
             block.transactions.map((transaction: any) => {
+                console.log("transaction", transaction);
                 const hash = String(transaction.hash);
                 const from = String(transaction.from).toLowerCase();
                 const to = String(transaction.to).toLowerCase();
