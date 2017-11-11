@@ -13,7 +13,7 @@ export class BlockchainParser {
 
     private transactionParser: TransactionParser;
     private tokenParser: TokenParser;
-    private concurrentBlocks = 20;
+    private concurrentBlocks = 5;
 
     constructor() {
         this.transactionParser = new TransactionParser();
@@ -62,7 +62,7 @@ export class BlockchainParser {
 
         // parse blocks
         const promises = numberBlocks.map((number) => {
-            return Config.web3.eth.getBlock(number, true)
+            return Config.web3.eth.getBlock(number, true);
         });
         Promise.all(promises).then((blocks: any) => {
             return this.transactionParser.parseTransactions(this.flatBlocksWithMissingTransactions(blocks));
@@ -70,31 +70,34 @@ export class BlockchainParser {
             return this.tokenParser.parseERC20Contracts(transactions);
         }).then(([transactions, contracts]: any) => {
             return this.transactionParser.parseTransactionOperations(transactions, contracts);
+        // TODO: finish this
+        // }).then((transactionOperations: any) => {
+        //    return this.tokenParser.updateTokenBalances(transactionOperations);
         }).then((results: any) => {
             this.saveLastParsedBlock(endBlock);
             if (endBlock < lastBlock) {
                 this.parse(endBlock + 1, lastBlock);
             } else {
                 winston.info("Last block is parsed on the blockchain, waiting for new blocks");
-                this.scheduleToRestart(10000)
+                this.scheduleToRestart(10000);
             }
         }).catch((err: Error) => {
             winston.error(`Parsing failed for blocks ${startBlock} to ${lastBlock} with error: ${err}. \nRestarting parsing for those blocks...`);
             this.delay(1000).then(() => {
                 this.parse(startBlock, lastBlock);
             });
-        })
+        });
     }
 
     private scheduleToRestart(delay: number) {
         this.delay(delay).then(() => {
-            this.startParsing()
-        })
+            this.startParsing();
+        });
     }
 
     private delay(t: number) {
         return new Promise((resolve) => {
-            setTimeout(resolve, t)
+            setTimeout(resolve, t);
         });
     }
 

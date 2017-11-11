@@ -3,6 +3,7 @@ import * as winston from "winston";
 import { ERC20Contract } from "../models/erc20Contract.model";
 import { Config } from "./config";
 import { BlacklistedContract } from "../models/blacklistedContract.model";
+import {Token} from "../models/token.model";
 
 const erc20abi = require("./erc20abi");
 const erc20ABIDecoder = require("abi-decoder");
@@ -45,7 +46,7 @@ export class TokenParser {
                     }
                 });
             } else {
-                return Promise.resolve(erc20contract)
+                return Promise.resolve(erc20contract);
             }
         }).catch((err: Error) => {
             winston.error(`Could not find contract by id for ${contractAddress} with error: ${err}`);
@@ -79,7 +80,7 @@ export class TokenParser {
             symbol: obj.symbol
         }, {upsert: true, returnNewDocument: true}).then((res: any) => {
             return ERC20Contract.findOne({address: contract}).exec();
-        })
+        });
     }
 
     private flatContracts(contracts: any) {
@@ -95,5 +96,72 @@ export class TokenParser {
                 ? [...a, b]
                 : a, []);
     }
+
+    public updateTokenBalances(transactionOperations: any) {
+        const promises: any = [];
+
+        transactionOperations.map((operation: any) => {
+            const bulk = Token.collection.initializeUnorderedBulkOp();
+
+            console.log(operation.contract);
+            console.log(operation.value);
+
+            // first try to upsert and set token
+            bulk.find({
+                address: operation.from
+            }).upsert().updateOne({
+                "$setOnInsert": {
+                    tokens: [{
+                        erc20Contract: operation.contract,
+                        balance: Number(operation.value)
+                    }]
+                }
+            });
+
+            // try to increment token balance if it exists
+            bulk.find({
+                address: operation.from,
+                tokens: {
+                    "$elemMatch": {
+                        erc20Contract: operation.contract
+                    }
+                }
+            }).updateOne({
+                "$inc": { "tokens.$.balance": Number(operation.value)}
+            });
+
+            // "push" new token to tokens array where it does not yet exist
+            bulk.find({
+                address: operation.from,
+                tokens: {
+                    "$not": {
+                        "$elemMatch": {
+                            erc20Contract: operation.contract
+                        }
+                    }
+                }
+            }).updateOne({
+                "$push": {
+                    tokens: {
+                        erc20Contract: operation.contract,
+                        balance: operation.value
+                    }
+                }
+            });
+
+            if (bulk.length > 0) {
+                const p = bulk.execute().catch((err: Error) => {
+                    winston.error(`Could not update token balance for address ${operation.from} and erc20 contract ${operation.contract} with error: ${err}`);
+                });
+                promises.push(p);
+            } else {
+                promises.push(Promise.resolve());
+            }
+        });
+
+        return Promise.all(promises);
+    }
+
+
 
 }

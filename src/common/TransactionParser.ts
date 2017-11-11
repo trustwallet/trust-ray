@@ -28,7 +28,7 @@ export class TransactionParser {
 
         // execute the bulk
         if (bulkTransactions.length === 0) {
-            return Promise.resolve()
+            return Promise.resolve();
         }
         return bulkTransactions.execute().then((bulkResult: any) => {
             return Promise.resolve(transactions);
@@ -60,6 +60,13 @@ export class TransactionParser {
     public parseTransactionOperations(transactions: any, contracts: any) {
         const operationPromises: any = [];
         transactions.map((transaction: any) => {
+
+            if (transaction._id === "0x0696523adeb7fdcd1ef21c5fab30a00f8fbd6935a7fd1031f4635a949b3e5de2") {
+                console.log("found");
+                const decodedInput = erc20ABIDecoder.decodeMethod(transaction.input);
+                console.log(decodedInput);
+            }
+
             // find contract for this transaction
             const contract = contracts.find((c: any) => c.address === transaction.to);
 
@@ -95,10 +102,10 @@ export class TransactionParser {
                 operations: [operation._id],
                 addresses: [from, to]
             }).catch((err: Error) => {
-                winston.error(`Could not add operation to transaction with ID ${transactionId} with error: ${err}`)
+                winston.error(`Could not add operation to transaction with ID ${transactionId} with error: ${err}`);
             });
         }).catch((err: Error) => {
-            winston.error(`Could not save transaction operation with error: ${err}`)
+            winston.error(`Could not save transaction operation with error: ${err}`);
         });
     }
 
