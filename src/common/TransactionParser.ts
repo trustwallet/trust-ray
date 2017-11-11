@@ -71,9 +71,7 @@ export class TransactionParser {
             }
         });
 
-        return Promise.all(operationPromises).then((operations: any) => {
-            return operations;
-        }).catch((err: Error) => {
+        return Promise.all(operationPromises).catch((err: Error) => {
             winston.error(`Could not parse transaction operations with error: ${err}`);
         });
     }

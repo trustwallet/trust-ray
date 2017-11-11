@@ -13,7 +13,7 @@ export class BlockchainParser {
 
     private transactionParser: TransactionParser;
     private tokenParser: TokenParser;
-    private concurrentBlocks = 40;
+    private concurrentBlocks = 20;
 
     constructor() {
         this.transactionParser = new TransactionParser();
