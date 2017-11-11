@@ -26,7 +26,11 @@ export class TokenParser {
                 }
             }
         });
-        return Promise.all(contractPromises);
+        return Promise.all(contractPromises).then((contracts: any) => {
+            return [transactions, this.flatUndefinedContracts(contracts)];
+        }).catch((err: Error) => {
+            winston.error(`Could not parse erc20 contracts with error: ${err}`);
+        });
     }
 
     private findOrCreateERC20Contract(contract: String): Promise<void> {
@@ -65,6 +69,14 @@ export class TokenParser {
         }, {upsert: true, returnNewDocument: true}).then((res: any) => {
             return ERC20Contract.findOne({address: contract}).exec();
         })
+    }
+
+    private flatUndefinedContracts(contracts: any) {
+        return contracts
+            .map((contract: any) => (contract !== undefined)
+                ? [contract]
+                : [])
+            .reduce( (a: any, b: any) => a.concat(b), [] );
     }
 
 }

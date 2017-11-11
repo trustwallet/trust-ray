@@ -47,7 +47,7 @@ export class BlockchainParser {
         return Promise.all([latestBlockOnChain, latestBlockInDB]);
     }
 
-    private parse(startBlock: number, lastBlock: number) {
+    public parse(startBlock: number, lastBlock: number) {
         // indicate process
         if (startBlock % 20 === 0) {
             winston.info("Currently processing block: " + startBlock);
@@ -65,16 +65,11 @@ export class BlockchainParser {
             return Config.web3.eth.getBlock(number, true)
         });
         Promise.all(promises).then((blocks: any) => {
-
-            const validBlocks = this.flatBlocksWithMissingTransactions(blocks);
-
-            // ============= parse transactions ============= //
-            this.transactionParser.parseTransactions(validBlocks).then((transactions: any) => {
-               this.tokenParser.parseERC20Contracts(transactions).then((contracts: any) => {
-                  this.transactionParser.parseTransactionOperations(transactions, contracts);
-               });
-            });
-
+            return this.transactionParser.parseTransactions(this.flatBlocksWithMissingTransactions(blocks));
+        }).then((transactions: any) => {
+            return this.tokenParser.parseERC20Contracts(transactions);
+        }).then(([transactions, contracts]: any) => {
+            return this.transactionParser.parseTransactionOperations(transactions, contracts);
         }).then((results: any) => {
             this.saveLastParsedBlock(endBlock);
             if (endBlock < lastBlock) {
@@ -84,7 +79,7 @@ export class BlockchainParser {
                 this.scheduleToRestart(10000)
             }
         }).catch((err: Error) => {
-            winston.error(`Parsing failed for blocks ${startBlock} to ${lastBlock}. Restarting again...`);
+            winston.error(`Parsing failed for blocks ${startBlock} to ${lastBlock} with error: ${err}. \nRestarting parsing for those blocks...`);
             this.delay(1000).then(() => {
                 this.parse(startBlock, lastBlock);
             });
@@ -113,8 +108,7 @@ export class BlockchainParser {
         return blocks
             .map((block: any) => (block !== null && block.transactions !== null && block.transactions.length > 0)
                 ? [block]
-                : []
-            )
+                : [])
             .reduce( (a: any, b: any) => a.concat(b), [] );
     }
 
