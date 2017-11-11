@@ -1,6 +1,6 @@
-# :cloud: Trust Wallet Backend
+# :cloud: Trust Wallet Backend :cloud:
 
-:cloud: API for the Trust Ethereum Wallet.
+API for the Trust Ethereum Wallet.
 
 ## Features
 
