@@ -206,8 +206,6 @@ export class ChainParser {
     }
 
     private findOrCreateTransactionOperation(transactionId: any, transactionFrom: any, decodedInput: any, erc20ContractId: any): Promise<void> {
-        console.log("transactionFrom", transactionFrom);
-        console.log("decodedInput", decodedInput);
         const from = transactionFrom.toLowerCase();
         const to = decodedInput.params[0].value.toLowerCase();
         const value = decodedInput.params[1].value;
