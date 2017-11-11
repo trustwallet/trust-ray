@@ -2,6 +2,7 @@ import * as winston from "winston";
 
 import { ERC20Contract } from "../models/erc20Contract.model";
 import { Config } from "./config";
+import { BlacklistedContract } from "../models/blacklistedContract.model";
 
 const erc20abi = require("./erc20abi");
 const erc20ABIDecoder = require("abi-decoder");
@@ -9,8 +10,6 @@ erc20ABIDecoder.addABI(erc20abi);
 
 
 export class TokenParser {
-
-    private blacklistedContractAddresses: any = [];
 
     public parseERC20Contracts(transactions: any) {
 
@@ -37,8 +36,14 @@ export class TokenParser {
 
     private findOrCreateERC20Contract(contractAddress: String): Promise<void> {
         return ERC20Contract.findOne({address: contractAddress}).exec().then((erc20contract: any) => {
-            if (!erc20contract && !this.blacklistedContractAddresses.includes(contractAddress)) {
-                return this.getContract(contractAddress)
+            if (!erc20contract) {
+                return BlacklistedContract.findOne({address: contractAddress}).exec().then((blacklistedContract: any) => {
+                    if (!blacklistedContract) {
+                        return this.getContract(contractAddress);
+                    } else {
+                        return Promise.resolve(erc20contract);
+                    }
+                });
             } else {
                 return Promise.resolve(erc20contract)
             }
@@ -59,7 +64,9 @@ export class TokenParser {
             return this.updateERC20Token(contract, {name, totalSupply, decimals, symbol});
         }).catch((err: Error) => {
             winston.error(`Could not parse input for contract ${contract} with error: ${err}.`);
-            this.blacklistedContractAddresses.push(contract);
+            BlacklistedContract.findOneAndUpdate({address: contract}, {address: contract}, {upsert: true}).catch((err: Error) => {
+                winston.error(`Could not save blacklisted contract ${contract} with error: ${err}.`);
+            });
         });
     }
 
