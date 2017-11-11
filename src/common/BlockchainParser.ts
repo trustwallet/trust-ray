@@ -66,8 +66,10 @@ export class BlockchainParser {
         });
         Promise.all(promises).then((blocks: any) => {
 
+            const validBlocks = this.flatBlocksWithMissingTransactions(blocks);
+
             // ============= parse transactions ============= //
-            this.transactionParser.parseTransactions(blocks).then((transactions: any) => {
+            this.transactionParser.parseTransactions(validBlocks).then((transactions: any) => {
                this.tokenParser.parseERC20Contracts(transactions).then((contracts: any) => {
                   this.transactionParser.parseTransactionOperations(transactions, contracts);
                });
@@ -83,7 +85,9 @@ export class BlockchainParser {
             }
         }).catch((err: Error) => {
             winston.error(`Parsing failed for blocks ${startBlock} to ${lastBlock}. Restarting again...`);
-            this.parse(startBlock, lastBlock);
+            this.delay(1000).then(() => {
+                this.parse(startBlock, lastBlock);
+            });
         })
     }
 
@@ -103,6 +107,15 @@ export class BlockchainParser {
         return LastParsedBlock.findOneAndUpdate({}, {lastBlock: block}, {upsert: true}).catch((err: Error) => {
             winston.error(`Could not save last parsed block to DB with error: ${err}`);
         });
+    }
+
+    private flatBlocksWithMissingTransactions(blocks: any) {
+        return blocks
+            .map((block: any) => (block !== null && block.transactions !== null && block.transactions.length > 0)
+                ? [block]
+                : []
+            )
+            .reduce( (a: any, b: any) => a.concat(b), [] );
     }
 
 }

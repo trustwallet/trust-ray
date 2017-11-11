@@ -17,14 +17,12 @@ export class TransactionParser {
         const bulkTransactions = Transaction.collection.initializeUnorderedBulkOp();
         const transactions: any = [];
         blocks.map((block: any) => {
-            if (block !== null && block.transactions !== null && block.transactions.length > 0) {
                 block.transactions.map((transaction: any) => {
                     const hash = String(transaction.hash);
                     const transaction_data = this.extractTransactionData(block, transaction);
                     transactions.push(new Transaction(transaction_data));
                     bulkTransactions.find({_id: hash}).upsert().replaceOne(transaction_data);
                 });
-            }
         });
 
         // execute the bulk
@@ -63,6 +61,7 @@ export class TransactionParser {
         transactions.map((transaction: any) => {
             // find contract for this transaction
             const contract = contracts.find((c: any) => c.address === transaction.to);
+
             if (contract) {
                 const decodedInput = erc20ABIDecoder.decodeMethod(transaction.input);
                 const p = this.findOrCreateTransactionOperation(transaction.hash, transaction.from, decodedInput, contract._id);

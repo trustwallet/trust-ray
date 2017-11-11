@@ -16,7 +16,7 @@ export class TokenParser {
         const contractPromises: any = [];
         transactions.map((transaction: any) => {
             const decodedInput = erc20ABIDecoder.decodeMethod(transaction.input);
-            if (decodedInput && decodedInput.name === "transfer" && Array.isArray(decodedInput.params) && decodedInput.params.length == 2) {
+            if (decodedInput && decodedInput.name === "transfer" && Array.isArray(decodedInput.params) && decodedInput.params.length == 2 && transaction.to !== null) {
                 const contract = transaction.to.toLowerCase();
                 if (!this.blacklistedContractAddresses.includes(contract)) {
                     const p = this.findOrCreateERC20Contract(contract).catch((err: Error) => {
