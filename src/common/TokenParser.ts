@@ -24,7 +24,7 @@ export class TokenParser {
         });
         // remove duplicates
         contractAddresses = contractAddresses.filter((elem: any, pos: any, arr: any) => arr.indexOf(elem) == pos);
-        // store new contracts
+        // process contracts
         const promises = contractAddresses.map((contractAddress: any) => {
             return this.findOrCreateERC20Contract(contractAddress);
         });
@@ -78,7 +78,7 @@ export class TokenParser {
     private flatContracts(contracts: any) {
         // remove undefined contracts
         const flatUndefinedContracts =  contracts
-            .map((contract: any) => (contract !== undefined)
+            .map((contract: any) => (contract !== undefined && contract !== null)
                 ? [contract]
                 : [])
             .reduce( (a: any, b: any) => a.concat(b), [] );

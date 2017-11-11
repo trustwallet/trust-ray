@@ -64,12 +64,18 @@ export class TransactionParser {
 
             if (contract) {
                 const decodedInput = erc20ABIDecoder.decodeMethod(transaction.input);
-                const p = this.findOrCreateTransactionOperation(transaction.hash, transaction.from, decodedInput, contract._id);
-                operationPromises.push(p);
+                if (decodedInput && decodedInput.name === "transfer" && Array.isArray(decodedInput.params) && decodedInput.params.length == 2) {
+                    const p = this.findOrCreateTransactionOperation(transaction._id, transaction.from, decodedInput, contract._id);
+                    operationPromises.push(p);
+                }
             }
         });
 
-        return Promise.all(operationPromises);
+        return Promise.all(operationPromises).then((operations: any) => {
+            return operations;
+        }).catch((err: Error) => {
+            winston.error(`Could not parse transaction operations with error: ${err}`);
+        });
     }
 
     private findOrCreateTransactionOperation(transactionId: any, transactionFrom: any, decodedInput: any, erc20ContractId: any): Promise<void> {
@@ -85,7 +91,7 @@ export class TransactionParser {
             value: value,
             contract: erc20ContractId
         };
-        return TransactionOperation.findOneAndUpdate({transactionId}, data, {upsert: true, new: true}).then((operation: any) => {
+        return TransactionOperation.findOneAndUpdate({transactionId: transactionId}, data, {upsert: true, new: true}).then((operation: any) => {
             return Transaction.findOneAndUpdate({_id: transactionId}, {
                 operation: operation._id,
                 addresses: [from, to]
