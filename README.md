@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/TrustWallet/trust-wallet-backend.svg?branch=master)](https://travis-ci.org/TrustWallet/trust-wallet-backend)
 [![License](https://img.shields.io/badge/license-GPL3-green.svg?style=flat)](https://github.com/fastlane/fastlane/blob/master/LICENSE)
+[![HitCount](http://hits.dwyl.io/rip32700/TrustWallet/trust-wallet-backend.svg)](http://hits.dwyl.io/rip32700/TrustWallet/trust-wallet-backend)
 
 API for the Trust Ethereum Wallet.
 
