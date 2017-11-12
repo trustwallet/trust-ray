@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import { sendJSONresponse } from "../common/Utils";
-import { Transaction } from "../models/transaction.model";
-import { TransactionOperation } from "../models/transactionOperation.model";
-import { ERC20Contract } from "../models/erc20Contract.model";
-import { LastParsedBlock } from "../models/lastParsedBlock.model";
+import { Transaction } from "../models/TransactionModel";
+import { TransactionOperation } from "../models/TransactionOperationModel";
+import { ERC20Contract } from "../models/Erc20ContractModel";
+import { LastParsedBlock } from "../models/LastParsedBlockModel";
 import { Config } from "../common/Config";
 
 import * as winston from "winston";
@@ -20,8 +20,8 @@ export class StatusController {
             Config.web3.eth.getBlockNumber(),
             Config.web3.eth.net.getId()
         ]).then(([transactionsCount, operationsCount, erc20contractsCount, lastParsedBlock, latestBlockNumberInBC, networkId]) => {
-            const latestBlockNumberInDB = lastParsedBlock.lastBlock
-            const blocksToSync = latestBlockNumberInBC - latestBlockNumberInDB
+            const latestBlockNumberInDB = lastParsedBlock.lastBlock;
+            const blocksToSync = latestBlockNumberInBC - latestBlockNumberInDB;
             sendJSONresponse(res, 200, {
                 database: {
                     transactions: parseInt(transactionsCount).toLocaleString(),

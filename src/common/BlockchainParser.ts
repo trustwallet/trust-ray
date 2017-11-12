@@ -3,14 +3,14 @@ import * as winston from "winston";
 import { TransactionParser } from "./TransactionParser";
 import { TokenParser } from "./TokenParser";
 import { Config } from "./Config";
-import { LastParsedBlock } from "../models/lastParsedBlock.model";
+import { LastParsedBlock } from "../models/LastParsedBlockModel";
 
 
 export class BlockchainParser {
 
     private transactionParser: TransactionParser;
     private tokenParser: TokenParser;
-    private concurrentBlocks = 5;
+    private concurrentBlocks = 1;
 
     constructor() {
         this.transactionParser = new TransactionParser();

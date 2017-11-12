@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { sendJSONresponse } from "../common/Utils";
-import { Transaction } from "../models/transaction.model";
-import { ERC20Contract } from "../models/erc20Contract.model";
+import { Transaction } from "../models/TransactionModel";
+import { ERC20Contract } from "../models/Erc20ContractModel";
 
 
 export class TransactionController {

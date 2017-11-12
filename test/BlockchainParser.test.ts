@@ -1,7 +1,6 @@
-import { ChainParser } from "../src/common/chainParser";
 
 
-describe("ChainParser Tests", () => {
+describe("BlockchainParser Tests", () => {
 
     it("should parse a transaction from a block", () => {
         // TODO

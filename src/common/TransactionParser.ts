@@ -1,7 +1,7 @@
 import * as winston from "winston";
 
-import { Transaction } from "../models/transaction.model";
-import { TransactionOperation } from "../models/transactionOperation.model";
+import { Transaction } from "../models/TransactionModel";
+import { TransactionOperation } from "../models/TransactionOperationModel";
 import { removeScientificNotationFromNumbString } from "./Utils";
 
 const erc20abi = require("./contracts/Erc20Abi");

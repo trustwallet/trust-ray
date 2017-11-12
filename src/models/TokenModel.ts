@@ -5,8 +5,7 @@ const Schema = mongoose.Schema;
 const tokenSchema = new Schema({
     address: {
         type: String,
-        required: true,
-        unique: true
+        required: true
     },
     tokens: [{
         erc20Contract: {
@@ -25,6 +24,6 @@ const tokenSchema = new Schema({
 
 tokenSchema.plugin(mongoosePaginate);
 
-tokenSchema.index({address: 1});
+// tokenSchema.index({address: 1}, {name: "tokenAddressIndex"});
 
 export const Token = mongoose.model("Token", tokenSchema );

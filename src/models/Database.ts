@@ -1,12 +1,5 @@
 import * as mongoose from "mongoose";
 import * as winston from "winston";
-
-require("../models/latestBlock.model");
-require("../models/lastParsedBlock.model");
-require("./token.model");
-require("../models/transaction.model");
-require("../models/token.model");
-
 import Bluebird = require("bluebird");
 (<any>mongoose).Promise = Bluebird;
 

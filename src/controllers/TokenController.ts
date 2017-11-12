@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { sendJSONresponse } from "../common/Utils";
-import { Token } from "../models/token.model";
+import { Token } from "../models/TokenModel";
 
 
 export class TokenController {
