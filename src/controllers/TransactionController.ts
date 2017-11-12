@@ -15,6 +15,7 @@ export class TransactionController {
             const address = queryParams.address.toLowerCase();
             query.addresses = { "$in": [address] };
         }
+        query.blockNumber = { "$gte": queryParams.startBlock, "$lte": queryParams.endBlock};
 
         Transaction.paginate(query, {
             page: queryParams.page,
@@ -60,12 +61,15 @@ export class TransactionController {
     }
 
     private static extractQueryParameters(req: Request) {
-        let page = parseInt(req.query.page, 50);
+
+        // page parameter
+        let page = parseInt(req.query.page);
         if (isNaN(page) || page < 1) {
             page = 1;
         }
 
-        let limit = parseInt(req.query.limit, 50);
+        // limit parameter
+        let limit = parseInt(req.query.limit);
         if (isNaN(limit)) {
             limit = 50;
         } else if (limit > 500) {
@@ -74,10 +78,25 @@ export class TransactionController {
             limit = 1;
         }
 
+        // address parameter
         const address = req.query.address;
+
+        // start block parameter
+        let startBlock = parseInt(req.query.startBlock);
+        if (isNaN(startBlock) || startBlock < 1) {
+            startBlock = 1;
+        }
+
+        // end block parameter
+        let endBlock = parseInt(req.query.endBlock);
+        if (isNaN(endBlock) || endBlock < 1 || endBlock < startBlock) {
+            endBlock = 9999999999;
+        }
 
         return {
             address: address,
+            startBlock: startBlock,
+            endBlock: endBlock,
             page: page,
             limit: limit
         };
