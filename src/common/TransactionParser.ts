@@ -14,6 +14,9 @@ export class TransactionParser {
     // ========================== TRANSACTION PARSING ========================== //
 
     public parseTransactions(blocks: any) {
+        if (blocks.length == 0) {
+            return Promise.resolve();
+        }
         // collect bulk inserts
         const bulkTransactions = Transaction.collection.initializeUnorderedBulkOp();
         const transactions: any = [];
@@ -58,6 +61,10 @@ export class TransactionParser {
     // ========================== OPERATION PARSING ========================== //
 
     public parseTransactionOperations(transactions: any, contracts: any) {
+        if (!transactions || !contracts) {
+            return Promise.resolve();
+        }
+
         const operationPromises: any = [];
         transactions.map((transaction: any) => {
             // find contract for this transaction

@@ -13,6 +13,9 @@ erc20ABIDecoder.addABI(erc20abi);
 export class TokenParser {
 
     public parseERC20Contracts(transactions: any) {
+        if (!transactions) {
+            return Promise.resolve([undefined, undefined]);
+        }
 
         // extract  valid contracts
         let contractAddresses: any = [];
