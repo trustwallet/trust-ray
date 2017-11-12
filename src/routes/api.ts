@@ -1,7 +1,7 @@
 import  * as express from "express";
-import { TransactionController } from "../controllers/transaction.controller";
-import { TokenController } from "../controllers/token.controller";
-import { StatusController } from "../controllers/status.controller";
+import { TransactionController } from "../controllers/TransactionController";
+import { TokenController } from "../controllers/TokenController";
+import { StatusController } from "../controllers/StatusController";
 
 const router = express["Router"]();
 
