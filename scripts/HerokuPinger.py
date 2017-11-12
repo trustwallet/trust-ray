@@ -4,7 +4,7 @@
 # @author: Philipp Rieger
 #
 # Example of usage:
-# $ python3 HerokuPinger.py --url "https://test-trust-wallet-backend.herokuapp.com/"
+# $ python3 HerokuPinger.py "https://test-trust-wallet-backend.herokuapp.com/"
 #
 ###################################################################################################
 
@@ -20,7 +20,7 @@ URL = None
 def parse_args():
 	global URL
 	parser = argparse.ArgumentParser()
-	parser.add_argument("--url", help="specify the URL to ping")
+	parser.add_argument("url", help="specify the URL to ping")
 	args = parser.parse_args()
 	URL = args.url
 	print("Set URL to {}".format(URL))
