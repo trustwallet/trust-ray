@@ -4,7 +4,7 @@ import { ERC20Contract } from "../models/erc20Contract.model";
 import { Config } from "./Config";
 import { Token } from "../models/token.model";
 
-const erc20abi = require("./erc20abi");
+const erc20abi = require("./contracts/Erc20Abi");
 const erc20ABIDecoder = require("abi-decoder");
 erc20ABIDecoder.addABI(erc20abi);
 

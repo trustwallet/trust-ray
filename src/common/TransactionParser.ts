@@ -4,7 +4,7 @@ import { Transaction } from "../models/transaction.model";
 import { TransactionOperation } from "../models/transactionOperation.model";
 import { removeScientificNotationFromNumbString } from "./Utils";
 
-const erc20abi = require("./erc20abi");
+const erc20abi = require("./contracts/Erc20Abi");
 const erc20ABIDecoder = require("abi-decoder");
 erc20ABIDecoder.addABI(erc20abi);
 
