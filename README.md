@@ -1,5 +1,7 @@
 # :cloud: Trust Wallet Backend :cloud:
 
+[![License](https://img.shields.io/badge/license-GPL3-green.svg?style=flat)](https://github.com/fastlane/fastlane/blob/master/LICENSE)
+
 API for the Trust Ethereum Wallet.
 
 ## Features
