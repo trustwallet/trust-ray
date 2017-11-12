@@ -15,7 +15,8 @@ const transactionSchema = new Schema({
     },
     blockNumber: {
         type: Number,
-        required: true
+        required: true,
+        index: true
     },
     timeStamp: {
         type: String,
