@@ -21,7 +21,7 @@ export class TransactionController {
             limit: queryParams.limit,
             sort: {timeStamp: -1},
             populate: {
-                path: "operation",
+                path: "operations",
                 populate: {
                     path: "contract",
                     model: "ERC20Contract"
@@ -43,7 +43,7 @@ export class TransactionController {
         Transaction.findOne({
             _id: req.params.transactionId
         }).populate({
-            path: "operation",
+            path: "operations",
             populate: {
                 path: "contract",
                 model: "ERC20Contract"
