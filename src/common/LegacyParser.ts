@@ -10,9 +10,14 @@ export class LegacyParser {
             $or: [
                 {operations: { $exists: false }},
                 {operations: { $eq: [] }},
+                {addresses:  { $exists: false }},
+                {addresses:  { $eq: [] }}
             ],
         }).limit(100).exec().then((transactions: any) => {
             if (transactions) {
+                transactions.map((transaction: any) => {
+                   transaction.address = [transaction.from, transaction.to];
+                });
                 return new TokenParser().parseERC20Contracts(transactions).then(([transactions, contracts]: any) => {
                     new TransactionParser().parseTransactionOperations(transactions, contracts);
                 });
