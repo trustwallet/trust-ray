@@ -97,8 +97,8 @@ export class TokenParser {
         transactionOperations.map((operation: any) => {
             const bulk = Token.collection.initializeUnorderedBulkOp();
 
-            console.log(operation.contract);
-            console.log(operation.value);
+            winston.info(operation.contract);
+            winston.info(operation.value);
 
             // first try to upsert and set token
             bulk.find({
