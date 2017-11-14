@@ -6,17 +6,20 @@ import { TransactionParser } from "./TransactionParser";
 export class LegacyParser {
 
     public reparseChain() {
+
+
         Transaction.find({
             $or: [
-                {operations: { $exists: false }},
-                {operations: { $eq: [] }},
                 {addresses:  { $exists: false }},
                 {addresses:  { $eq: [] }}
             ],
-        }).limit(100).exec().then((transactions: any) => {
+        }).limit(500).exec().then((transactions: any) => {
             if (transactions) {
                 transactions.map((transaction: any) => {
-                   transaction.address = [transaction.from, transaction.to];
+                   transaction.addresses = [transaction.from, transaction.to];
+                   transaction.save().catch((err: Error) => {
+                       console.log(`Error while saving transaction ${transaction._id} with error ${err}`);
+                   });
                 });
                 return new TokenParser().parseERC20Contracts(transactions).then(([transactions, contracts]: any) => {
                     new TransactionParser().parseTransactionOperations(transactions, contracts);
@@ -25,6 +28,7 @@ export class LegacyParser {
                 Promise.resolve();
             }
         }).then(() => {
+            console.log("Parsed 500 transactions");
             this.scheduleToRestart(1000);
         });
     }
