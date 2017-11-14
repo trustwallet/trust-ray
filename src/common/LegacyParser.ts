@@ -1,9 +1,12 @@
 import { Transaction } from "../models/TransactionModel";
 import { TokenParser } from "./TokenParser";
 import { TransactionParser } from "./TransactionParser";
+import * as winston from "winston";
 
 
 export class LegacyParser {
+
+    private parallelReparse = 200;
 
     public reparseChain() {
 
@@ -11,9 +14,10 @@ export class LegacyParser {
         Transaction.find({
             $or: [
                 {addresses:  { $exists: false }},
-                {addresses:  { $eq: [] }}
+                {addresses:  { $eq: [] }},
+                {timeStamp:  { $gt: "1510567093" }}
             ],
-        }).limit(500).exec().then((transactions: any) => {
+        }).limit(this.parallelReparse).exec().then((transactions: any) => {
             if (transactions) {
                 transactions.map((transaction: any) => {
                    transaction.addresses = [transaction.from, transaction.to];
@@ -28,8 +32,10 @@ export class LegacyParser {
                 Promise.resolve();
             }
         }).then(() => {
-            console.log("Parsed 500 transactions");
+            winston.info(`Parsed ${this.parallelReparse} transactions`);
             this.scheduleToRestart(1000);
+        }).catch((err: Error) => {
+            winston.info(`Error while reparsing: ${err}`);
         });
     }
 
