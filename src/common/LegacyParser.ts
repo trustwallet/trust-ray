@@ -32,7 +32,7 @@ export class LegacyParser {
                 Promise.resolve();
             }
         }).then(() => {
-            winston.info(`Parsed ${this.parallelReparse} transactions`);
+            winston.info(`Reparsed ${this.parallelReparse} transactions`);
             this.scheduleToRestart(1000);
         }).catch((err: Error) => {
             winston.info(`Error while reparsing: ${err}`);
