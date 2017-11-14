@@ -18,7 +18,7 @@ export class LegacyParser {
                 {timeStamp:  { $gt: "1510567093" }}
             ],
         }).limit(this.parallelReparse).exec().then((transactions: any) => {
-            if (transactions) {
+            if (transactions && transactions.length > 0) {
                 transactions.map((transaction: any) => {
                    transaction.addresses = [transaction.from, transaction.to];
                    transaction.save().catch((err: Error) => {
@@ -29,11 +29,16 @@ export class LegacyParser {
                     new TransactionParser().parseTransactionOperations(transactions, contracts);
                 });
             } else {
-                Promise.resolve();
+                return Promise.resolve("Finished");
             }
-        }).then(() => {
-            winston.info(`Reparsed ${this.parallelReparse} transactions`);
-            this.scheduleToRestart(1000);
+        }).then((result: any) => {
+            if (result !== "Finished") {
+                winston.info(`Reparsed ${this.parallelReparse} transactions`);
+                this.scheduleToRestart(1000);
+            } else {
+                winston.info(`Finished reparse`);
+            }
+
         }).catch((err: Error) => {
             winston.info(`Error while reparsing: ${err}`);
         });
