@@ -7,6 +7,8 @@ import * as winston from "winston";
 export class LegacyParser {
 
     private parallelReparse = 200;
+    private tokenParser = new TokenParser();
+    private transactionParser = new TransactionParser();
 
     public reparseChain() {
 
@@ -25,8 +27,8 @@ export class LegacyParser {
                        console.log(`Error while saving transaction ${transaction._id} with error ${err}`);
                    });
                 });
-                return new TokenParser().parseERC20Contracts(transactions).then(([transactions, contracts]: any) => {
-                    new TransactionParser().parseTransactionOperations(transactions, contracts);
+                return this.tokenParser.parseERC20Contracts(transactions).then(([transactions, contracts]: any) => {
+                    this.transactionParser.parseTransactionOperations(transactions, contracts);
                 });
             } else {
                 return Promise.resolve("Finished");
