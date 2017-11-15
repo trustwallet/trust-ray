@@ -40,7 +40,9 @@ API for the Trust Ethereum Wallet.
 
 ## Authors
 
-* Philipp Rieger
+* [Philipp Rieger](https://github.com/rip32700)
+* [Michael Scoff](https://github.com/michaelScoff)
+* [Mykola Radchenko](https://github.com/kolya182)
 
 
 ## Contributing

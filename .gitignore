@@ -17,4 +17,3 @@ $ Ignore the .env file for the server
 *.log
 
 dist
-package-lock.json

@@ -92,6 +92,9 @@ export class TokenParser {
     }
 
     public updateTokenBalances(transactionOperations: any) {
+        if (!transactionOperations) {
+            return Promise.resolve(undefined);
+        }
         const promises: any = [];
 
         transactionOperations.map((operation: any) => {
@@ -99,7 +102,7 @@ export class TokenParser {
 
             winston.info(operation.contract);
             winston.info(operation.value);
-
+          
             // first try to upsert and set token
             bulk.find({
                 address: operation.from
@@ -107,7 +110,7 @@ export class TokenParser {
                 "$setOnInsert": {
                     tokens: [{
                         erc20Contract: operation.contract,
-                        balance: Number(operation.value)
+                        balance:  Number(operation.value)
                     }]
                 }
             });

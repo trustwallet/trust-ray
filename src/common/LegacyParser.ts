@@ -1,31 +1,48 @@
 import { Transaction } from "../models/TransactionModel";
 import { TokenParser } from "./TokenParser";
 import { TransactionParser } from "./TransactionParser";
+import * as winston from "winston";
 
 
 export class LegacyParser {
 
+    private parallelReparse = 200;
+    private tokenParser = new TokenParser();
+    private transactionParser = new TransactionParser();
+
     public reparseChain() {
+
+
         Transaction.find({
             $or: [
-                {operations: { $exists: false }},
-                {operations: { $eq: [] }},
                 {addresses:  { $exists: false }},
-                {addresses:  { $eq: [] }}
+                {addresses:  { $eq: [] }},
+                {timeStamp:  { $gt: "1510567093" }}
             ],
-        }).limit(100).exec().then((transactions: any) => {
-            if (transactions) {
+        }).limit(this.parallelReparse).exec().then((transactions: any) => {
+            if (transactions && transactions.length > 0) {
                 transactions.map((transaction: any) => {
-                   transaction.address = [transaction.from, transaction.to];
+                   transaction.addresses = [transaction.from, transaction.to];
+                   transaction.save().catch((err: Error) => {
+                       console.log(`Error while saving transaction ${transaction._id} with error ${err}`);
+                   });
                 });
-                return new TokenParser().parseERC20Contracts(transactions).then(([transactions, contracts]: any) => {
-                    new TransactionParser().parseTransactionOperations(transactions, contracts);
+                return this.tokenParser.parseERC20Contracts(transactions).then(([transactions, contracts]: any) => {
+                    this.transactionParser.parseTransactionOperations(transactions, contracts);
                 });
             } else {
-                Promise.resolve();
+                return Promise.resolve("Finished");
             }
-        }).then(() => {
-            this.scheduleToRestart(1000);
+        }).then((result: any) => {
+            if (result !== "Finished") {
+                winston.info(`Reparsed ${this.parallelReparse} transactions`);
+                this.scheduleToRestart(1000);
+            } else {
+                winston.info(`Finished reparse`);
+            }
+
+        }).catch((err: Error) => {
+            winston.info(`Error while reparsing: ${err}`);
         });
     }
 
