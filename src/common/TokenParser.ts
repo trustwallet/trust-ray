@@ -92,13 +92,13 @@ export class TokenParser {
     }
 
     public updateTokenBalances(transactionOperations: any) {
+        if (!transactionOperations) {
+            return Promise.resolve(undefined);
+        }
         const promises: any = [];
 
         transactionOperations.map((operation: any) => {
             const bulk = Token.collection.initializeUnorderedBulkOp();
-
-            console.log(operation.contract);
-            console.log(operation.value);
 
             // first try to upsert and set token
             bulk.find({
@@ -107,7 +107,7 @@ export class TokenParser {
                 "$setOnInsert": {
                     tokens: [{
                         erc20Contract: operation.contract,
-                        balance: Number(operation.value)
+                        balance:  Number(operation.value)
                     }]
                 }
             });
