@@ -14,9 +14,13 @@ export class LegacyParser {
 
 
         Transaction.find({
-            $or: [
-                {addresses:  { $exists: false }},
-                {addresses:  { $eq: [] }},
+            $and: [  
+                { 
+                    $or: [
+                       {addresses:  { $exists: false }},
+                       {addresses:  { $eq: [] }},
+                    ]
+                },
                 {timeStamp:  { $gt: "1510567093" }}
             ],
         }).limit(this.parallelReparse).exec().then((transactions: any) => {
