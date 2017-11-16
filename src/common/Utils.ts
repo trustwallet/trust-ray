@@ -1,4 +1,6 @@
 import { Response } from "express";
+import * as winston from "winston";
+const axios = require("axios");
 
 /**
  * Fills the status and JSOn data into a response object.
@@ -60,4 +62,15 @@ export function loadContractABIs() {
         }
     });
     return dstList;
+}
+
+export function fetchAbiFromEtherscan(contract: any) {
+    const URL = `https://api.etherscan.io/api?module=contract&action=getabi&address=${contract}&apikey=YourApiKeyToken`;
+    return axios.get(URL).then((response: any) => {
+        if (response.data.message === "OK") {
+            return response.data.result;
+        }
+    }).catch((err: any) => {
+        winston.error(`Error while fetching contract ${contract} from etherscan with error: ${err}`);
+    });
 }

@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@types/async": "^2.0.40",
+    "@types/axios": "^0.14.0",
     "@types/bcrypt-nodejs": "0.0.30",
     "@types/body-parser": "^1.16.2",
     "@types/chai": "^4.0.4",
@@ -46,6 +47,7 @@
     "@types/winston": "^2.3.7",
     "abi-decoder": "^1.0.9",
     "async": "^2.1.2",
+    "axios": "^0.17.1",
     "bcrypt-nodejs": "^0.0.3",
     "bignumber.js": "^4.1.0",
     "bluebird": "^3.5.1",
