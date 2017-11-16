@@ -42,3 +42,22 @@ export function removeScientificNotationFromNumbString(numberString: string) {
         z += "0";
     return str + z;
 }
+
+/**
+ * Loads all ABIs currently stored in {root}/common/contracts/
+ * and pushes them into a list that is then returned.
+ *
+ * @returns {any}
+ */
+export function loadContractABIs() {
+    const dstList: any = [];
+    const path = require("path");
+    const normalizedPath = path.join(__dirname, "contracts");
+    require("fs").readdirSync(normalizedPath).forEach(function(file: any) {
+        if (path.extname(file) === ".js") {
+            const abi = require(path.join(normalizedPath, file));
+            dstList.push(abi);
+        }
+    });
+    return dstList;
+}
