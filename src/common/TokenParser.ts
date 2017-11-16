@@ -60,7 +60,7 @@ export class TokenParser {
      * the given contract with it. If any succeeds, update
      * database with given information. If all ABIs fail,
      * get the ABI from this contract address and save it.
-     * Then try to re-parse contract. (Fail branch still TODO)
+     * Then try to re-parse contract.
      *
      * @param {String} contract
      * @returns {Promise<void>}
@@ -92,8 +92,25 @@ export class TokenParser {
             });
         }).catch((err: Error) => {
             winston.error(`Could not parse input for contract ${contract}.`);
-            // TODO: get contract ABI
+            /* TODO: uncomment
+            return this.generateAbiForContract(contract).then(() => {
+                // after adding ABI, restart parse
+                return this.getContract(contract);
+            });
+            */
         });
+    }
+
+    private generateAbiForContract(contract: any) {
+        winston.info(`Generating ABI file for contract ${contract}.`);
+
+        // fetch ABI for contract from etherscan.io
+
+        // create file for it in common/contracts/
+
+        // load file and add it to local abi array and decoder
+
+        // return promise
     }
 
     private updateERC20Token(contract: String, obj: any): Promise<void> {
