@@ -72,9 +72,7 @@ export class TokenParser {
             totalSupply: obj.totalSupply,
             decimals: obj.decimals,
             symbol: obj.symbol
-        }, {upsert: true, returnNewDocument: true}).then((res: any) => {
-            return ERC20Contract.findOne({address: contract}).exec();
-        });
+        }, {upsert: true, new: true}).then((savedToken: any) => savedToken);
     }
 
     private flatContracts(contracts: any) {
