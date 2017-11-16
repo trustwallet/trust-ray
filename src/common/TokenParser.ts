@@ -55,6 +55,16 @@ export class TokenParser {
         });
     }
 
+    /**
+     * For each ABI that is currently stored, try to parse
+     * the given contract with it. If any succeeds, update
+     * database with given information. If all ABIs fail,
+     * get the ABI from this contract address and save it.
+     * Then try to re-parse contract. (Fail branch still TODO)
+     *
+     * @param {String} contract
+     * @returns {Promise<void>}
+     */
     private getContract(contract: String): Promise<void> {
         const promises = [];
         for (const abi of this.abiList) {
@@ -82,6 +92,7 @@ export class TokenParser {
             });
         }).catch((err: Error) => {
             winston.error(`Could not parse input for contract ${contract}.`);
+            // TODO: get contract ABI
         });
     }
 
