@@ -3,14 +3,19 @@ import * as winston from "winston";
 import { ERC20Contract } from "../models/Erc20ContractModel";
 import { Token } from "../models/TokenModel";
 import { Config } from "./Config";
-
-
-const erc20abi = require("./contracts/Erc20Abi");
-const erc20ABIDecoder = require("abi-decoder");
-erc20ABIDecoder.addABI(erc20abi);
+import { loadContractABIs } from "./Utils";
 
 
 export class TokenParser {
+
+    private abiList = loadContractABIs();
+    private abiDecoder = require("abi-decoder");
+
+    constructor() {
+        for (const abi of this.abiList) {
+            this.abiDecoder.addABI(abi);
+        }
+    }
 
     public parseERC20Contracts(transactions: any) {
         if (!transactions) {
@@ -20,7 +25,7 @@ export class TokenParser {
         // extract  valid contracts
         let contractAddresses: any = [];
         transactions.map((transaction: any) => {
-            const decodedInput = erc20ABIDecoder.decodeMethod(transaction.input);
+            const decodedInput = this.abiDecoder.decodeMethod(transaction.input);
             if (decodedInput && decodedInput.name === "transfer" && Array.isArray(decodedInput.params) && decodedInput.params.length == 2 && transaction.to !== null) {
                 contractAddresses.push(transaction.to.toLowerCase());
             }
@@ -51,17 +56,32 @@ export class TokenParser {
     }
 
     private getContract(contract: String): Promise<void> {
-        const contractInstance = new Config.web3.eth.Contract(erc20abi, contract);
+        const promises = [];
+        for (const abi of this.abiList) {
+            const contractInstance = new Config.web3.eth.Contract(abi, contract);
 
-        const p1 = contractInstance.methods.name().call();
-        const p2 = contractInstance.methods.totalSupply().call();
-        const p3 = contractInstance.methods.decimals().call();
-        const p4 = contractInstance.methods.symbol().call();
+            const p1 = contractInstance.methods.name().call();
+            const p2 = contractInstance.methods.totalSupply().call();
+            const p3 = contractInstance.methods.decimals().call();
+            const p4 = contractInstance.methods.symbol().call();
 
-        return Promise.all([p1, p2, p3, p4]).then(([name, totalSupply, decimals, symbol]: any[]) => {
-            return this.updateERC20Token(contract, {name, totalSupply, decimals, symbol});
+            promises.push(Promise.all([p1, p2, p3, p4]).then(([name, totalSupply, decimals, symbol]: any[]) => {
+                return [name, totalSupply, decimals, symbol];
+            }).catch((err: Error) => {
+               /* don't do anything here, but catch error */
+            }));
+        }
+
+        return Promise.all(promises).then((contracts: any[]) => {
+            const contractObj = contracts.filter((ele: any) => { return ele !== undefined })[0];
+            return this.updateERC20Token(contract, {
+                name: contractObj[0],
+                totalSupply: contractObj[1],
+                decimals: contractObj[2],
+                symbol: contractObj[3]
+            });
         }).catch((err: Error) => {
-            winston.error(`Could not parse input for contract ${contract} with error: ${err}.`);
+            winston.error(`Could not parse input for contract ${contract}.`);
         });
     }
 
@@ -98,9 +118,6 @@ export class TokenParser {
         transactionOperations.map((operation: any) => {
             const bulk = Token.collection.initializeUnorderedBulkOp();
 
-            winston.info(operation.contract);
-            winston.info(operation.value);
-          
             // first try to upsert and set token
             bulk.find({
                 address: operation.from
