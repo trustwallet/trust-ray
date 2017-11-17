@@ -6,7 +6,7 @@ import * as winston from "winston";
 
 export class LegacyParser {
 
-    private parallelReparse = 200;
+    private parallelReparse = 500;
     private tokenParser = new TokenParser();
     private transactionParser = new TransactionParser();
 
