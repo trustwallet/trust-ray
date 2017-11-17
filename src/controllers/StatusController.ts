@@ -16,11 +16,10 @@ export class StatusController {
             Transaction.count(),
             TransactionOperation.count(),
             ERC20Contract.count(),
-            Transaction.count({ $or: [{addresses:  { $exists: false }}, {addresses:  { $eq: [] }}]}),
             LastParsedBlock.findOne(),
             Config.web3.eth.getBlockNumber(),
             Config.web3.eth.net.getId()
-        ]).then(([transactionsCount, operationsCount, erc20contractsCount, transactionsWithEmptyAddressesField, lastParsedBlock, latestBlockNumberInBC, networkId]) => {
+        ]).then(([transactionsCount, operationsCount, erc20contractsCount, lastParsedBlock, latestBlockNumberInBC, networkId]) => {
             const latestBlockNumberInDB = lastParsedBlock.lastBlock;
             const blocksToSync = latestBlockNumberInBC - latestBlockNumberInDB;
             sendJSONresponse(res, 200, {
@@ -28,7 +27,6 @@ export class StatusController {
                     transactions: parseInt(transactionsCount).toLocaleString(),
                     transaction_operations: parseInt(operationsCount).toLocaleString(),
                     erc20contracts: parseInt(erc20contractsCount).toLocaleString(),
-                    transactions_missing_addresses: parseInt(transactionsWithEmptyAddressesField).toLocaleString()
                 },
                 latestBlockNumberInBC,
                 latestBlockNumberInDB,
