@@ -4,8 +4,15 @@ import { TransactionParser } from "./TransactionParser";
 import { TokenParser } from "./TokenParser";
 import { Config } from "./Config";
 import { LastParsedBlock } from "../models/LastParsedBlockModel";
+import { setDelay } from "./Utils";
 
 
+/**
+ * Parses the blockchain for transactions and tokens.
+ * Delegates most of the work to the TransactionParser
+ * and TokenParser classes. Mainly responsible for
+ * coordinating the flow.
+ */
 export class BlockchainParser {
 
     private transactionParser: TransactionParser;
@@ -30,7 +37,9 @@ export class BlockchainParser {
             if (startBlock < blockInChain) {
                 this.parse(startBlock, blockInChain);
             } else {
-                this.scheduleToRestart(10000);
+                setDelay(1000).then(() => {
+                    this.startParsing();
+                });
             }
 
         }).catch((err: Error) => {
@@ -76,25 +85,15 @@ export class BlockchainParser {
                 this.parse(endBlock + 1, lastBlock);
             } else {
                 winston.info("Last block is parsed on the blockchain, waiting for new blocks");
-                this.scheduleToRestart(10000);
+                setDelay(1000).then(() => {
+                    this.startParsing();
+                });
             }
         }).catch((err: Error) => {
             winston.error(`Parsing failed for blocks ${startBlock} to ${lastBlock} with error: ${err}. \nRestarting parsing for those blocks...`);
-            this.delay(1000).then(() => {
+            setDelay(1000).then(() => {
                 this.parse(startBlock, lastBlock);
             });
-        });
-    }
-
-    private scheduleToRestart(delay: number) {
-        this.delay(delay).then(() => {
-            this.startParsing();
-        });
-    }
-
-    private delay(t: number) {
-        return new Promise((resolve) => {
-            setTimeout(resolve, t);
         });
     }
 

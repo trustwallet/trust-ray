@@ -64,6 +64,12 @@ export function loadContractABIs() {
     return dstList;
 }
 
+/**
+ * Fetches ABI for a contract
+ * from the etherscan API.
+ *
+ * @param contract
+ */
 export function fetchAbiFromEtherscan(contract: any) {
     const URL = `https://api.etherscan.io/api?module=contract&action=getabi&address=${contract}&apikey=YourApiKeyToken`;
     return axios.get(URL).then((response: any) => {
@@ -72,5 +78,17 @@ export function fetchAbiFromEtherscan(contract: any) {
         }
     }).catch((err: any) => {
         winston.error(`Error while fetching contract ${contract} from etherscan with error: ${err}`);
+    });
+}
+
+/**
+ * Sets delay for given amount of time.
+ *
+ * @param {number} t
+ * @returns {Promise<any>}
+ */
+export function setDelay(t: number) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, t);
     });
 }
