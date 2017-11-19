@@ -11,7 +11,7 @@ import { setDelay } from "./Utils";
  */
 export class LegacyParser {
 
-    private parallelReparse = 750;
+    private parallelReparse = 1000;
     private tokenParser = new TokenParser();
     private transactionParser = new TransactionParser();
 
