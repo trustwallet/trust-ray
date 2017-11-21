@@ -1,3 +1,6 @@
+import { any } from "bluebird";
+import { from } from "../common/Operations/LocalizedOperationConverter";
+
 const mongoose = require("mongoose");
 const mongoosePaginate = require("mongoose-paginate");
 const Schema = mongoose.Schema;
@@ -64,7 +67,18 @@ const transactionSchema = new Schema({
     }]
 
 }, {
-    versionKey: false
+    versionKey: false,
+    toObject: {
+         virtuals: true
+        },
+    toJSON: {
+        virtuals: true
+    }
+});
+
+
+transactionSchema.virtual("operations_localized").get(function() {
+    return from(this.operations);
 });
 
 transactionSchema.plugin(mongoosePaginate);
