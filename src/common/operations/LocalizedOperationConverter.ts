@@ -11,12 +11,12 @@ function tokenTransfer(operation: any) {
     const contract = operation.contract;
     const value = operation.value / 10 ** contract.decimals;
     return {
-        "title": `Transfer ${value} ${contract.symbol}`,
-        "action": "Transfer",
+        "title": `Transfer ${contract.symbol}`,
         "type": operation.type,
         "from": operation.from,
         "to": operation.to,
         "contract": contract.address,
-        "value": value,
+        "value": String(value),
+        "symbol": contract.symbol,
     }
 };
