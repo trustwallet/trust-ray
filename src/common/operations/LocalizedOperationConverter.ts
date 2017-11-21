@@ -1,6 +1,6 @@
 export function from(operations: Array<Object>) {
     return operations.map((operation: any) => {
-        let type = operation.type;
+        const type = operation.type;
         switch (type) {
             case "token_transfer": return tokenTransfer(operation);
         }
@@ -8,15 +8,15 @@ export function from(operations: Array<Object>) {
 };
 
 function tokenTransfer(operation: any) {
-    const value = operation.value / 10 ** operation.contract.decimals;
-    
+    const contract = operation.contract;
+    const value = operation.value / 10 ** contract.decimals;
     return {
-        "title": `Transfer ${value} ${operation.contract.symbol}`,
+        "title": `Transfer ${value} ${contract.symbol}`,
         "action": "Transfer",
         "type": operation.type,
         "from": operation.from,
         "to": operation.to,
-        "contract": operation.contract.address,
+        "contract": contract.address,
         "value": value,
     }
 };
