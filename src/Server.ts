@@ -15,7 +15,7 @@ import * as winston from "winston";
 import { BlockchainParser } from "./common/BlockchainParser";
 import { LegacyParser } from "./common/LegacyParser";
 
-//Load environment variables from .env file, where API keys and passwords are configured.
+// Load environment variables from .env file, where API keys and passwords are configured.
 dotenv.config();
 
 const port = process.env.PORT || 8000;
