@@ -22,7 +22,6 @@
   },
   "dependencies": {
     "@types/async": "^2.0.40",
-    "@types/axios": "^0.14.0",
     "@types/bcrypt-nodejs": "0.0.30",
     "@types/body-parser": "^1.16.2",
     "@types/chai": "^4.0.4",
