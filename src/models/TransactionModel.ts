@@ -1,5 +1,5 @@
 import { any } from "bluebird";
-import { LocalizedOperationConverter } from "../common/Operations/LocalizedOperationConverter";
+import { LocalizedOperationConverter } from "../common/operations/LocalizedOperationConverter";
 
 const mongoose = require("mongoose");
 const mongoosePaginate = require("mongoose-paginate");
