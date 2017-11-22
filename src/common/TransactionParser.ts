@@ -70,6 +70,7 @@ export class TransactionParser {
             return data;
         }).catch((err: Error) => {
             winston.error(`Could not get transaction receipt for tx hash ${transaction.hash}`);
+            return data;
         });
     }
 
