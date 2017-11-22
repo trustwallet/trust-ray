@@ -37,7 +37,7 @@ export class BlockchainParser {
             if (startBlock < blockInChain) {
                 this.parse(startBlock, blockInChain);
             } else {
-                setDelay(10000).then(() => {
+                setDelay(5000).then(() => {
                     this.startParsing();
                 });
             }
