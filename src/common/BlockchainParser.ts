@@ -37,7 +37,7 @@ export class BlockchainParser {
             if (startBlock < blockInChain) {
                 this.parse(startBlock, blockInChain);
             } else {
-                setDelay(1000).then(() => {
+                setDelay(10000).then(() => {
                     this.startParsing();
                 });
             }
@@ -85,7 +85,7 @@ export class BlockchainParser {
                 this.parse(endBlock + 1, lastBlock);
             } else {
                 winston.info("Last block is parsed on the blockchain, waiting for new blocks");
-                setDelay(10000).then(() => {
+                setDelay(1000).then(() => {
                     this.startParsing();
                 });
             }
