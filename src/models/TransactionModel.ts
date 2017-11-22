@@ -61,6 +61,9 @@ const transactionSchema = new Schema({
         type: String,
         required: true
     },
+    success: {
+        type: Boolean
+    },
     operations: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "TransactionOperation"
