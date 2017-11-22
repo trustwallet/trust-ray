@@ -3,6 +3,7 @@ import * as winston from "winston";
 import { Transaction } from "../models/TransactionModel";
 import { TransactionOperation } from "../models/TransactionOperationModel";
 import { removeScientificNotationFromNumbString } from "./Utils";
+import { Config } from "./Config";
 
 const erc20abi = require("./contracts/Erc20Abi");
 const erc20ABIDecoder = require("abi-decoder");
@@ -18,23 +19,28 @@ export class TransactionParser {
             return Promise.resolve();
         }
         // collect bulk inserts
+        const promises: any = [];
         const bulkTransactions = Transaction.collection.initializeUnorderedBulkOp();
         const transactions: any = [];
         blocks.map((block: any) => {
                 block.transactions.map((transaction: any) => {
                     const hash = String(transaction.hash);
-                    const transaction_data = this.extractTransactionData(block, transaction);
-                    transactions.push(new Transaction(transaction_data));
-                    bulkTransactions.find({_id: hash}).upsert().replaceOne(transaction_data);
+                    const p = this.extractTransactionData(block, transaction).then((transactionData: any) => {
+                        transactions.push(new Transaction(transactionData));
+                        bulkTransactions.find({_id: hash}).upsert().replaceOne(transactionData);
+                    });
+                    promises.push(p);
                 });
         });
 
-        // execute the bulk
-        if (bulkTransactions.length === 0) {
-            return Promise.resolve();
-        }
-        return bulkTransactions.execute().then((bulkResult: any) => {
-            return Promise.resolve(transactions);
+        return Promise.all(promises).then(() => {
+            // execute the bulk
+            if (bulkTransactions.length === 0) {
+                return Promise.resolve();
+            }
+            return bulkTransactions.execute().then((bulkResult: any) => {
+                return Promise.resolve(transactions);
+            });
         });
     }
 
@@ -42,7 +48,7 @@ export class TransactionParser {
         const hash = String(transaction.hash);
         const from = String(transaction.from).toLowerCase();
         const to = String(transaction.to).toLowerCase();
-        return {
+        const data: any =  {
             _id: hash,
             blockNumber: Number(transaction.blockNumber),
             timeStamp: String(block.timestamp),
@@ -56,6 +62,15 @@ export class TransactionParser {
             gasUsed: String(block.gasUsed),
             addresses: [from, to]
         };
+
+        return Config.web3.eth.getTransactionReceipt(transaction.hash).then((receipt: any) => {
+            if (receipt.status) {
+                data.success = (receipt.status === "0x1");
+            }
+            return data;
+        }).catch((err: Error) => {
+            winston.error(`Could not get transaction receipt for tx hash ${transaction.hash}`);
+        });
     }
 
     // ========================== OPERATION PARSING ========================== //
