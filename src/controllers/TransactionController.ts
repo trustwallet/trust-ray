@@ -51,8 +51,19 @@ export class TransactionController {
             sendJSONresponse(res, 404, { "message": "No transaction ID in request" });
             return;
         }
+
+        // validate transaction ID
+        req.checkParams("transactionId", "Transaction ID must be alphanumeric").isAlphanumeric();
+        const validationErrors = req.validationErrors();
+        if (validationErrors) {
+            sendJSONresponse(res, 400, validationErrors);
+            return;
+        }
+
+        const transactionId = xss.inHTMLData(req.params.transactionId);
+
         Transaction.findOne({
-            _id: req.params.transactionId
+            _id: transactionId
         }).populate({
             path: "operations",
             populate: {
