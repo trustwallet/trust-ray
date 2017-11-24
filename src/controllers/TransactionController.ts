@@ -2,16 +2,26 @@ import { Request, Response } from "express";
 import { sendJSONresponse } from "../common/Utils";
 import { Transaction } from "../models/TransactionModel";
 import { ERC20Contract } from "../models/Erc20ContractModel";
+import * as xss from "xss-filters";
 
 
 export class TransactionController {
 
     public readAllTransactions(req: Request, res: Response) {
+
+        // validate query input
+        const validationErrors: any = TransactionController.validateQueryParameters(req);
+        if (validationErrors) {
+            sendJSONresponse(res, 400, validationErrors);
+            return;
+        }
+
+        // extract query parameters
         const queryParams = TransactionController.extractQueryParameters(req);
 
         // build up query
         const query: any = {};
-        if (queryParams.address) {
+        if (queryParams.address !== "undefined") {
             const address = queryParams.address.toLowerCase();
             query.addresses = { "$in": [address] };
         }
@@ -60,16 +70,25 @@ export class TransactionController {
         });
     }
 
-    private static extractQueryParameters(req: Request) {
+    private static validateQueryParameters(req: Request) {
+        req.checkQuery("page", "Page needs to be a number").optional().isNumeric();
+        req.checkQuery("startBlock", "startBlock needs to be a number").optional().isNumeric();
+        req.checkQuery("endBlock", "endBlock needs to be a number").optional().isNumeric();
+        req.checkQuery("limit", "limit needs to be a number").optional().isNumeric();
+        req.checkQuery("address", "address needs to be alphanumeric").optional().isAlphanumeric();
 
+        return req.validationErrors();
+    }
+
+    private static extractQueryParameters(req: Request) {
         // page parameter
-        let page = parseInt(req.query.page);
+        let page = parseInt(xss.inHTMLData(req.query.page));
         if (isNaN(page) || page < 1) {
             page = 1;
         }
 
         // limit parameter
-        let limit = parseInt(req.query.limit);
+        let limit = parseInt(xss.inHTMLData(req.query.limit));
         if (isNaN(limit)) {
             limit = 50;
         } else if (limit > 500) {
@@ -79,16 +98,16 @@ export class TransactionController {
         }
 
         // address parameter
-        const address = req.query.address;
+        const address = xss.inHTMLData(req.query.address);
 
         // start block parameter
-        let startBlock = parseInt(req.query.startBlock);
+        let startBlock = parseInt(xss.inHTMLData(req.query.startBlock));
         if (isNaN(startBlock) || startBlock < 1) {
             startBlock = 1;
         }
 
         // end block parameter
-        let endBlock = parseInt(req.query.endBlock);
+        let endBlock = parseInt(xss.inHTMLData(req.query.endBlock));
         if (isNaN(endBlock) || endBlock < 1 || endBlock < startBlock) {
             endBlock = 9999999999;
         }
