@@ -1,4 +1,4 @@
-# :cloud: Trust Wallet Backend :cloud:
+# :cloud: Trust Ray :cloud:
 
 [![Build Status](https://travis-ci.org/TrustWallet/trust-wallet-backend.svg?branch=master)](https://travis-ci.org/TrustWallet/trust-wallet-backend)
 [![License](https://img.shields.io/badge/license-GPL3-green.svg?style=flat)](https://github.com/fastlane/fastlane/blob/master/LICENSE)

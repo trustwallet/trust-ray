@@ -1,8 +1,8 @@
 {
-  "name": "trust-wallet-backend",
-  "version": "0.0.0",
+  "name": "trust-ray",
+  "version": "1.0.0",
   "private": true,
-  "description": "Ethereum Wallet",
+  "description": "API for Trust Ethereum Wallet",
   "author": "Philipp Rieger",
   "scripts": {
     "start": "npm run build && npm run watch && npm run tslint",
