@@ -6,6 +6,28 @@ import * as xss from "xss-filters";
 
 export class TokenController {
 
+    public readAllTokens(req: Request, res: Response) {
+
+        // validate query input
+        const validationErrors: any = TokenController.validateQueryParameters(req);
+        if (validationErrors) {
+            sendJSONresponse(res, 400, validationErrors);
+            return;
+        }
+
+        const queryParams = TokenController.extractQueryParameters(req);
+
+        // TODO: build up query
+        const query: any = {};
+
+        const promise = Token.paginate(query, {page: queryParams.page, limit: queryParams.limit});
+        promise.then( (tokens: any) => {
+            sendJSONresponse(res, 200, tokens);
+        }).catch((err: Error) => {
+            sendJSONresponse(res, 404, err);
+        });
+    }
+
     public readOneToken(req: Request, res: Response) {
         if (!req.params || !req.params.tokenWalletAddress) {
             sendJSONresponse(res, 404, { "message": "No token wallet address in request" });
@@ -28,28 +50,6 @@ export class TokenController {
                 return;
             }
             sendJSONresponse(res, 200, token);
-        }).catch((err: Error) => {
-            sendJSONresponse(res, 404, err);
-        });
-    }
-
-    public readAllTokens(req: Request, res: Response) {
-
-        // validate query input
-        const validationErrors: any = TokenController.validateQueryParameters(req);
-        if (validationErrors) {
-            sendJSONresponse(res, 400, validationErrors);
-            return;
-        }
-
-        const queryParams = TokenController.extractQueryParameters(req);
-
-        // TODO: build up query
-        const query: any = {};
-
-        const promise = Token.paginate(query, {page: queryParams.page, limit: queryParams.limit});
-        promise.then( (tokens: any) => {
-            sendJSONresponse(res, 200, tokens);
         }).catch((err: Error) => {
             sendJSONresponse(res, 404, err);
         });
