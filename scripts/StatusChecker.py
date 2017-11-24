@@ -15,7 +15,6 @@ import argparse
 
 
 def parse_args():
-	global URL, emails
 	parser = argparse.ArgumentParser()
 	parser.add_argument("url", help="specify the URL of the API")
 	parser.add_argument("emails", help="specify emails that are used for alerts")
