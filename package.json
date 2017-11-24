@@ -44,6 +44,7 @@
     "@types/request": "0.0.45",
     "@types/supertest": "^2.0.0",
     "@types/winston": "^2.3.7",
+    "@types/xss-filters": "0.0.27",
     "abi-decoder": "^1.0.9",
     "async": "^2.1.2",
     "axios": "^0.17.1",
@@ -85,6 +86,7 @@
     "tslint": "^5.0.0",
     "typescript": "^2.5.3",
     "web3": "^1.0.0-beta.24",
-    "winston": "^2.4.0"
+    "winston": "^2.4.0",
+    "xss-filters": "^1.2.7"
   }
 }
