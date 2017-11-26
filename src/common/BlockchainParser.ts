@@ -32,20 +32,20 @@ export class BlockchainParser {
      */
     public startBackwardParsing() {
         winston.info("Starting blockchain parse");
-        this.getBlockState().then(([blockInChain, blockInDb]) => {
+        this.getCurrentBlockState().then(([blockInChain, blockInDb]) => {
 
             // parse newest blocks since last start
-            if (blockInDb && blockInDb.latestBlock < blockInChain) {
-                this.reverseParse(blockInDb.latestBlock, blockInChain, false);
-            }
+            // if (blockInDb && blockInDb.latestBlock < blockInChain) {
+            //     this.reverseParse(blockInChain, blockInDb.latestBlock,false);
+            // }
 
             // determine where to start parsing
-            const startBlock = !blockInDb ? blockInChain : blockInDb.lastBlock;
-            winston.info(`Last parsed block: ${startBlock}`);
+            const currentBlock = !blockInDb ? blockInChain : blockInDb.lastBlock;
+            winston.info(`Last parsed block: ${currentBlock}`);
 
             // check if we still have something to parse
-            if (startBlock > 0) {
-                this.reverseParse(startBlock, blockInChain, true);
+            if (currentBlock > 0) {
+                this.reverseParse(currentBlock, blockInChain);
             } else {
                 // if nothing to parse left, restart in 5 sec to catch newest blocks
                 setDelay(5000).then(() => {
@@ -63,10 +63,37 @@ export class BlockchainParser {
         return Promise.all([latestBlockOnChain, latestBlockInDB]);
     }
 
-    private reverseParse(startBlock: number, endBlock: number, recursiveParse: boolean) {
+    private reverseParse(currentBlock: number, latestBlock: number) {
+        Config.web3.eth.getBlock(currentBlock, true).then((block: any) => {
+            return this.transactionParser.parseTransactions(this.flatBlocksWithMissingTransactions([block]));
+        }).then((transactions: any) => {
+            return this.tokenParser.parseERC20Contracts(transactions);
+        }).then(([transactions, contracts]: any) => {
+            return this.transactionParser.parseTransactionOperations(transactions, contracts);
+        }).then((results: any) => {
 
+            this.updateParsedBlocks(currentBlock, latestBlock);
+            if (currentBlock > 0) {
+                this.reverseParse(currentBlock - 1, latestBlock);
+            } else {
+                winston.info("Last block is parsed on the blockchain, waiting for new blocks");
+                setDelay(1000).then(() => {
+                    this.startBackwardParsing();
+                });
+            }
 
+        }).catch((err: Error) => {
+            winston.error(`Parsing failed for block ${currentBlock} with error: ${err}. \nRestarting parsing for this block...`);
+            setDelay(1000).then(() => {
+                this.reverseParse(currentBlock, latestBlock);
+            });
+        });
+    }
 
+    private updateParsedBlocks(lastParsedBlock: number, latestBlock: number) {
+        return ParsedBlocks.findOneAndUpdate({}, {lastBlock: lastParsedBlock, latestBlock: latestBlock}, {upsert: true}).catch((err: Error) => {
+            winston.error(`Could not update parsed blocks to DB with error: ${err}`);
+        });
     }
 
     public startForwardParsing() {
