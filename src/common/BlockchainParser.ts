@@ -36,16 +36,17 @@ export class BlockchainParser {
 
             // parse newest blocks since last start
             // if (blockInDb && blockInDb.latestBlock < blockInChain) {
-            //     this.reverseParse(blockInChain, blockInDb.latestBlock,false);
+            //      this.reverseParse(blockInChain, blockInDb.latestBlock);
             // }
 
             // determine where to start parsing
             const currentBlock = !blockInDb ? blockInChain : blockInDb.lastBlock;
+            const latestBlock = !blockInDb ? blockInChain : blockInDb.latestBlock;
             winston.info(`Last parsed block: ${currentBlock}`);
 
             // check if we still have something to parse
             if (currentBlock > 0) {
-                this.reverseParse(currentBlock, blockInChain);
+                this.reverseParse(currentBlock, latestBlock);
             } else {
                 // if nothing to parse left, restart in 5 sec to catch newest blocks
                 setDelay(5000).then(() => {
@@ -77,7 +78,7 @@ export class BlockchainParser {
             return this.transactionParser.parseTransactionOperations(transactions, contracts);
         }).then((results: any) => {
 
-            this.updateParsedBlocks(currentBlock, undefined);
+            this.updateParsedBlocks(currentBlock, latestBlock);
             if (currentBlock > 0) {
                 this.reverseParse(currentBlock - 1, latestBlock);
             } else {
@@ -96,11 +97,7 @@ export class BlockchainParser {
     }
 
     private updateParsedBlocks(lastParsedBlock: number, latestBlock: number) {
-        const updateData: any = {lastBlock: lastParsedBlock};
-        if (latestBlock) {
-            updateData.latestBlock = latestBlock;
-        }
-        return ParsedBlocks.findOneAndUpdate({}, updateData, {upsert: true}).catch((err: Error) => {
+        return ParsedBlocks.findOneAndUpdate({}, {lastBlock: lastParsedBlock, latestBlock: latestBlock}, {upsert: true}).catch((err: Error) => {
             winston.error(`Could not update parsed blocks to DB with error: ${err}`);
         });
     }
