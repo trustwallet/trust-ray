@@ -64,6 +64,11 @@ export class BlockchainParser {
     }
 
     private reverseParse(currentBlock: number, latestBlock: number) {
+        // indicate process
+        if (currentBlock % 20 === 0) {
+            winston.info("Currently processing block: " + currentBlock);
+        }
+
         Config.web3.eth.getBlock(currentBlock, true).then((block: any) => {
             return this.transactionParser.parseTransactions(this.flatBlocksWithMissingTransactions([block]));
         }).then((transactions: any) => {
@@ -72,7 +77,7 @@ export class BlockchainParser {
             return this.transactionParser.parseTransactionOperations(transactions, contracts);
         }).then((results: any) => {
 
-            this.updateParsedBlocks(currentBlock, latestBlock);
+            this.updateParsedBlocks(currentBlock, undefined);
             if (currentBlock > 0) {
                 this.reverseParse(currentBlock - 1, latestBlock);
             } else {
@@ -91,7 +96,11 @@ export class BlockchainParser {
     }
 
     private updateParsedBlocks(lastParsedBlock: number, latestBlock: number) {
-        return ParsedBlocks.findOneAndUpdate({}, {lastBlock: lastParsedBlock, latestBlock: latestBlock}, {upsert: true}).catch((err: Error) => {
+        const updateData: any = {lastBlock: lastParsedBlock};
+        if (latestBlock) {
+            updateData.latestBlock = latestBlock;
+        }
+        return ParsedBlocks.findOneAndUpdate({}, updateData, {upsert: true}).catch((err: Error) => {
             winston.error(`Could not update parsed blocks to DB with error: ${err}`);
         });
     }
