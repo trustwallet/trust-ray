@@ -34,19 +34,20 @@ export class BlockchainParser {
         winston.info("Starting blockchain parse");
         this.getCurrentBlockState().then(([blockInChain, blockInDb]) => {
 
-            // parse newest blocks since last start
-            // if (blockInDb && blockInDb.latestBlock < blockInChain) {
-            //      this.reverseParse(blockInChain, blockInDb.latestBlock);
-            // }
-
             // determine where to start parsing
             const currentBlock = !blockInDb ? blockInChain : blockInDb.lastBlock;
-            const latestBlock = !blockInDb ? blockInChain : blockInDb.latestBlock;
+            let latestBlock = !blockInDb ? blockInChain : blockInDb.latestBlock;
             winston.info(`Last parsed block: ${currentBlock}`);
+
+            // parse newest blocks since last start
+            if (blockInDb && blockInDb.latestBlock < blockInChain) {
+                this.reverseParse(blockInChain, blockInDb.latestBlock, blockInChain, false);
+                latestBlock = blockInChain;
+            }
 
             // check if we still have something to parse
             if (currentBlock > 0) {
-                this.reverseParse(currentBlock, latestBlock);
+                this.reverseParse(currentBlock, 0, latestBlock, true);
             } else {
                 // if nothing to parse left, restart in 5 sec to catch newest blocks
                 setDelay(5000).then(() => {
@@ -64,7 +65,7 @@ export class BlockchainParser {
         return Promise.all([latestBlockOnChain, latestBlockInDB]);
     }
 
-    private reverseParse(currentBlock: number, latestBlock: number) {
+    private reverseParse(currentBlock: number, endBlock: number, latestBlock: number, recursiveParse: boolean) {
         // indicate process
         if (currentBlock % 20 === 0) {
             winston.info("Currently processing block: " + currentBlock);
@@ -79,19 +80,20 @@ export class BlockchainParser {
         }).then((results: any) => {
 
             this.updateParsedBlocks(currentBlock, latestBlock);
-            if (currentBlock > 0) {
-                this.reverseParse(currentBlock - 1, latestBlock);
+            if (currentBlock > endBlock) {
+                this.reverseParse(currentBlock - 1, endBlock, latestBlock, recursiveParse);
             } else {
                 winston.info("Last block is parsed on the blockchain, waiting for new blocks");
-                setDelay(1000).then(() => {
-                    this.startBackwardParsing();
-                });
+                if (recursiveParse) {
+                    setDelay(1000).then(() => {
+                        this.startBackwardParsing();
+                    });
+                }
             }
-
         }).catch((err: Error) => {
             winston.error(`Parsing failed for block ${currentBlock} with error: ${err}. \nRestarting parsing for this block...`);
             setDelay(1000).then(() => {
-                this.reverseParse(currentBlock, latestBlock);
+                this.reverseParse(currentBlock, endBlock, latestBlock, recursiveParse);
             });
         });
     }
