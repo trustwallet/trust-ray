@@ -5,6 +5,7 @@ import { TokenParser } from "./TokenParser";
 import { Config } from "./Config";
 import { LastParsedBlock } from "../models/LastParsedBlockModel";
 import { setDelay } from "./Utils";
+import { ParsedBlocks } from "../models/ParsedBlocks";
 
 
 /**
@@ -30,7 +31,42 @@ export class BlockchainParser {
      * way the more recent transactions are available earlier.
      */
     public startBackwardParsing() {
-        // TODO
+        winston.info("Starting blockchain parse");
+        this.getBlockState().then(([blockInChain, blockInDb]) => {
+
+            // parse newest blocks since last start
+            if (blockInDb && blockInDb.latestBlock < blockInChain) {
+                this.reverseParse(blockInDb.latestBlock, blockInChain, false);
+            }
+
+            // determine where to start parsing
+            const startBlock = !blockInDb ? blockInChain : blockInDb.lastBlock;
+            winston.info(`Last parsed block: ${startBlock}`);
+
+            // check if we still have something to parse
+            if (startBlock > 0) {
+                this.reverseParse(startBlock, blockInChain, true);
+            } else {
+                // if nothing to parse left, restart in 5 sec to catch newest blocks
+                setDelay(5000).then(() => {
+                    this.startBackwardParsing();
+                });
+            }
+        }).catch((err: Error) => {
+            winston.error("Failed to load initial block state: " + err);
+        });
+    }
+
+    private getCurrentBlockState() {
+        const latestBlockOnChain = Config.web3.eth.getBlockNumber();
+        const latestBlockInDB = ParsedBlocks.findOne();
+        return Promise.all([latestBlockOnChain, latestBlockInDB]);
+    }
+
+    private reverseParse(startBlock: number, endBlock: number, recursiveParse: boolean) {
+
+
+
     }
 
     public startForwardParsing() {
