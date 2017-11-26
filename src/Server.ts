@@ -96,7 +96,7 @@ export class Server {
             winston.info("Press CTRL-C to stop\n");
         });
 
-        parser.startParsing();
+        parser.startForwardParsing();
 
         new LegacyParser().reparseChain();
     }

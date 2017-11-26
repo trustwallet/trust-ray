@@ -24,7 +24,16 @@ export class BlockchainParser {
         this.tokenParser = new TokenParser();
     }
 
-    public startParsing() {
+    /**
+     * Will parse the entire blockchain starting from the last
+     * block and moving towards the start of the blockchain. This
+     * way the more recent transactions are available earlier.
+     */
+    public startBackwardParsing() {
+        // TODO
+    }
+
+    public startForwardParsing() {
         winston.info("Starting blockchain parse");
         this.getBlockState().then(([blockInChain, blockInDb]) => {
 
@@ -38,7 +47,7 @@ export class BlockchainParser {
                 this.parse(startBlock, blockInChain);
             } else {
                 setDelay(5000).then(() => {
-                    this.startParsing();
+                    this.startForwardParsing();
                 });
             }
 
@@ -86,7 +95,7 @@ export class BlockchainParser {
             } else {
                 winston.info("Last block is parsed on the blockchain, waiting for new blocks");
                 setDelay(1000).then(() => {
-                    this.startParsing();
+                    this.startForwardParsing();
                 });
             }
         }).catch((err: Error) => {
