@@ -1,3 +1,16 @@
+/*************************************************************
+ * REPARSING HISTORY:
+ *
+ * - reparsed transactions with missing "addresses" field,
+ *   => finished on November 19th 2017
+ *
+ * - reparsed transactions with the success flag added,
+ *   remove it and replace with error message
+ *   => not yet finished
+ *
+ *************************************************************/
+
+
 import { Transaction } from "../models/TransactionModel";
 import { TokenParser } from "./TokenParser";
 import { TransactionParser } from "./TransactionParser";
@@ -17,13 +30,35 @@ export class LegacyParser {
 
 
     /**
-     * Re-parses currently transactions that are missing
+     * Re-parses transactions that have the success flag,
+     * remove it and add error message instead.
+     */
+    public reparseChain() {
+        Transaction.find({success: {$exists: true}}).limit(this.parallelReparse).exec().then((transactions: any) => {
+            transactions.map((transaction: any) => {
+                // add error message and remove success flag
+                transaction.error = transaction.success ? "" : "Error";
+                transaction.success = undefined;
+                transaction.save().catch((err: Error) => {
+                    console.log(`Error while reparsing and saving transaction ${transaction._id} with error ${err}`);
+                });
+            });
+        }).catch((err: Error) => {
+            winston.info(`Error while reparsing: ${err}`);
+        });
+    }
+
+
+    /**
+     * Re-parses transactions that are missing
      * the field "addresses" which is however used for
      * filtering transactions by the endoint controller.
      * Necessary, since the field was added after the full
      * parse of the blockchain.
+     *
+     * Finished on November 19th 2017
      */
-    public reparseChain() {
+    public reparseAddresses() {
 
         // find all transactions that have
         // addresses field missing or empty
@@ -57,7 +92,7 @@ export class LegacyParser {
                 // wait for 1 seconds and then restart the process
                 winston.info(`Reparsed ${this.parallelReparse} transactions`);
                 setDelay(1000).then(() => {
-                    this.reparseChain()
+                    this.reparseAddresses()
                 });
             } else {
                 winston.info(`Finished reparse`);
