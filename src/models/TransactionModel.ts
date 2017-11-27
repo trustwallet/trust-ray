@@ -61,8 +61,8 @@ const transactionSchema = new Schema({
         type: String,
         required: true
     },
-    success: {
-        type: Boolean
+    error: {
+        type: String
     },
     operations: [{
         type: mongoose.Schema.Types.ObjectId,
@@ -82,6 +82,12 @@ const transactionSchema = new Schema({
 
 transactionSchema.virtual("operations_localized").get(function() {
     return LocalizedOperationConverter.from(this.operations);
+});
+
+transactionSchema.virtual("success").get(function() {
+    if (this.hasOwnProperty("error")) {
+        return this.error === "";
+    }
 });
 
 transactionSchema.plugin(mongoosePaginate);
