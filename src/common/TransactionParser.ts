@@ -65,7 +65,7 @@ export class TransactionParser {
 
         return Config.web3.eth.getTransactionReceipt(transaction.hash).then((receipt: any) => {
             if (receipt.status) {
-                data.success = (receipt.status === "0x1");
+                data.error = receipt.status === "0x1" ? "" : "Error";
             }
             return data;
         }).catch((err: Error) => {
