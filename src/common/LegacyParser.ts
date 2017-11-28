@@ -24,7 +24,7 @@ import { setDelay } from "./Utils";
  */
 export class LegacyParser {
 
-    private parallelReparse = 750;
+    private parallelReparse = 250;
     private tokenParser = new TokenParser();
     private transactionParser = new TransactionParser();
 
@@ -35,14 +35,31 @@ export class LegacyParser {
      */
     public reparseChain() {
         Transaction.find({success: {$exists: true}}).limit(this.parallelReparse).exec().then((transactions: any) => {
-            transactions.map((transaction: any) => {
-                // add error message and remove success flag
-                transaction.error = transaction.success ? "" : "Error";
-                transaction.success = undefined;
-                transaction.save().catch((err: Error) => {
-                    console.log(`Error while reparsing and saving transaction ${transaction._id} with error ${err}`);
+            if (transactions && transactions.length > 0) {
+                transactions.map((transaction: any) => {
+                    // add error message and remove success flag
+                    transaction.error = transaction.success ? "" : "Error";
+                    transaction.success = undefined;
+                    transaction.save().catch((err: Error) => {
+                        console.log(`Error while reparsing and saving transaction ${transaction._id} with error ${err}`);
+                    });
                 });
-            });
+            } else {
+                // set the finish flag when no
+                // transactions are returned, thus
+                // all have been re-parsed
+                return Promise.resolve("Finished");
+            }
+        }).then((result: any) => {
+            if (result !== "Finished") {
+                // wait for 1 seconds and then restart the process
+                winston.info(`Reparsed ${this.parallelReparse} transactions`);
+                setDelay(1000).then(() => {
+                    this.reparseChain()
+                });
+            } else {
+                winston.info(`Finished reparse`);
+            }
         }).catch((err: Error) => {
             winston.info(`Error while reparsing: ${err}`);
         });
