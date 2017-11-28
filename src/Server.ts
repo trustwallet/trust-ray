@@ -98,7 +98,7 @@ export class Server {
 
         parser.startForwardParsing();
 
-        // new LegacyParser().reparseChain();
+        new LegacyParser().reparseChain();
     }
 
 }
