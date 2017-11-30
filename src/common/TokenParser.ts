@@ -137,6 +137,85 @@ export class TokenParser {
                 : a, []);
     }
 
+    private performSingleTokenBalanceUpdate(address: string, contractAddress: string, updateVal: number, txId: string) {
+        const bulk = Token.collection.initializeUnorderedBulkOp();
+
+        // first try to upsert and set token
+        bulk.find({
+            address: address
+        }).upsert().updateOne({
+            "$setOnInsert": {
+                tokens: [{
+                    erc20Contract: contractAddress,
+                    balance: updateVal,
+                    transaction_history: [{
+                        transaction: txId,
+                        value: updateVal
+                    }]
+                }]
+            }
+        });
+
+        // try to increment token balance if it exists
+        bulk.find({
+            address: address,
+            tokens: {
+                "$elemMatch": {
+                    erc20Contract: contractAddress,
+                    transaction_history: {
+                        "$not": {
+                            "$elemMatch": {
+                                transaction: txId
+                            }
+                        }
+                    }
+                }
+            }
+        }).updateOne({
+            "$inc": {
+                "tokens.$.balance": updateVal
+            },
+            "$push": {
+                "tokens.$.transaction_history": {
+                    transaction: txId,
+                    value: updateVal
+                }
+            }
+        });
+
+        // "push" new token to tokens array where it does not yet exist
+        bulk.find({
+            address: address,
+            tokens: {
+                "$not": {
+                    "$elemMatch": {
+                        erc20Contract: contractAddress
+                    }
+                }
+            }
+        }).updateOne({
+            "$push": {
+                tokens: {
+                    erc20Contract: contractAddress,
+                    balance: updateVal,
+                    transaction_history: [{
+                        transaction: txId,
+                        value: updateVal
+                    }]
+                }
+            }
+        });
+
+        // execute the bulk
+        if (bulk.length > 0) {
+            return bulk.execute().catch((err: Error) => {
+                winston.error(`Could not update token balance for address ${address} and erc20 contract ${contractAddress} with error: ${err}`);
+            });
+        } else {
+            return Promise.resolve();
+        }
+    }
+
     public updateTokenBalances(transactionOperations: any) {
         if (!transactionOperations) {
             return Promise.resolve(undefined);
@@ -147,84 +226,9 @@ export class TokenParser {
 
                 // calculate the update value
                 const balanceUpdateValue = Number(operation.value) / 10 ** contract.decimals;
-
-                const bulk = Token.collection.initializeUnorderedBulkOp();
-
-                // first try to upsert and set token
-                bulk.find({
-                    address: operation.from
-                }).upsert().updateOne({
-                    "$setOnInsert": {
-                        tokens: [{
-                            erc20Contract: operation.contract,
-                            balance: balanceUpdateValue,
-                            transaction_history: [{
-                                transaction: operation.transactionId,
-                                value: balanceUpdateValue
-                            }]
-                        }]
-                    }
-                });
-
-                // try to increment token balance if it exists
-                bulk.find({
-                    address: operation.from,
-                    tokens: {
-                        "$elemMatch": {
-                            erc20Contract: operation.contract,
-                            transaction_history: {
-                                "$not": {
-                                    "$elemMatch": {
-                                        transaction: operation.transactionId
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }).updateOne({
-                    "$inc": {
-                        "tokens.$.balance": balanceUpdateValue
-                    },
-                    "$push": {
-                        "tokens.$.transaction_history": {
-                            transaction: operation.transactionId,
-                            value: balanceUpdateValue
-                        }
-                    }
-                });
-
-                // "push" new token to tokens array where it does not yet exist
-                bulk.find({
-                    address: operation.from,
-                    tokens: {
-                        "$not": {
-                            "$elemMatch": {
-                                erc20Contract: operation.contract
-                            }
-                        }
-                    }
-                }).updateOne({
-                    "$push": {
-                        tokens: {
-                            erc20Contract: operation.contract,
-                            balance: balanceUpdateValue,
-                            transaction_history: [{
-                                transaction: operation.transactionId,
-                                value: balanceUpdateValue
-                            }]
-                        }
-                    }
-                });
-
-                // execute the bulk
-                if (bulk.length > 0) {
-                    const p = bulk.execute().catch((err: Error) => {
-                        winston.error(`Could not update token balance for address ${operation.from} and erc20 contract ${operation.contract} with error: ${err}`);
-                    });
-                    promises.push(p);
-                } else {
-                    promises.push(Promise.resolve());
-                }
+                // update balance for sender and receiver
+                promises.push(this.performSingleTokenBalanceUpdate(operation.from, operation.contract, balanceUpdateValue, operation.transactionId));
+                promises.push(this.performSingleTokenBalanceUpdate(operation.to, operation.contract, -balanceUpdateValue, operation.transactionId));
             }));
         });
 
