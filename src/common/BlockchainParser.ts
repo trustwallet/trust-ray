@@ -156,9 +156,8 @@ export class BlockchainParser {
             return this.tokenParser.parseERC20Contracts(transactions);
         }).then(([transactions, contracts]: any) => {
             return this.transactionParser.parseTransactionOperations(transactions, contracts);
-        // TODO: finish this
-        // }).then((transactionOperations: any) => {
-        //    return this.tokenParser.updateTokenBalances(transactionOperations);
+        }).then((transactionOperations: any) => {
+            return this.tokenParser.updateTokenBalances(transactionOperations);
         }).then((results: any) => {
             this.saveLastParsedBlock(endBlock);
             if (endBlock < lastBlock) {
