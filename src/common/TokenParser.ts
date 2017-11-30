@@ -142,66 +142,70 @@ export class TokenParser {
             return Promise.resolve(undefined);
         }
         const promises: any = [];
-
         transactionOperations.map((operation: any) => {
-            const bulk = Token.collection.initializeUnorderedBulkOp();
+            promises.push(ERC20Contract.findById(operation.contract).exec().then((contract: any) => {
 
-            // first try to upsert and set token
-            bulk.find({
-                address: operation.from
-            }).upsert().updateOne({
-                "$setOnInsert": {
-                    tokens: [{
-                        erc20Contract: operation.contract,
-                        balance:  Number(operation.value)
-                    }]
-                }
-            });
+                // calculate the update value
+                const balanceUpdateValue = Number(operation.value) / 10 ** contract.decimals;
 
-            // try to increment token balance if it exists
-            bulk.find({
-                address: operation.from,
-                tokens: {
-                    "$elemMatch": {
-                        erc20Contract: operation.contract
+                const bulk = Token.collection.initializeUnorderedBulkOp();
+
+                // first try to upsert and set token
+                bulk.find({
+                    address: operation.from
+                }).upsert().updateOne({
+                    "$setOnInsert": {
+                        tokens: [{
+                            erc20Contract: operation.contract,
+                            balance: balanceUpdateValue
+                        }]
                     }
-                }
-            }).updateOne({
-                "$inc": { "tokens.$.balance": Number(operation.value)}
-            });
+                });
 
-            // "push" new token to tokens array where it does not yet exist
-            bulk.find({
-                address: operation.from,
-                tokens: {
-                    "$not": {
+                // try to increment token balance if it exists
+                bulk.find({
+                    address: operation.from,
+                    tokens: {
                         "$elemMatch": {
                             erc20Contract: operation.contract
                         }
                     }
-                }
-            }).updateOne({
-                "$push": {
-                    tokens: {
-                        erc20Contract: operation.contract,
-                        balance: operation.value
-                    }
-                }
-            });
-
-            if (bulk.length > 0) {
-                const p = bulk.execute().catch((err: Error) => {
-                    winston.error(`Could not update token balance for address ${operation.from} and erc20 contract ${operation.contract} with error: ${err}`);
+                }).updateOne({
+                    "$inc": {"tokens.$.balance": balanceUpdateValue}
                 });
-                promises.push(p);
-            } else {
-                promises.push(Promise.resolve());
-            }
+
+                // "push" new token to tokens array where it does not yet exist
+                bulk.find({
+                    address: operation.from,
+                    tokens: {
+                        "$not": {
+                            "$elemMatch": {
+                                erc20Contract: operation.contract
+                            }
+                        }
+                    }
+                }).updateOne({
+                    "$push": {
+                        tokens: {
+                            erc20Contract: operation.contract,
+                            balance: balanceUpdateValue
+                        }
+                    }
+                });
+
+                // execute the bulk
+                if (bulk.length > 0) {
+                    const p = bulk.execute().catch((err: Error) => {
+                        winston.error(`Could not update token balance for address ${operation.from} and erc20 contract ${operation.contract} with error: ${err}`);
+                    });
+                    promises.push(p);
+                } else {
+                    promises.push(Promise.resolve());
+                }
+            }));
         });
 
         return Promise.all(promises);
     }
-
-
 
 }
