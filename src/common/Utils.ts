@@ -1,5 +1,6 @@
 import { Response } from "express";
 import * as winston from "winston";
+import { Config } from "./Config";
 const axios = require("axios");
 
 /**
@@ -80,6 +81,19 @@ export function fetchAbiFromEtherscan(contract: any) {
         winston.error(`Error while fetching contract ${contract} from etherscan with error: ${err}`);
     });
 }
+
+/**
+ * Get balance for a given address for a given contract.
+ *
+ * @param {string} address
+ * @param {string} contractAddress
+ */
+export function getTokenBalanceForAddress(address: string, contractAddress: string) {
+    const abi = require("./contracts/Erc20Abi");
+    const contractInstance = new Config.web3.eth.Contract(abi, contractAddress);
+    return contractInstance.methods.balanceOf(address).call();
+}
+
 
 /**
  * Sets delay for given amount of time.
