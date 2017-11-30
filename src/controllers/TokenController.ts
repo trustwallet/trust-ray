@@ -28,11 +28,8 @@ export class TokenController {
             page: queryParams.page,
             limit: queryParams.limit,
             populate: {
-                path: "tokens",
-                populate: {
-                    path: "erc20Contract",
-                    model: "ERC20Contract"
-                }
+                path: "tokens.erc20Contract",
+                model: "ERC20Contract"
             }
         }).then((tokens: any) => {
             sendJSONresponse(res, 200, tokens);
