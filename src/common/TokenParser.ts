@@ -171,7 +171,14 @@ export class TokenParser {
                     address: operation.from,
                     tokens: {
                         "$elemMatch": {
-                            erc20Contract: operation.contract
+                            erc20Contract: operation.contract,
+                            transaction_history: {
+                                "$not": {
+                                    "$elemMatch": {
+                                        transaction: operation.transactionId
+                                    }
+                                }
+                            }
                         }
                     }
                 }).updateOne({
@@ -220,9 +227,6 @@ export class TokenParser {
                 }
             }));
         });
-
-
-        // TODO: problem is currently that transactions are doubly inserted into the transaction history
 
         return Promise.all(promises);
     }
