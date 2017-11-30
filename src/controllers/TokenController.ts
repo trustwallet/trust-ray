@@ -15,13 +15,23 @@ export class TokenController {
             return;
         }
 
+        // extract query parameters
         const queryParams = TokenController.extractQueryParameters(req);
 
-        // TODO: build up query
+        // build up query
         const query: any = {};
+        if (queryParams.address !== "undefined") {
+            query.address = queryParams.address.toLowerCase();
+        }
 
-        const promise = Token.paginate(query, {page: queryParams.page, limit: queryParams.limit});
-        promise.then( (tokens: any) => {
+        Token.paginate(query, {
+            page: queryParams.page,
+            limit: queryParams.limit,
+            populate: {
+                path: "tokens.erc20Contract",
+                model: "ERC20Contract"
+            }
+        }).then((tokens: any) => {
             sendJSONresponse(res, 200, tokens);
         }).catch((err: Error) => {
             sendJSONresponse(res, 404, err);
@@ -29,24 +39,24 @@ export class TokenController {
     }
 
     public readOneToken(req: Request, res: Response) {
-        if (!req.params || !req.params.tokenWalletAddress) {
-            sendJSONresponse(res, 404, { "message": "No token wallet address in request" });
+        if (!req.params || !req.params.address) {
+            sendJSONresponse(res, 404, { "message": "No address in request" });
             return;
         }
 
-        // validate token wallet address
-        req.checkParams("tokenWalletAddress", "token wallet address must be alphanumeric").isAlphanumeric();
+        // validate wallet address
+        req.checkParams("address", "wallet address must be alphanumeric").isAlphanumeric();
         const validationErrors = req.validationErrors();
         if (validationErrors) {
             sendJSONresponse(res, 400, validationErrors);
             return;
         }
 
-        const tokenWalletAddress = xss.inHTMLData(req.params.tokenWalletAddress);
+        const address = xss.inHTMLData(req.params.address);
 
-        Token.find({address: tokenWalletAddress}).exec().then((token: any) => {
+        Token.find({address: address}).exec().then((token: any) => {
             if (!token) {
-                sendJSONresponse(res, 404, {"message": "token wallet address not found"});
+                sendJSONresponse(res, 404, {"message": "wallet address not found"});
                 return;
             }
             sendJSONresponse(res, 200, token);
