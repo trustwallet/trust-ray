@@ -157,7 +157,11 @@ export class TokenParser {
                     "$setOnInsert": {
                         tokens: [{
                             erc20Contract: operation.contract,
-                            balance: balanceUpdateValue
+                            balance: balanceUpdateValue,
+                            transaction_history: [{
+                                transaction: operation.transactionId,
+                                value: balanceUpdateValue
+                            }]
                         }]
                     }
                 });
@@ -171,7 +175,15 @@ export class TokenParser {
                         }
                     }
                 }).updateOne({
-                    "$inc": {"tokens.$.balance": balanceUpdateValue}
+                    "$inc": {
+                        "tokens.$.balance": balanceUpdateValue
+                    },
+                    "$push": {
+                        "tokens.$.transaction_history": {
+                            transaction: operation.transactionId,
+                            value: balanceUpdateValue
+                        }
+                    }
                 });
 
                 // "push" new token to tokens array where it does not yet exist
@@ -188,7 +200,11 @@ export class TokenParser {
                     "$push": {
                         tokens: {
                             erc20Contract: operation.contract,
-                            balance: balanceUpdateValue
+                            balance: balanceUpdateValue,
+                            transaction_history: [{
+                                transaction: operation.transactionId,
+                                value: balanceUpdateValue
+                            }]
                         }
                     }
                 });
@@ -204,6 +220,9 @@ export class TokenParser {
                 }
             }));
         });
+
+
+        // TODO: problem is currently that transactions are doubly inserted into the transaction history
 
         return Promise.all(promises);
     }
