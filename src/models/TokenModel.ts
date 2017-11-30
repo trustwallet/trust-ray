@@ -16,7 +16,17 @@ const tokenSchema = new Schema({
         balance: {
             type: Number,
             required: true
-        }
+        },
+        transaction_history: [{
+            transaction: {
+                type: String,
+                required: true
+            } ,
+            value: {
+                type: Number,
+                required: true
+            }
+        }]
     }]
 }, {
     versionKey: false,
