@@ -6,7 +6,10 @@
  *
  * - reparsed transactions with the success flag added,
  *   remove it and replace with error message
- *   => not yet finished
+ *   => finished November 28th 2017
+ *
+ * - reparsed all transaction operations to update balances
+ *   => not finished yet
  *
  *************************************************************/
 
@@ -16,6 +19,7 @@ import { TokenParser } from "./TokenParser";
 import { TransactionParser } from "./TransactionParser";
 import * as winston from "winston";
 import { setDelay } from "./Utils";
+import { TransactionOperation } from "../models/TransactionOperationModel";
 
 
 /**
@@ -30,10 +34,40 @@ export class LegacyParser {
 
 
     /**
-     * Re-parses transactions that have the success flag,
-     * remove it and add error message instead.
+     * Re-parse all transaction operations to update token balances.
      */
     public reparseChain() {
+        const tokenParser = new TokenParser();
+        TransactionOperation.find({/* TODO */}).limit(this.parallelReparse).exec().then((operations: any) => {
+            if (operations && operations.length > 0) {
+                tokenParser.updateTokenBalances(operations).then((results: any) => {
+                    // TODO: flag already processed operations to not evaluate them again
+                });
+            } else {
+                return Promise.resolve("Finished");
+            }
+        }).then((result: any) => {
+            if (result !== "Finished") {
+                // wait for 1 seconds and then restart the process
+                winston.info(`Reparsed ${this.parallelReparse} transactions`);
+                setDelay(1000).then(() => {
+                    this.reparseChain()
+                });
+            } else {
+                winston.info(`Finished reparse`);
+            }
+        }).catch((err: Error) => {
+            winston.info(`Error while reparsing: ${err}`);
+        });
+    }
+
+    /**
+     * Re-parses transactions that have the success flag,
+     * remove it and add error message instead.
+     *
+     * Finished on November 28th 2017
+     */
+    public reparseSuccessFlag() {
         Transaction.find({success: {$exists: true}}).limit(this.parallelReparse).exec().then((transactions: any) => {
             if (transactions && transactions.length > 0) {
                 transactions.map((transaction: any) => {
@@ -55,7 +89,7 @@ export class LegacyParser {
                 // wait for 1 seconds and then restart the process
                 winston.info(`Reparsed ${this.parallelReparse} transactions`);
                 setDelay(1000).then(() => {
-                    this.reparseChain()
+                    this.reparseSuccessFlag()
                 });
             } else {
                 winston.info(`Finished reparse`);
