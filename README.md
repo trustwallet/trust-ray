@@ -3,6 +3,8 @@
 [![Build Status](https://travis-ci.org/TrustWallet/trust-ray.svg?branch=master)](https://travis-ci.org/TrustWallet/trust-ray)
 [![License](https://img.shields.io/badge/license-GPL3-green.svg?style=flat)](https://github.com/fastlane/fastlane/blob/master/LICENSE)
 [![HitCount](http://hits.dwyl.io/rip32700/TrustWallet/trust-wallet-backend.svg)](http://hits.dwyl.io/rip32700/TrustWallet/trust-wallet-backend)
+[![Black Duck Security Risk](https://copilot.blackducksoftware.com/github/repos/TrustWallet/trust-ray/branches/token_endpoint/badge-risk.svg)](https://copilot.blackducksoftware.com/github/repos/TrustWallet/trust-ray/branches/token_endpoint)
+
 
 API for the Trust Ethereum Wallet.
 
