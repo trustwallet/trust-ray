@@ -3,7 +3,8 @@ import * as winston from "winston";
 import { ERC20Contract } from "../models/Erc20ContractModel";
 import { Token } from "../models/TokenModel";
 import { Config } from "./Config";
-import { loadContractABIs } from "./Utils";
+import {getTokenBalanceForAddress, loadContractABIs} from "./Utils";
+import {TransactionOperation} from "../models/TransactionOperationModel";
 
 
 export class TokenParser {
@@ -135,6 +136,53 @@ export class TokenParser {
             .reduce((a: any, b: any) => a.findIndex((e: any) => e.address == b.address) < 0
                 ? [...a, b]
                 : a, []);
+    }
+
+
+    public getTokenBalances(address: string) {
+        return TransactionOperation.find({
+            "$or": [
+                {to: address},
+                {from: address}
+            ]
+        }).select("contract").exec().then((operations: any) => {
+            const tokenContracts = this.extractTokenContracts(operations);
+            const contractDetailsPromises = this.getContractDetails(tokenContracts);
+            return Promise.all(contractDetailsPromises).then((tokens: any[]) => {
+                const balancePromises: any = [];
+
+                // get the balances
+                tokens.map((token: any) => {
+                    balancePromises.push(getTokenBalanceForAddress(address, token.address, token.decimals));
+                });
+                return Promise.all(balancePromises);
+            });
+        });
+    }
+
+    private extractTokenContracts(operations: any) {
+        const tokenContracts: any = [];
+        // extract tokens
+        operations.map((operation: any) => {
+            tokenContracts.push(operation.contract);
+        });
+        // remove duplicates
+        return tokenContracts.reduce((a: any, b: any) => a.findIndex((e: any) => String(e) === String(b)) < 0
+            ? [...a, b]
+            : a, []);
+    }
+
+    private getContractDetails(tokenContracts: any) {
+        const promises: any = [];
+        tokenContracts.map((tokenContract: any) => {
+            promises.push(ERC20Contract.findById(tokenContract).then((token: any) => {
+                return {
+                    address: token.address,
+                    decimals: token.decimals
+                }
+            }));
+        });
+        return promises;
     }
 
     private performSingleTokenBalanceUpdate(address: string, contractAddress: string, updateVal: number, txId: string) {

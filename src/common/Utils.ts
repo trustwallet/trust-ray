@@ -87,11 +87,17 @@ export function fetchAbiFromEtherscan(contract: any) {
  *
  * @param {string} address
  * @param {string} contractAddress
+ * @param {number} decimals
  */
-export function getTokenBalanceForAddress(address: string, contractAddress: string) {
+export function getTokenBalanceForAddress(address: string, contractAddress: string, decimals: number) {
     const abi = require("./contracts/Erc20Abi");
     const contractInstance = new Config.web3.eth.Contract(abi, contractAddress);
-    return contractInstance.methods.balanceOf(address).call();
+    return contractInstance.methods.balanceOf(address).call().then((balance: any) => {
+        return {
+            contractAddress: contractAddress,
+            balance: balance / 10 ** decimals
+        }
+    });
 }
 
 
