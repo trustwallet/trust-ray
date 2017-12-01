@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
-import { sendJSONresponse } from "../common/Utils";
+import { sendJSONresponse} from "../common/Utils";
 import { Token } from "../models/TokenModel";
 import * as xss from "xss-filters";
+import { TokenParser } from "../common/TokenParser";
 
 
 export class TokenController {
@@ -24,17 +25,12 @@ export class TokenController {
             query.address = queryParams.address.toLowerCase();
         }
 
-        Token.paginate(query, {
-            page: queryParams.page,
-            limit: queryParams.limit,
-            populate: {
-                path: "tokens.erc20Contract",
-                model: "ERC20Contract"
+        new TokenParser().getTokenBalances(query.address).then((balances: any) => {
+            if (balances) {
+                sendJSONresponse(res, 200, balances);
+            } else {
+                sendJSONresponse(res, 404, "Balances for tokens could not be found.");
             }
-        }).then((tokens: any) => {
-            sendJSONresponse(res, 200, tokens);
-        }).catch((err: Error) => {
-            sendJSONresponse(res, 404, err);
         });
     }
 
@@ -68,7 +64,7 @@ export class TokenController {
     private static validateQueryParameters(req: Request) {
         req.checkQuery("page", "Page needs to be a number").optional().isNumeric();
         req.checkQuery("limit", "limit needs to be a number").optional().isNumeric();
-        req.checkQuery("address", "address needs to be alphanumeric").optional().isAlphanumeric();
+        req.checkQuery("address", "address needs to be alphanumeric").isAlphanumeric();
 
         return req.validationErrors();
     }
