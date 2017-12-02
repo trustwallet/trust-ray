@@ -18,6 +18,7 @@ export class LocalizedOperationConverter {
             "to": operation.to,
             "contract": contract.address,
             "value": String(value),
+            "new_value": operation.value,
             "symbol": contract.symbol,
         }
     };
