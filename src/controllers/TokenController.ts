@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { sendJSONresponse} from "../common/Utils";
+import { sendJSONresponse } from "../common/Utils";
 import { Token } from "../models/TokenModel";
 import * as xss from "xss-filters";
 import { TokenParser } from "../common/TokenParser";

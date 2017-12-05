@@ -28,17 +28,17 @@ export class TransactionParser {
                     const transactionData = this.extractTransactionData(block, transaction);
                     transactions.push(new Transaction(transactionData));
                     bulkTransactions.find({_id: hash}).upsert().replaceOne(transactionData);
-                    
+
                     /* for bug fixing commented out:
                     const p = this.extractTransactionData(block, transaction).then((transactionData: any) => {
                         transactions.push(new Transaction(transactionData));
                         bulkTransactions.find({_id: hash}).upsert().replaceOne(transactionData);
                     });
                     */
-                    //promises.push(p);
+                    // promises.push(p);
                 });
         });
-        
+
         // execute the bulk
         if (bulkTransactions.length === 0) {
             return Promise.resolve();
@@ -78,10 +78,10 @@ export class TransactionParser {
             gasUsed: String(block.gasUsed),
             addresses: [from, to]
         };
-        
+
         return data;
         /* for bug fixing commented out:
-        
+
         return Config.web3.eth.getTransactionReceipt(transaction.hash).then((receipt: any) => {
             if (receipt.status) {
                 data.error = receipt.status === "0x1" ? "" : "Error";
