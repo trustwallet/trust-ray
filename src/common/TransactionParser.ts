@@ -25,29 +25,14 @@ export class TransactionParser {
         blocks.map((block: any) => {
                 block.transactions.map((transaction: any) => {
                     const hash = String(transaction.hash);
-                    const transactionData = this.extractTransactionData(block, transaction);
-                    transactions.push(new Transaction(transactionData));
-                    bulkTransactions.find({_id: hash}).upsert().replaceOne(transactionData);
-                    
-                    /* for bug fixing commented out:
                     const p = this.extractTransactionData(block, transaction).then((transactionData: any) => {
                         transactions.push(new Transaction(transactionData));
                         bulkTransactions.find({_id: hash}).upsert().replaceOne(transactionData);
                     });
-                    */
                     promises.push(p);
                 });
         });
-        
-        // execute the bulk
-        if (bulkTransactions.length === 0) {
-            return Promise.resolve();
-        }
-        return bulkTransactions.execute().then((bulkResult: any) => {
-             return Promise.resolve(transactions);
-        });
 
-        /* for bug fixing commented out:
         return Promise.all(promises).then(() => {
             // execute the bulk
             if (bulkTransactions.length === 0) {
@@ -57,7 +42,6 @@ export class TransactionParser {
                 return Promise.resolve(transactions);
             });
         });
-        */
     }
 
     private extractTransactionData(block: any, transaction: any) {
@@ -78,10 +62,7 @@ export class TransactionParser {
             gasUsed: String(block.gasUsed),
             addresses: [from, to]
         };
-        
-        return data;
-        /* for bug fixing commented out:
-        
+
         return Config.web3.eth.getTransactionReceipt(transaction.hash).then((receipt: any) => {
             if (receipt.status) {
                 data.error = receipt.status === "0x1" ? "" : "Error";
@@ -91,7 +72,6 @@ export class TransactionParser {
             winston.error(`Could not get transaction receipt for tx hash ${transaction.hash}`);
             return data;
         });
-        */
     }
 
     // ========================== OPERATION PARSING ========================== //
