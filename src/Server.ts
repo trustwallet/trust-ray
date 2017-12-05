@@ -14,6 +14,8 @@ import * as fs from "fs";
 import * as winston from "winston";
 import { BlockchainParser } from "./common/BlockchainParser";
 import { LegacyParser } from "./common/LegacyParser";
+import { ReparseService } from "./common/ReparseService";
+import { Config } from "./common/Config";
 
 // Load environment variables from .env file, where API keys and passwords are configured.
 dotenv.config();
@@ -99,6 +101,18 @@ export class Server {
         parser.startForwardParsing();
 
         // new LegacyParser().reparseChain();
+
+        // reparse missing transactions
+        Config.web3.eth.getBlockNumber().then((endBlock: any) => {
+            let startBlock: number;
+            if (Config.network.includes("mainnet")) {
+                startBlock = 4631671;
+            } else if (Config.network.includes("kovan")) {
+                startBlock = 4880400;
+            }
+            new ReparseService().reparse(startBlock, endBlock);
+        });
+
     }
 
 }
