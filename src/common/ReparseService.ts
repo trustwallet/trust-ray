@@ -10,6 +10,7 @@ export class ReparseService {
     private transactionParser: TransactionParser;
     private tokenParser: TokenParser;
     private concurrentBlocks = 1;
+    private originalStartBlock: number;
 
     constructor() {
         this.transactionParser = new TransactionParser();
@@ -18,13 +19,14 @@ export class ReparseService {
 
     reparse(startBlock: any, lastBlock: any) {
         winston.info(`Reparsing from block ${startBlock} to block ${lastBlock}`);
+        this.originalStartBlock = startBlock;
         this.doReparse(startBlock, lastBlock);
     }
 
     private doReparse(startBlock: any, lastBlock: any) {
         // indicate process
-        if (startBlock % 20 === 0) {
-            winston.info("Currently reparsing block: " + startBlock);
+        if (startBlock % 50 === 0) {
+            winston.info(`Currently reparsing block ${startBlock} - at ${this.getPercentage(startBlock, lastBlock)} %`);
         }
 
         // prepare block parsing
@@ -46,14 +48,14 @@ export class ReparseService {
             return this.transactionParser.parseTransactionOperations(transactions, contracts);
         }).then((results: any) => {
             if (endBlock < lastBlock) {
-                this.reparse(endBlock + 1, lastBlock);
+                this.doReparse(endBlock + 1, lastBlock);
             } else {
                 winston.info(`Last block (${endBlock})is reparsed on the blockchain.`);
             }
         }).catch((err: Error) => {
             winston.error(`Reparsing failed for blocks ${startBlock} to ${lastBlock} with error: ${err}. \nRestarting reparsing for those blocks...`);
             setDelay(1000).then(() => {
-                this.reparse(startBlock, lastBlock);
+                this.doReparse(startBlock, lastBlock);
             });
         });
 
@@ -64,5 +66,11 @@ export class ReparseService {
             ? [block] : []).reduce( (a: any, b: any) => a.concat(b), [] );
     }
 
+    private getPercentage(startBlock: number, lastBlock: number) {
+        let result: any = 1 - (lastBlock - startBlock) / (lastBlock - this.originalStartBlock);
+        result = result.toFixed(4);
+        result = Number((result + "").split(".")[1]);
+        return result / 100;
+    }
 
 }
