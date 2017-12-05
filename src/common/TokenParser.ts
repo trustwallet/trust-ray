@@ -3,8 +3,9 @@ import * as winston from "winston";
 import { ERC20Contract } from "../models/Erc20ContractModel";
 import { Token } from "../models/TokenModel";
 import { Config } from "./Config";
-import {getTokenBalanceForAddress, loadContractABIs} from "./Utils";
-import {TransactionOperation} from "../models/TransactionOperationModel";
+import { getTokenBalanceForAddress, loadContractABIs } from "./Utils";
+import { TransactionOperation } from "../models/TransactionOperationModel";
+import { NotParsableContracts } from "../models/NotParsableContractModel";
 
 
 export class TokenParser {
@@ -59,59 +60,55 @@ export class TokenParser {
     /**
      * For each ABI that is currently stored, try to parse
      * the given contract with it. If any succeeds, update
-     * database with given information. If all ABIs fail,
-     * get the ABI from this contract address and save it.
-     * Then try to re-parse contract.
+     * database with given information.
      *
      * @param {String} contract
      * @returns {Promise<void>}
      */
     private getContract(contract: String): Promise<void> {
-        const promises = [];
-        for (const abi of this.abiList) {
-            const contractInstance = new Config.web3.eth.Contract(abi, contract);
+        return NotParsableContracts.findOne({address: contract}).exec().then((notParsableToken: any) => {
 
-            const p1 = contractInstance.methods.name().call();
-            const p2 = contractInstance.methods.totalSupply().call();
-            const p3 = contractInstance.methods.decimals().call();
-            const p4 = contractInstance.methods.symbol().call();
+            if (notParsableToken) {
+                return Promise.resolve(undefined);
+            }
 
-            promises.push(Promise.all([p1, p2, p3, p4]).then(([name, totalSupply, decimals, symbol]: any[]) => {
-                return [name, totalSupply, decimals, symbol];
+            const promises = [];
+            for (const abi of this.abiList) {
+                const contractInstance = new Config.web3.eth.Contract(abi, contract);
+
+                const p1 = contractInstance.methods.name().call();
+                const p2 = contractInstance.methods.totalSupply().call();
+                const p3 = contractInstance.methods.decimals().call();
+                const p4 = contractInstance.methods.symbol().call();
+
+                promises.push(Promise.all([p1, p2, p3, p4]).then(([name, totalSupply, decimals, symbol]: any[]) => {
+                    return [name, totalSupply, decimals, symbol];
+                }).catch((err: Error) => {
+                    /* don't do anything here, but catch error */
+                }));
+            }
+
+            return Promise.all(promises).then((contracts: any[]) => {
+                const contractObj = contracts.filter((ele: any) => { return ele !== undefined })[0];
+                return this.updateERC20Token(contract, {
+                    name: contractObj[0],
+                    totalSupply: contractObj[1],
+                    decimals: contractObj[2],
+                    symbol: contractObj[3]
+                });
             }).catch((err: Error) => {
-               /* don't do anything here, but catch error */
-            }));
-        }
-
-        return Promise.all(promises).then((contracts: any[]) => {
-            const contractObj = contracts.filter((ele: any) => { return ele !== undefined })[0];
-            return this.updateERC20Token(contract, {
-                name: contractObj[0],
-                totalSupply: contractObj[1],
-                decimals: contractObj[2],
-                symbol: contractObj[3]
+                winston.error(`Could not parse input for contract ${contract}.`);
+                NotParsableContracts.findOneAndUpdate(
+                    {address: contract},
+                    {address: contract},
+                    {upsert: true, new: true}
+                ).then((npc: any) => {
+                    winston.info(`Saved ${contract}to non-parsable contracts`)
+                }).catch((err: Error) => {
+                    winston.error(`Could not save non-parsable contract for ${contract}.`);
+                });
             });
-        }).catch((err: Error) => {
-            winston.error(`Could not parse input for contract ${contract}.`);
-            /* TODO: uncomment
-            return this.generateAbiForContract(contract).then(() => {
-                // after adding ABI, restart parse
-                return this.getContract(contract);
-            });
-            */
         });
-    }
-
-    private generateAbiForContract(contract: any) {
-        winston.info(`Generating ABI file for contract ${contract}.`);
-
-        // fetch ABI for contract from etherscan.io
-
-        // create file for it in common/contracts/
-
-        // load file and add it to local abi array and decoder
-
-        // return promise
     }
 
     private updateERC20Token(contract: String, obj: any): Promise<void> {
