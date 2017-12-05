@@ -35,7 +35,7 @@ export class TransactionParser {
                         bulkTransactions.find({_id: hash}).upsert().replaceOne(transactionData);
                     });
                     */
-                    promises.push(p);
+                    //promises.push(p);
                 });
         });
         
