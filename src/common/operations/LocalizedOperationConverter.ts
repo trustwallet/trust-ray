@@ -20,6 +20,7 @@ export class LocalizedOperationConverter {
             "value": String(value),
             "new_value": operation.value,
             "symbol": contract.symbol,
+            "decimals": contract.decimals
         }
     };
 }
