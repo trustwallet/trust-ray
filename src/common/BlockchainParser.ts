@@ -69,7 +69,7 @@ export class BlockchainParser {
                 winston.info(`Stopping blockchain parse reverse`);
                 return;
             } 
-            winston.info(`Backward parsing: startBlock ${startBlock}, blockInChain: ${blockInChain} `);
+            // winston.info(`Backward parsing: startBlock ${startBlock}, blockInChain: ${blockInChain} `);
 
             if (startBlock > blockInChain) {
                 return this.scheduleBackwardParsing()
