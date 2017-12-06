@@ -71,7 +71,7 @@ export class BlockchainParser {
             } 
             winston.info(`Backward parsing: startBlock ${startBlock}, blockInChain: ${blockInChain} `);
 
-            if (startBlock >= blockInChain) {
+            if (startBlock > blockInChain) {
                 return this.scheduleBackwardParsing()
             }
 
