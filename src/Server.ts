@@ -14,7 +14,6 @@ import * as fs from "fs";
 import * as winston from "winston";
 import { BlockchainParser } from "./common/BlockchainParser";
 import { LegacyParser } from "./common/LegacyParser";
-import { ReparseService } from "./common/ReparseService";
 import { Config } from "./common/Config";
 
 // Load environment variables from .env file, where API keys and passwords are configured.
@@ -101,6 +100,5 @@ export class Server {
         parser.start();
     }
 }
-
 
 new Server();
