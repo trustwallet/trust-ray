@@ -38,7 +38,7 @@ export class StatusController {
                 }
             });
         }).catch((err: Error) => {
-            winston.error("Failed to load initial block state: " + err);
+            winston.error("Failed to load initial block state in getStatus: " + err);
             sendJSONresponse(res, 200, {error: err})
         });
     }

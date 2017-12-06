@@ -33,7 +33,6 @@ export class BlockchainParser {
     public startBackwardParsing() {
         winston.info("Starting blockchain parse");
         this.getCurrentBlockState().then(([blockInChain, blockInDb]) => {
-
             // determine where to start parsing
             const currentBlock = !blockInDb ? blockInChain : blockInDb.lastBlock;
             let latestBlock = !blockInDb ? blockInChain : blockInDb.latestBlock;
@@ -55,7 +54,7 @@ export class BlockchainParser {
                 });
             }
         }).catch((err: Error) => {
-            winston.error("Failed to load initial block state: " + err);
+            winston.error("Failed to load initial block state in startBackwardParsing: " + err);
         });
     }
 
@@ -123,7 +122,7 @@ export class BlockchainParser {
             }
 
         }).catch((err: Error) => {
-            winston.error("Failed to load initial block state: " + err);
+            winston.error("Failed to load initial block state in startForwardParsing: " + err);
         });
     }
 
