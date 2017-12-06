@@ -98,23 +98,8 @@ export class Server {
             winston.info("Press CTRL-C to stop\n");
         });
 
-        parser.startForwardParsing();
-
-        // new LegacyParser().reparseChain();
-
-        // reparse missing transactions
-        Config.web3.eth.getBlockNumber().then((endBlock: any) => {
-            let startBlock: number;
-            if (Config.network.includes("mainnet")) {
-                startBlock = 4631671;
-            } else if (Config.network.includes("kovan")) {
-                startBlock = 4880400;
-            }
-            new ReparseService().reparse(startBlock, endBlock);
-        });
-
+        parser.start();
     }
-
 }
 
 
