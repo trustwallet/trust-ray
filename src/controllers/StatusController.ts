@@ -22,6 +22,10 @@ export class StatusController {
         ]).then(([transactionsCount, operationsCount, erc20contractsCount, lastParsedBlock, latestBlockNumberInBC, networkId]) => {
             const latestBlockNumberInDB = lastParsedBlock.lastBlock;
             const blocksToSync = latestBlockNumberInBC - latestBlockNumberInDB;
+
+            const latestBackwordBlockNumberInDB = lastParsedBlock.lastBackwardBlock;
+            const blocksToSyncBackward = latestBackwordBlockNumberInDB;
+
             sendJSONresponse(res, 200, {
                 database: {
                     transactions: parseInt(transactionsCount).toLocaleString(),
@@ -30,7 +34,11 @@ export class StatusController {
                 },
                 latestBlockNumberInBC,
                 latestBlockNumberInDB,
-                blocksToSync,
+                latestBackwordBlockNumberInDB,
+                sync: {
+                    blocksToSync,
+                    blocksToSyncBackward,
+                },
                 version: packageJSON.version,
                 config: {
                     rpc_server: process.env.RPC_SERVER,
