@@ -115,9 +115,9 @@ export class BlockchainParser {
 
     private parse(startBlock: number, lastBlock: number, ascending: boolean = true): Promise<number> {
         // indicate process
-        //if (startBlock % 20 === 0) {
+        if (startBlock % 20 === 0) {
             winston.info("Currently processing block: " + startBlock + ", lastBlock: " + lastBlock + ",  ascending: " + ascending);
-        //}
+        }
         // prepare block parsing
         // TODO: Simplify logic for blocks that needs to be processed
         const range = (start: number, end: number) => (
