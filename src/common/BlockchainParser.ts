@@ -62,13 +62,13 @@ export class BlockchainParser {
     }
 
     public startBackwardParsing() {
-        // winston.info("Starting blockchain parse reversed"); 
+        // winston.info("Starting blockchain parse reversed");
         this.getBlockState().then(([blockInChain, blockInDb]) => {
             const startBlock = !blockInDb ? blockInChain : (((blockInDb.lastBackwardBlock == undefined) ? blockInChain : blockInDb.lastBackwardBlock));
-            if (startBlock <1) {
+            if (startBlock < 1) {
                 winston.info(`Stopping blockchain parse reverse`);
                 return;
-            } 
+            }
             // winston.info(`Backward parsing: startBlock ${startBlock}, blockInChain: ${blockInChain} `);
 
             if (startBlock > blockInChain) {
@@ -142,7 +142,7 @@ export class BlockchainParser {
         // }).then((transactionOperations: any) => {
         //    return this.tokenParser.updateTokenBalances(transactionOperations);
         }).then(() => {
-            let endBlock = ascending ? numberBlocks[numberBlocks.length-1] : numberBlocks[0];
+            const endBlock = ascending ? numberBlocks[numberBlocks.length - 1] : numberBlocks[0];
             if (endBlock) {
                 return Promise.resolve(endBlock);
             } else {

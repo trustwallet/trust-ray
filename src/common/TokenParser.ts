@@ -103,7 +103,7 @@ export class TokenParser {
                     {address: contract},
                     {upsert: true, new: true}
                 ).then((npc: any) => {
-                    winston.info(`Saved ${contract}to non-parsable contracts`)
+                    winston.info(`Saved ${contract} to non-parsable contracts`);
                 }).catch((err: Error) => {
                     winston.error(`Could not save non-parsable contract for ${contract}.`);
                 });
