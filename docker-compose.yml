@@ -1,0 +1,14 @@
+version: '3.1'
+
+services:
+
+  app:
+    build: ./docker
+    env_file: .env
+    links:
+      - mongodb
+
+  mongodb:
+    image: mongo:latest
+    environment:
+      - MONGO_DATA_DIR=/data/db

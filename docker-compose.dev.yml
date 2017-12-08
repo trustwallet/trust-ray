@@ -1,0 +1,13 @@
+version: '3.1'
+
+services:
+
+  app:
+    volumes:
+      - ./:/opt/server
+
+  mongodb:
+    volumes:
+      - ./docker/data/mongodb:/data/db
+    ports:
+        - 27017:27017
