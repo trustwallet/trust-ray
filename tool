@@ -19,7 +19,7 @@ build() {
 }
 
 run() {
-    docker-compose up -d --remove-orphans $*
+    docker-compose up -d --remove-orphans --abort-on-container-exit $*
 }
 
 stop() {

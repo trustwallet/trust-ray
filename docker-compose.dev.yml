@@ -5,6 +5,8 @@ services:
   app:
     volumes:
       - ./:/opt/server
+    ports:
+        - 8000:8000
 
   mongodb:
     volumes:
