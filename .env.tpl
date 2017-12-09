@@ -4,4 +4,4 @@ PORT=8000
 MONGODB_URI=mongodb://mongodb:27017/trust-wallet
 
 # Main ethereum rpc server
-RPC_SERVER=https://mainnet.infura.io/llyrtzQ3YhkdESt2Fzrk
+RPC_SERVER=http://127.0.0.1:8545
