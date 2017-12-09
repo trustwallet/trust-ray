@@ -31,7 +31,7 @@ export class BlockchainParser {
 
     public startForwardParsing() {
         // winston.info("Starting blockchain parse");
-        this.getBlockState().then(([blockInChain, blockInDb]) => {
+        return this.getBlockState().then(([blockInChain, blockInDb]) => {
             // determine where to start parsing
             const startBlock = !blockInDb ? 1 : blockInDb.lastBlock;
             // determine if we should start parsing now
@@ -42,11 +42,11 @@ export class BlockchainParser {
             if (nextBlock <= blockInChain) {
                 const lastBlock = blockInChain
                 this.parse(nextBlock, blockInChain).then((endBlock: number) => {
-                    this.saveLastParsedBlock(endBlock);
-                    // TODO: Call parse recursively to avoid get block state on every check
-                    setDelay(500).then(() => {
-                        this.startForwardParsing();
-                    });
+                    return this.saveLastParsedBlock(endBlock);
+                }).then(() => {
+                    return setDelay(300);
+                }).then(() =>  {
+                    return this.startForwardParsing();
                 }).catch((err: Error) => {
                     winston.error(`Parsing failed for blocks ${nextBlock} to ${lastBlock} with error: ${err}. \nRestarting parsing for those blocks...`);
                     this.scheduleForwardParsing();
@@ -62,31 +62,32 @@ export class BlockchainParser {
     }
 
     public startBackwardParsing() {
-        // winston.info("Starting blockchain parse reversed");
-        this.getBlockState().then(([blockInChain, blockInDb]) => {
+        return this.getBlockState().then(([blockInChain, blockInDb]) => {
             const startBlock = !blockInDb ? blockInChain : (((blockInDb.lastBackwardBlock == undefined) ? blockInChain : blockInDb.lastBackwardBlock));
-            if (startBlock < 1) {
-                winston.info(`Stopping blockchain parse reverse`);
+            
+            // winston.info(`Backward parsing: startBlock ${startBlock}, blockInChain: ${blockInChain} `);
+            const nextBlock = startBlock - 1
+            if (nextBlock < 1) {
+                winston.info(`Backward already finished`);
                 return;
             }
-            // winston.info(`Backward parsing: startBlock ${startBlock}, blockInChain: ${blockInChain} `);
 
-            if (startBlock > blockInChain) {
+            if (nextBlock >= blockInChain) {
                 return this.scheduleBackwardParsing()
             }
 
-            this.parse(startBlock - 1, blockInChain, false).then((endBlock: number) => {
-                this.saveLastBackwardBlock(endBlock);
-                if (endBlock >= 1) {
-                    // TODO: Call parse recursively to avoid get block state on every check
-                    setDelay(500).then(() => {
-                        this.startBackwardParsing();
-                    });
-                } else {
-                    winston.info(`Finished parsing backward`);
-                }
+            this.parse(nextBlock, blockInChain, false).then((endBlock: number) => {
+                return this.saveLastBackwardBlock(endBlock);
+            }).then((block) => {
+                return setDelay(300).then(() => {
+                    if (block.lastBackwardBlock > 1) {
+                        return this.startBackwardParsing();
+                    } else {
+                        winston.info(`Finished parsing backward`);
+                    }
+                })
             }).catch((err: Error) => {
-                winston.error(`Parsing failed for blocks ${startBlock} to ${startBlock} with error: ${err}. \nRestarting parsing for those blocks...`);
+                winston.error(`Parsing failed for blocks ${nextBlock} with error: ${err}. \nRestarting parsing for those blocks...`);
                 this.scheduleBackwardParsing()
             });
         }).catch((err: Error) => {
