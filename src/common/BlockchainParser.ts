@@ -44,7 +44,7 @@ export class BlockchainParser {
                 this.parse(nextBlock, blockInChain).then((endBlock: number) => {
                     return this.saveLastParsedBlock(endBlock);
                 }).then(() => {
-                    return setDelay(300);
+                    return setDelay(100);
                 }).then(() =>  {
                     return this.startForwardParsing();
                 }).catch((err: Error) => {
