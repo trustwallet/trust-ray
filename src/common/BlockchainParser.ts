@@ -134,11 +134,11 @@ export class BlockchainParser {
             return Config.web3.eth.getBlock(number, true);
         });
         return Promise.all(promises).then((blocks: any) => {
-            let flatBlocks = this.flatBlocksWithMissingTransactions(blocks)
-            if (flatBlocks.length == 0) {
-                return Promise.reject('Zero blocks returned. Wait for RPC to build a block');
+            let hasNullBlocks = blocks.filter((block: any) => block == null);            
+            if (hasNullBlocks.length > 0) {
+                return Promise.reject('Has null blocks. Wait for RPC to build a block');
             }
-            return this.transactionParser.parseTransactions(flatBlocks);
+            return this.transactionParser.parseTransactions(this.flatBlocksWithMissingTransactions(blocks));
         }).then((transactions: any) => {
             return this.tokenParser.parseERC20Contracts(transactions);
         }).then(([transactions, contracts]: any) => {
