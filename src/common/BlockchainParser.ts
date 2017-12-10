@@ -44,7 +44,7 @@ export class BlockchainParser {
                 this.parse(nextBlock, blockInChain).then((endBlock: number) => {
                     return this.saveLastParsedBlock(endBlock);
                 }).then(() => {
-                    return setDelay(300);
+                    return setDelay(100);
                 }).then(() =>  {
                     return this.startForwardParsing();
                 }).catch((err: Error) => {
@@ -97,7 +97,7 @@ export class BlockchainParser {
     }
 
     private scheduleForwardParsing() {
-        setDelay(5000).then(() => {
+        setDelay(4000).then(() => {
             this.startForwardParsing();
         });
     }
@@ -134,6 +134,10 @@ export class BlockchainParser {
             return Config.web3.eth.getBlock(number, true);
         });
         return Promise.all(promises).then((blocks: any) => {
+            let hasNullBlocks = blocks.filter((block: any) => block == null);            
+            if (hasNullBlocks.length > 0) {
+                return Promise.reject('Has null blocks. Wait for RPC to build a block');
+            }
             return this.transactionParser.parseTransactions(this.flatBlocksWithMissingTransactions(blocks));
         }).then((transactions: any) => {
             return this.tokenParser.parseERC20Contracts(transactions);
