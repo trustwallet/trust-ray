@@ -9,55 +9,61 @@ const erc20abi = require("./contracts/Erc20Abi");
 const erc20ABIDecoder = require("abi-decoder");
 erc20ABIDecoder.addABI(erc20abi);
 
-
 export class TransactionParser {
-
-    // ========================== TRANSACTION PARSING ========================== //
 
     public parseTransactions(blocks: any) {
         if (blocks.length == 0) {
             return Promise.resolve();
         }
-        // collect bulk inserts
-        const promises: any = [];
-        const bulkTransactions = Transaction.collection.initializeUnorderedBulkOp();
-        const transactions: any = [];
-        blocks.map((block: any) => {
-                block.transactions.map((transaction: any) => {
-                    const hash = String(transaction.hash);
-                    const transactionData = this.extractTransactionData(block, transaction);
-                    transactions.push(new Transaction(transactionData));
-                    bulkTransactions.find({_id: hash}).upsert().replaceOne(transactionData);
-
-                    /* for bug fixing commented out:
-                    const p = this.extractTransactionData(block, transaction).then((transactionData: any) => {
-                        transactions.push(new Transaction(transactionData));
-                        bulkTransactions.find({_id: hash}).upsert().replaceOne(transactionData);
-                    });
-                    */
-                    // promises.push(p);
-                });
+        const extractedTransactions = blocks.flatMap((block: any) => {
+            return block.transactions.map((tx: any) => {
+                return new Transaction(this.extractTransactionData(block, tx));
+            });
         });
+        const txIDs = extractedTransactions.map((tx: any) => tx._id);
 
-        // execute the bulk
-        if (bulkTransactions.length === 0) {
-            return Promise.resolve();
-        }
-        return bulkTransactions.execute().then((bulkResult: any) => {
-             return Promise.resolve(transactions);
-        });
+        return this.fetchTransactionReceipts(txIDs).then((receipts: any) => {
+            return this.mergeTransactionsAndReceipts(extractedTransactions, receipts);
+        }).then((transactions: any) => {
+            const bulkTransactions = Transaction.collection.initializeUnorderedBulkOp();
+            
+            transactions.forEach((transaction: any) => 
+                bulkTransactions.find({_id: transaction._id}).upsert().replaceOne(transaction)
+            )
 
-        /* for bug fixing commented out:
-        return Promise.all(promises).then(() => {
-            // execute the bulk
             if (bulkTransactions.length === 0) {
                 return Promise.resolve();
             }
+
             return bulkTransactions.execute().then((bulkResult: any) => {
                 return Promise.resolve(transactions);
             });
+        })        
+    }
+
+    private mergeTransactionsAndReceipts(transactions: any[], receipts: any[]) {
+        // TODO: Big(n square). Improve it
+        const results: any = []
+        transactions.forEach((transaction) => {
+            receipts.forEach((receipt: any) => {
+                if (transaction._id == receipt.transactionHash) {
+                    results.push(this.mergeTransactionWithReceipt(transaction, receipt))
+                }
+            })
         });
-        */
+        if (transactions.length != receipts.length) {
+            winston.error(`Number of transactions not equal to number of receipts.`);
+        }
+        return Promise.resolve(results);
+    }
+
+    private mergeTransactionWithReceipt(transaction: any, receipt: any) {
+        let newTransaction = transaction
+        newTransaction.gasUsed = receipt.gasUsed
+        if (receipt.status) {
+            newTransaction.error = receipt.status === "0x1" ? "" : "Error";
+        }
+        return newTransaction
     }
 
     private extractTransactionData(block: any, transaction: any) {
@@ -74,24 +80,11 @@ export class TransactionParser {
             value: String(transaction.value),
             gas: String(transaction.gas),
             gasPrice: String(transaction.gasPrice),
+            gasUsed: String(0),
             input: String(transaction.input),
-            gasUsed: String(block.gasUsed),
             addresses: [from, to]
         };
-
-        return data;
-        /* for bug fixing commented out:
-
-        return Config.web3.eth.getTransactionReceipt(transaction.hash).then((receipt: any) => {
-            if (receipt.status) {
-                data.error = receipt.status === "0x1" ? "" : "Error";
-            }
-            return data;
-        }).catch((err: Error) => {
-            winston.error(`Could not get transaction receipt for tx hash ${transaction.hash}`);
-            return data;
-        });
-        */
+        return data
     }
 
     // ========================== OPERATION PARSING ========================== //
@@ -147,4 +140,30 @@ export class TransactionParser {
         });
     }
 
+    // https://gist.github.com/jdkanani/e76baa731a2b0cb6bbff26d085476722
+    private fetchTransactionReceipts (transactions: any) {
+        return new Promise((resolve, reject)=>{
+          let result: any = [];
+          let _resolved = false;
+      
+          let callback = (err: Error, obj: any) => {
+            if (_resolved) return;
+            result.push(err ? null : obj);
+            if (result.length >= transactions.length) {
+              _resolved = true;
+              resolve(result);
+            }
+          };
+      
+          if (transactions.length > 0) {
+            var batch = new Config.web3.BatchRequest();
+            transactions.forEach((tx: any) => {
+              batch.add(Config.web3.eth.getTransactionReceipt.request(tx, callback));
+            });
+            batch.execute();
+          } else {
+            resolve(result);
+          }
+        });
+    }
 }
