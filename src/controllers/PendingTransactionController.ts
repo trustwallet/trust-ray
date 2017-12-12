@@ -2,14 +2,13 @@
 import { Request, Response } from "express";
 import { sendJSONresponse } from "../common/Utils";
 import { Config } from "../common/Config";
-import { Error } from "mongoose";
 let Promise = require("bluebird");
 
 export class PendingTransactionController {
 
-    public getPendingTransactions(req: Request, res: Response) {
-        const validationErrors: any = PendingTransactionController.validateQueryParameters(req);
-
+    public getPendingTransactions = (req: Request, res: Response) => {
+        const validationErrors: any = this.validateQueryParameters(req);
+        
         if (validationErrors) {
             sendJSONresponse(res, 400, {validationErrors});
             return;
@@ -43,7 +42,7 @@ export class PendingTransactionController {
         });
     }
 
-    private static validateQueryParameters(req: Request) {
+    private validateQueryParameters = (req: Request) => {
         req.checkQuery("address", "address needs to be alphanumeric and 42 characters long").optional().isLength({min: 42, max: 42});
         req.checkQuery("address", "address needs to be hexidecimal").optional().isAlphanumeric();
         return req.validationErrors();
