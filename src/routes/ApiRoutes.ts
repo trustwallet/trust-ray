@@ -19,7 +19,7 @@ router.get("/transactions", transactionController.readAllTransactions);
 router.get("/transactions/:transactionId", transactionController.readOneTransaction);
 
 //URLs for pending transactions
-router.get("/pendingTransactions", pendingTransactionController.readPendingTransaction);
+router.get("/pendingTransactions", pendingTransactionController.getPendingTransactions);
 
 // URLs for tokens
 router.get("/tokens", tokenController.readAllTokens);

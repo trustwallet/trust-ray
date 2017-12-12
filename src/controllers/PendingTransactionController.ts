@@ -7,7 +7,7 @@ let Promise = require("bluebird");
 
 export class PendingTransactionController {
 
-    public readPendingTransaction(req: Request, res: Response) {
+    public getPendingTransactions(req: Request, res: Response) {
         const validationErrors: any = PendingTransactionController.validateQueryParameters(req);
 
         if (validationErrors) {
