@@ -17,20 +17,19 @@ export class PendingTransactionController {
 
         const address: string = req.query.address;
 
-        Config.web3.eth.getBlock("pending", true)
-        .then((pendings: any) => {
+        Config.web3.eth.getBlock("pending", true).then((pendings: any) => {
             return new Promise.filter(pendings.transactions, function(transaction: any) {
                 return (transaction.from === address || transaction.to == address) ? true : false;
-            }).map(function(filteredTransactions: any) {
+            }).map(function(transaction: any) {
                 return {
-                    from: filteredTransactions.from,
-                    to: filteredTransactions.to,
-                    blockNumber: filteredTransactions.blockNumber,
-                    gas: filteredTransactions.gas,
-                    gasPrice: filteredTransactions.gasPrice,
-                    nonce: filteredTransactions.nonce,
-                    hash: filteredTransactions.hash,
-                    input: filteredTransactions.input,
+                    from: transaction.from,
+                    to: transaction.to,
+                    blockNumber: transaction.blockNumber,
+                    gas: transaction.gas,
+                    gasPrice: transaction.gasPrice,
+                    nonce: transaction.nonce,
+                    hash: transaction.hash,
+                    input: transaction.input,
                 }
             });
         })
