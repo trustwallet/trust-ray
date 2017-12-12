@@ -1,0 +1,1 @@
+                    gasPrice: filteredTransactions.gasPrice,
