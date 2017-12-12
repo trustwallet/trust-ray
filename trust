@@ -5,10 +5,6 @@ set -e
 build() {
     echo "Building..."
 
-    if [ ! -f ./.env ]; then
-        cp ./.env.tpl ./.env
-    fi
-
     docker-compose pull
     docker-compose build
 
