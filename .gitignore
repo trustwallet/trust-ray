@@ -18,3 +18,5 @@ $ Ignore the .env file for the server
 *.log
 
 dist
+
+docker/data/

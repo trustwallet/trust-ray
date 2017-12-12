@@ -30,7 +30,7 @@ API for the Trust Ethereum Wallet.
 ## Deploy on Heroku
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://www.heroku.com/deploy/?template=https://github.com/TrustWallet/trust-wallet-backend)
 
-## Locally
+## Locally (without docker)
 * Install required modules:
   ```$ npm install```
 * Compile TypeScript:
@@ -39,6 +39,26 @@ API for the Trust Ethereum Wallet.
    ```$ node dist/server.js```
 * Run tests:
    ```$ npm run build && npm test```
+
+## Docker containers
+Install docker and docker-compose.
+
+Set in *~/.bashrc*
+```export COMPOSE_FILE=docker-compose.yml:docker-compose.dev.yml```
+
+Dev tool:
+
+* Run build for npm install and build
+```./trust build```
+
+* Start app in docker
+```./trust run```
+
+* Stop docker containers
+```./trust stop```
+
+* App logs
+```./trust logs```
 
 ## Authors
 
