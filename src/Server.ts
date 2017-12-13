@@ -1,7 +1,6 @@
 
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import * as passport from "passport";
 import * as session from "express-session";
 import * as dotenv from "dotenv";
 import * as logger from "morgan";
@@ -64,8 +63,6 @@ export class Server {
                 autoReconnect: true
             })
         }));
-        this.app.use(passport.initialize());
-        this.app.use(passport.session());
 
         // configure winston logger
         winston.add(
