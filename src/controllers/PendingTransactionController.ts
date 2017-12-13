@@ -6,8 +6,23 @@ let Promise = require("bluebird");
 
 export class PendingTransactionController {
 
-    public getPendingTransactions = (req: Request, res: Response) => {
-        const validationErrors: any = this.validateQueryParameters(req);
+    getPendingTransactions (req: Request, res: Response) {
+        interface Transaction {
+            blockNumber: number,
+            from: string,
+            gas: number,
+            gasPrice: number,
+            hash: string,
+            input: string,
+            nonce: number,
+            to: string,
+        }
+
+        interface Pendings {
+            transactions: Transaction[],
+        }
+
+        const validationErrors: any = PendingTransactionController.validateQueryParameters(req);
         
         if (validationErrors) {
             sendJSONresponse(res, 400, {validationErrors});
@@ -16,33 +31,33 @@ export class PendingTransactionController {
 
         const address: string = req.query.address;
 
-        Config.web3.eth.getBlock("pending", true).then((pendings: any) => {
-            return new Promise.filter(pendings.transactions, function(transaction: any) {
-                return (transaction.from === address || transaction.to == address) ? true : false;
-            }).map(function(transaction: any) {
+        Config.web3.eth.getBlock("pending", true).then((pendings: Pendings): void => {
+            return new Promise.filter(pendings.transactions, function(transaction: Transaction): boolean {
+                return transaction.from === address || transaction.to == address;
+            }).map((transaction: Transaction) => {
                 return {
-                    from: transaction.from,
-                    to: transaction.to,
                     blockNumber: transaction.blockNumber,
+                    from: transaction.from,
                     gas: transaction.gas,
                     gasPrice: transaction.gasPrice,
-                    nonce: transaction.nonce,
                     hash: transaction.hash,
                     input: transaction.input,
+                    nonce: transaction.nonce,
+                    to: transaction.to,
                 }
             });
         })
-        .then((pendings: any) => {
+        .then((pendings: Transaction[]): void => {
             sendJSONresponse(res, 200, { pendings });
             return;
         })
-        .catch((error: Error) => {
+        .catch((error: Error): void => {
             sendJSONresponse(res, 400, { error });
             return; 
         });
     }
 
-    private validateQueryParameters = (req: Request) => {
+    static validateQueryParameters(req: Request) {
         req.checkQuery("address", "address needs to be alphanumeric and 42 characters long").optional().isLength({min: 42, max: 42});
         req.checkQuery("address", "address needs to be hexidecimal").optional().isAlphanumeric();
         return req.validationErrors();
