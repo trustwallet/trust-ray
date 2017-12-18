@@ -15,7 +15,7 @@ API for the Trust Ethereum Wallet.
 * Retrieving ERC20 token balances
 * Push notification service (not yet implemented)
 
-## API [wiki](https://github.com/TrustWallet/trust-ray/wiki)
+## API [wiki](https://github.com/TrustWallet/trust-ray/wiki/API)
 
     
 ## Deploy on Heroku
