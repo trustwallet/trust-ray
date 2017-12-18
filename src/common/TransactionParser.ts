@@ -46,8 +46,11 @@ export class TransactionParser {
         const results: any = []
         transactions.forEach((transaction) => {
             receipts.forEach((receipt: any) => {
-                if (!receipt && !receipt.transactionHash) {
-                    return Promise.reject(`Receipt parsing error ${receipt}`)
+                if (!receipt) {
+                    return Promise.reject(`Receipt is null ${receipt}`)
+                }
+                if (!receipt.transactionHash) {
+                    return Promise.reject(`transactionHash is null ${receipt}`)
                 }
                 if (transaction._id == receipt.transactionHash) {
                     results.push(this.mergeTransactionWithReceipt(transaction, receipt))
