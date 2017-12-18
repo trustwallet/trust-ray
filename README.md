@@ -17,11 +17,91 @@ API for the Trust Ethereum Wallet.
 
 ## Endpoints
 
-* **GET /transactions** - Retrieves all transactions limited to max 500. Query parameters:
+### Get address transacitons:
+Returns list of address transactions
+
+**Request:**
+
+     /transactions
+
+**Additional Parameters:**
+
     * address: Filters transactions for the given address
-    * limit: Used for pagination. A value between 1 and 500 (default: 50).
+    * startBlock: Start block to select transactions from
+    * endBlock: End block to select transactions to
+    * limit: Used for pagination. A value between 1 and 500 (default: 50)    
     * page: Used for pagination.
-* **GET /transactions/:hash** - Retrieves a single transaction given by its hash.
+    
+**Example:**
+
+    /transactions?address=0x9f8284ce2cf0c8ce10685f537b1fff418104a317&limit=5&startBlock=4386700&endBlock=4747999&page=2
+
+  [https://api.trustwalletapp.com/transactions?address=0x9f8284ce2cf0c8ce10685f537b1fff418104a317&limit=5&startBlock=4386700&endBlock=4747999](https://api.trustwalletapp.com/transactions?address=0x9f8284ce2cf0c8ce10685f537b1fff418104a317&limit=5&startBlock=4386700&endBlock=4747999)
+
+**Response:**
+
+    {
+      docs: [
+        {
+          _id:                          # transaction hash
+          error:                        # error message
+          blockNumber:                  # transaction block number
+          timeStamp:                    # transaction block time
+          nonce:                        # transaction nonce
+          from:	                        # source address
+          to:                           # destination address
+          value:                        # 
+          gas:	                        # gas for this transaction
+          gasPrice:	                    # gas price for this transaction
+          gasUsed:                      # gas used for this transaction
+          input:	                      # transaction input data (hex)
+          operations: []                # add description
+          addresses: []	                # add description
+          operations_localized: []      # add description
+          id:                           # add description
+        }
+      ]
+      total:                            # total found transaction
+      limit:                            # add description
+      page:                             # add description
+      pages:                            # add description
+    }
+
+### GET transaction:
+Returns a single transaction by it's hash
+
+**Request:**
+
+     /transactions/:hash
+
+[https://api.trustwalletapp.com/transactions/0xa84ab748f8a90765a6fe290c4d7fb3e8f3c5ee48247ca19006809f26dbc0900f](https://api.trustwalletapp.com/transactions/0xa84ab748f8a90765a6fe290c4d7fb3e8f3c5ee48247ca19006809f26dbc0900f)
+
+**Example:**
+
+    /transactions/0xa84ab748f8a90765a6fe290c4d7fb3e8f3c5ee48247ca19006809f26dbc0900f
+
+**Response:**
+
+    {
+        _id:                          # transaction hash
+        error:                        # error message
+        blockNumber:                  # transaction block number
+        timeStamp:                    # transaction block time
+        nonce:                        # transaction nonce
+        from:	                        # source address
+        to:                           # destination address
+        value:                        # 
+        gas:	                        # gas for this transaction
+        gasPrice:	                    # gas price for this transaction
+        gasUsed:                      # gas used for this transaction
+        input:	                      # transaction input data (hex)
+        operations: []                # add description
+        addresses: []	                # add description
+        operations_localized: []      # add description
+        id:                           # transaction hash
+    }
+
+/transactions/:hash** - Retrieves a single transaction given by its hash.
 * **GET /tokens** - Not yet implemented.
     * address: Filters tokens for the given address
     * limit: Used for pagination. A value between 1 and 500 (default: 50).
