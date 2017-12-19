@@ -149,7 +149,7 @@ export class TransactionParser {
             if (completed) return;
             if (err || !obj) {
                 completed = true;
-                reject(err);
+                return reject(err);
             }
             result.push(err ? null : obj);
             if (result.length >= transactions.length) {
