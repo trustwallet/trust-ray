@@ -142,19 +142,19 @@ export class TransactionParser {
 
     // https://gist.github.com/jdkanani/e76baa731a2b0cb6bbff26d085476722
     private fetchTransactionReceipts (transactions: any) {
-        return new Promise((resolve, reject)=>{
+        return new Promise((resolve, reject) => {
           let result: any = [];
           let completed = false;
           let callback = (err: Error, obj: any) => {
             if (completed) return;
             if (err || !obj) {
+                completed = true;
                 reject(err);
-                completed = true
             }
             result.push(err ? null : obj);
             if (result.length >= transactions.length) {
                 completed = true;
-              resolve(result);
+                resolve(result);
             }
           };
       
