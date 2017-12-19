@@ -46,12 +46,6 @@ export class TransactionParser {
         const results: any = []
         transactions.forEach((transaction) => {
             receipts.forEach((receipt: any) => {
-                if (!receipt) {
-                    return Promise.reject(`Receipt is null ${receipt}`)
-                }
-                if (!receipt.transactionHash) {
-                    return Promise.reject(`transactionHash is null ${receipt}`)
-                }
                 if (transaction._id == receipt.transactionHash) {
                     results.push(this.mergeTransactionWithReceipt(transaction, receipt))
                 }
@@ -150,13 +144,16 @@ export class TransactionParser {
     private fetchTransactionReceipts (transactions: any) {
         return new Promise((resolve, reject)=>{
           let result: any = [];
-          let _resolved = false;
-      
+          let completed = false;
           let callback = (err: Error, obj: any) => {
-            if (_resolved) return;
+            if (completed) return;
+            if (err || !obj) {
+                reject(err);
+                completed = true
+            }
             result.push(err ? null : obj);
             if (result.length >= transactions.length) {
-              _resolved = true;
+                completed = true;
               resolve(result);
             }
           };
