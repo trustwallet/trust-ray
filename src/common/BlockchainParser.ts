@@ -103,7 +103,7 @@ export class BlockchainParser {
     }
 
     private scheduleBackwardParsing() {
-        setDelay(4000).then(() => {
+        setDelay(2000).then(() => {
             this.startBackwardParsing();
         });
     }
