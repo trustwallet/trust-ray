@@ -3,15 +3,16 @@ import { TransactionController } from "../controllers/TransactionController";
 import { TokenController } from "../controllers/TokenController";
 import { StatusController } from "../controllers/StatusController";
 import { Pusher } from "../controllers/PusherController";
+import { PriceController } from "../controllers/PriceController";
 
 const router = express["Router"]();
 
-// load controllers
 const transactionController = new TransactionController();
 const tokenController = new TokenController();
 const statusController = new StatusController();
 const pusherController = new Pusher();
-// define the routes
+const priceController = new PriceController();
+
 
 // URLs for transactions
 router.get("/", statusController.getStatus);
@@ -25,6 +26,8 @@ router.get("/tokens/:tokenWalletAddress", tokenController.readOneToken);
 //URLs for push notifications
 router.post("/register", pusherController.register);
 router.delete("/unregister", pusherController.unregister);
+
+router.get("/prices", priceController.getPrices)
 
 export {
     router
