@@ -13,8 +13,8 @@ const limit = 500;
 
 export class PriceController {
     getPrices(req: Request, res: Response) {
-        let currency = req.query.currency || "USD";
-        let symbols = (req.query.symbols || "").split(",");
+        const currency = req.query.currency || "USD";
+        const symbols = (req.query.symbols || "").split(",");
         
         this.getRemotePrices(currency).then((value: any) => {
             let prices = this.filterPrices(value, symbols)
