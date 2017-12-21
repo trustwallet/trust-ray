@@ -29,8 +29,8 @@ export class TokenParser {
         transactions.map((transaction: any) => {
             const decodedInput = this.abiDecoder.decodeMethod(transaction.input);
             if (
-                decodedInput && decodedInput.name === "transfer" && Array.isArray(decodedInput.params) && decodedInput.params.length == 2 && transaction.to !== null,
-                decodedInput && decodedInput.name === "mint" && Array.isArray(decodedInput.params) && decodedInput.params.length == 2 && transaction.to !== null
+                (decodedInput && decodedInput.name === "transfer" && Array.isArray(decodedInput.params) && decodedInput.params.length === 2 && transaction.to !== null) ||
+                (decodedInput && decodedInput.name === "mint" && Array.isArray(decodedInput.params) && decodedInput.params.length === 2 && transaction.to !== null)
             ) {
                 contractAddresses.push(transaction.to.toLowerCase());
             }
