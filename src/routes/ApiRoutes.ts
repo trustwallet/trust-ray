@@ -2,6 +2,7 @@ import  * as express from "express";
 import { TransactionController } from "../controllers/TransactionController";
 import { TokenController } from "../controllers/TokenController";
 import { StatusController } from "../controllers/StatusController";
+import { PendingTransactionController } from "../controllers/PendingTransactionController";
 import { Pusher } from "../controllers/PusherController";
 import { PriceController } from "../controllers/PriceController";
 
@@ -10,14 +11,17 @@ const router = express["Router"]();
 const transactionController = new TransactionController();
 const tokenController = new TokenController();
 const statusController = new StatusController();
+const pendingTransactionController = new PendingTransactionController();
 const pusherController = new Pusher();
 const priceController = new PriceController();
-
 
 // URLs for transactions
 router.get("/", statusController.getStatus);
 router.get("/transactions", transactionController.readAllTransactions);
 router.get("/transactions/:transactionId", transactionController.readOneTransaction);
+
+//URLs for pending transactions
+router.get("/pendingTransactions", pendingTransactionController.getPendingTransactions);
 
 // URLs for tokens
 router.get("/tokens", tokenController.readAllTokens);
