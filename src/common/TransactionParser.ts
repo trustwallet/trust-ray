@@ -102,7 +102,15 @@ export class TransactionParser {
             if (contract) {
                 const decodedInput = erc20ABIDecoder.decodeMethod(transaction.input);
                 if (decodedInput && decodedInput.name === "transfer" && Array.isArray(decodedInput.params) && decodedInput.params.length == 2) {
-                    const p = this.findOrCreateTransactionOperation(transaction._id, transaction.from, decodedInput, contract._id);
+                    const to = decodedInput.params[0].value.toLowerCase();
+                    const value = removeScientificNotationFromNumbString(decodedInput.params[1].value);
+                    const p = this.findOrCreateTransactionOperation(transaction._id, transaction.from, to, value, contract._id);
+                    operationPromises.push(p);
+                }
+                if (decodedInput && decodedInput.name === "mint" && Array.isArray(decodedInput.params) && decodedInput.params.length == 2) {
+                    const to = decodedInput.params[0].value.toLowerCase();
+                    const value = removeScientificNotationFromNumbString(decodedInput.params[1].value);
+                    const p = this.findOrCreateTransactionOperation(transaction._id, transaction.from, to, value, contract._id);
                     operationPromises.push(p);
                 }
             }
@@ -113,11 +121,8 @@ export class TransactionParser {
         });
     }
 
-    private findOrCreateTransactionOperation(transactionId: any, transactionFrom: any, decodedInput: any, erc20ContractId: any): Promise<void> {
+    private findOrCreateTransactionOperation(transactionId: any, transactionFrom: any, to: any, value: string, erc20ContractId: any): Promise<void> {
         const from = transactionFrom.toLowerCase();
-        const to = decodedInput.params[0].value.toLowerCase();
-        const value = removeScientificNotationFromNumbString(decodedInput.params[1].value);
-
         const data = {
             transactionId: transactionId,
             type: "token_transfer",
@@ -142,16 +147,19 @@ export class TransactionParser {
 
     // https://gist.github.com/jdkanani/e76baa731a2b0cb6bbff26d085476722
     private fetchTransactionReceipts (transactions: any) {
-        return new Promise((resolve, reject)=>{
+        return new Promise((resolve, reject) => {
           let result: any = [];
-          let _resolved = false;
-      
+          let completed = false;
           let callback = (err: Error, obj: any) => {
-            if (_resolved) return;
+            if (completed) return;
+            if (err || !obj) {
+                completed = true;
+                return reject(err);
+            }
             result.push(err ? null : obj);
             if (result.length >= transactions.length) {
-              _resolved = true;
-              resolve(result);
+                completed = true;
+                resolve(result);
             }
           };
       
