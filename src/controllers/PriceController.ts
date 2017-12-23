@@ -16,7 +16,7 @@ export class PriceController {
         const currency = req.query.currency || "USD";
         const symbols = (req.query.symbols || "").split(",");
         
-        this.getRemotePrices(currency).then((value: any) => {
+        PriceController.getRemotePrices(currency).then((value: any) => {
             let prices = this.filterPrices(value, symbols)
             sendJSONresponse(res, 200, {
                 status: true, 
@@ -42,7 +42,7 @@ export class PriceController {
         })
     }
 
-    private getRemotePrices(currency: string) {
+    private static getRemotePrices(currency: string) {
         return new Promise((resolve, reject) => {
             const now = Date.now();
             const difference = (now - lastUpdated) / 1000;
