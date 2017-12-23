@@ -17,7 +17,7 @@ export class PriceController {
         const symbols = (req.query.symbols || "").split(",");
         
         PriceController.getRemotePrices(currency).then((value: any) => {
-            let prices = this.filterPrices(value, symbols)
+            let prices = PriceController.filterPrices(value, symbols)
             sendJSONresponse(res, 200, {
                 status: true, 
                 response: prices,
@@ -30,7 +30,7 @@ export class PriceController {
         })        
     }
 
-    private filterPrices(prices: any[], symbols: string[]): any {
+    private static filterPrices(prices: any[], symbols: string[]): any {
         return prices.filter((price) => {
             return price.symbol === symbols.find(x => x === price.symbol)
         }).map((price) => {
