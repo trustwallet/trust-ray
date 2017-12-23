@@ -48,7 +48,7 @@ export class PriceController {
             const difference = (now - lastUpdated) / 1000;
 
             if (lastUpdated === 0 || difference >= refreshLimit) {
-                return client.getTicker({limit: limit, convert: currency}).then((value: any) => {
+                return client.getTicker({limit: 0, convert: currency}).then((value: any) => {
                     lastUpdated = now;
                     latestPrices[currency] = value;
                     return resolve(latestPrices[currency]);
