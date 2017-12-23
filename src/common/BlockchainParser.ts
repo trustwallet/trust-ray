@@ -132,7 +132,7 @@ export class BlockchainParser {
 
         const rebalanceBlock = startBlock - this.rebalanceOffset
         if (rebalanceBlock > 0) {
-            numberBlocks.push(rebalanceBlock)
+            numberBlocks.unshift(rebalanceBlock)
         }
 
         // parse blocks
