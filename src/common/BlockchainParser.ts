@@ -34,7 +34,7 @@ export class BlockchainParser {
         // winston.info("Starting blockchain parse");
         return this.getBlockState().then(([blockInChain, blockInDb]) => {
             // determine where to start parsing
-            const startBlock = !blockInDb ? 1 : blockInDb.lastBlock;
+            const startBlock = !blockInDb ? blockInChain - 1 : blockInDb.lastBlock;
             // determine if we should start parsing now
             // or schedule a restart in 10 seconds
             winston.info(`Last parsed block: ${startBlock}, current block in chain: ${blockInChain}`);
