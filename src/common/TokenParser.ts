@@ -85,7 +85,7 @@ export class TokenParser {
                 const p4 = contractInstance.methods.symbol().call();
 
                 promises.push(Promise.all([p1, p2, p3, p4]).then(([name, totalSupply, decimals, receivedSymbol]: any[]) => {
-                    let symbol = this.convertSymbol(receivedSymbol)
+                    const symbol = this.convertSymbol(receivedSymbol)
                     return [name, totalSupply, decimals, symbol];
                 }).catch((err: Error) => {
                     /* don't do anything here, but catch error */
@@ -115,7 +115,7 @@ export class TokenParser {
         });
     }
 
-    private convertSymbol(symbol: string): any {
+    private convertSymbol(symbol: string): string | byte32 {
         if (symbol.startsWith('0x')) {
             return Config.web3.utils.hexToAscii(symbol);
         }
