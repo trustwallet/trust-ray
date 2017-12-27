@@ -115,11 +115,11 @@ export class TokenParser {
         });
     }
 
-    private convertSymbol(symbol: string): string | byte32 {
+    private convertSymbol(symbol: string): string {
         if (symbol.startsWith('0x')) {
             return Config.web3.utils.hexToAscii(symbol);
         }
-        return symbol
+        return symbol;
     }
 
     private updateERC20Token(contract: String, obj: any): Promise<void> {
