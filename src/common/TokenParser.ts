@@ -84,7 +84,8 @@ export class TokenParser {
                 const p3 = contractInstance.methods.decimals().call();
                 const p4 = contractInstance.methods.symbol().call();
 
-                promises.push(Promise.all([p1, p2, p3, p4]).then(([name, totalSupply, decimals, symbol]: any[]) => {
+                promises.push(Promise.all([p1, p2, p3, p4]).then(([name, totalSupply, decimals, receivedSymbol]: any[]) => {
+                    const symbol = this.convertSymbol(receivedSymbol)
                     return [name, totalSupply, decimals, symbol];
                 }).catch((err: Error) => {
                     /* don't do anything here, but catch error */
@@ -112,6 +113,13 @@ export class TokenParser {
                 });
             });
         });
+    }
+
+    private convertSymbol(symbol: string): string {
+        if (symbol.startsWith('0x')) {
+            return Config.web3.utils.hexToAscii(symbol);
+        }
+        return symbol;
     }
 
     private updateERC20Token(contract: String, obj: any): Promise<void> {
