@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@types/async": "^2.0.40",
+    "@types/bluebird": "^3.5.19",
     "@types/body-parser": "^1.16.2",
     "@types/chai": "^4.0.4",
     "@types/connect-mongo": "0.0.34",
@@ -58,7 +59,6 @@
     "mongoose-paginate": "^5.0.3",
     "morgan": "^1.7.0",
     "node-cron": "^1.2.1",
-    "nodemon": "^1.12.5",
     "request": "^2.78.0",
     "ts-node": "^4.1.0",
     "tsc-watch": "^1.0.10",
@@ -69,6 +69,6 @@
     "xss-filters": "^1.2.7"
   },
   "devDependencies": {
-    "@types/bluebird": "^3.5.19"
+    "nodemon": "^1.14.3"
   }
 }
