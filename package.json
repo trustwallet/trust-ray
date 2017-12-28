@@ -67,5 +67,8 @@
     "web3": "^1.0.0-beta.24",
     "winston": "^2.4.0",
     "xss-filters": "^1.2.7"
+  },
+  "devDependencies": {
+    "@types/bluebird": "^3.5.19"
   }
 }
