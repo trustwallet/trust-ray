@@ -6,10 +6,10 @@ import * as axios from "axios"
 const CoinMarketCap = require('coinmarketcap-api')
 const client = new CoinMarketCap();
 
-let lastUpdated: number = 0;
+let lastUpdated: any = {};
 let latestPrices: any = {};
-const refreshLimit = 300;
-const limit = 500;
+const refreshLimit = 150;
+const limit = 2000;
 
 export class PriceController {
     getPrices(req: Request, res: Response) {
@@ -47,11 +47,12 @@ export class PriceController {
     private static getRemotePrices(currency: string) {
         return new Promise((resolve, reject) => {
             const now = Date.now();
-            const difference = (now - lastUpdated) / 1000;
+            const lastUpdatedTime = lastUpdated[currency] || 0
+            const difference = (now - lastUpdatedTime) / 1000;
 
             if (lastUpdated === 0 || difference >= refreshLimit) {
                 return client.getTicker({limit: 0, convert: currency}).then((value: any) => {
-                    lastUpdated = now;
+                    lastUpdated[currency] = now;
                     latestPrices[currency] = value;
                     return resolve(latestPrices[currency]);
                 })
