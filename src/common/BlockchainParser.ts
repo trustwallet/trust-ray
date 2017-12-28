@@ -49,7 +49,7 @@ export class BlockchainParser {
                 }).then(() =>  {
                     return this.startForwardParsing();
                 }).catch((err: Error) => {
-                    winston.error(`Parsing failed for blocks ${nextBlock} to ${lastBlock} with error: ${err}. \nRestarting parsing for those blocks...`);
+                    winston.error(`Forward parsing failed for blocks ${nextBlock} to ${lastBlock} with error: ${err}. \nRestarting parsing for those blocks...`);
                     this.scheduleForwardParsing();
                 });
             } else {
@@ -88,12 +88,12 @@ export class BlockchainParser {
                     }
                 })
             }).catch((err: Error) => {
-                winston.error(`Parsing failed for blocks ${nextBlock} with error: ${err}. \nRestarting parsing for those blocks...`);
-                this.scheduleBackwardParsing()
+                winston.error(`Backword parsing failed for blocks ${nextBlock} with error: ${err}. \nRestarting parsing for those blocks...`);
+                this.scheduleBackwardParsing();
             });
         }).catch((err: Error) => {
             winston.error("Failed to load initial block state in startBackwardParsing: " + err);
-            this.scheduleBackwardParsing()
+            this.scheduleBackwardParsing();
         });
     }
 
