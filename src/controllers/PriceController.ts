@@ -31,9 +31,16 @@ export class PriceController {
     }
 
     private static filterPrices(prices: any[], symbols: string[], currency: string): any {
-        return prices.filter((price) => {
-            return price.symbol === symbols.find(x => x === price.symbol)
-        }).map((price) => {
+        //Improve. Exclude duplicate symbols. order by market cap.
+        let foundSymbols = new Set<any>();
+        let foundPrices: any[] = []
+        prices.forEach(price => {
+            if (price.symbol === symbols.find(x => x === price.symbol) && !foundSymbols.has(price.symbol)) {
+                foundPrices.push(price)
+                foundSymbols.add(price.symbol)
+            }
+        })
+        return foundPrices.map((price) => {
             let priceKey = "price_" + currency.toLowerCase();
             return {
                 id: price.id,
