@@ -50,11 +50,13 @@ export class TokenParser {
 
     private findOrCreateERC20Contract(contractAddress: String): Promise<void> {
         return ERC20Contract.findOne({address: contractAddress}).exec().then((erc20contract: any) => {
-            if (!erc20contract) {
-                return this.getContract(contractAddress);
-            } else {
-                return Promise.resolve(erc20contract);
-            }
+            // if (!erc20contract) {
+            //     return this.getContract(contractAddress);
+            // } else {
+            //     return Promise.resolve(erc20contract);
+            // }
+            //Leave it here until it updates contracts with latest info.
+            return this.getContract(contractAddress);
         }).catch((err: Error) => {
             winston.error(`Could not find contract by id for ${contractAddress} with error: ${err}`);
         });
