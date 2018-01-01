@@ -36,6 +36,7 @@ export class PriceController {
         }).map((price) => {
             let priceKey = "price_" + currency.toLowerCase();
             return {
+                id: price.id,
                 name: price.name,
                 symbol: price.symbol,
                 price: price[priceKey],
