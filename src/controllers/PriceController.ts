@@ -31,8 +31,8 @@ export class PriceController {
     }
 
     getTokenPrices(req: Request, res: Response) {
-        const currency = req.query.currency || "USD";
-        const symbols = req.body.map((item: any) => item.symbol )
+        const currency = req.body.currency || "USD";
+        const symbols = req.body.tokens.map((item: any) => item.symbol )
 
         PriceController.getRemotePrices(currency).then((value: any) => {
             let prices = PriceController.filterPrices(value, symbols, currency)
