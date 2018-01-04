@@ -33,7 +33,7 @@ export class Notification {
 
 		return Promise.mapSeries(wallets, (wallet: string) => {
 			if (addresses.indexOf(wallet) >= 0) {
-				if (transactionType === "ETH") {
+				if (transactionType === "ETH" && transaction.value !== "0") {
 					const ethMessage = this.createEthMeassage(transaction);
 
 					return this.send(token, ethMessage).then((notificationResult: any) => {
