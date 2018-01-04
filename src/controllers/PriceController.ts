@@ -34,11 +34,12 @@ export class PriceController {
         const currency = req.body.currency || "USD";
         const symbols = req.body.tokens.map((item: any) => item.symbol )
 
-        PriceController.getRemotePrices(currency).then((value: any) => {
-            let prices = PriceController.filterPrices(value, symbols, currency)
+        console.log(req.body.tokens)
+
+        PriceController.getRemotePrices(currency).then((prices: any) => {
             sendJSONresponse(res, 200, {
                 status: true, 
-                response: prices,
+                response: PriceController.filterTokenPrices(prices, req.body.tokens, currency),
             })
         }).catch((error: Error) => {
             sendJSONresponse(res, 500, {
@@ -46,6 +47,35 @@ export class PriceController {
                 error,
             });
         })   
+    }
+
+    private static filterTokenPrices(prices: any[], tokens: any[], currency: string): any {
+        const result = prices.reduce(function(map, obj) {
+            map[obj.id] = obj;
+            return map;
+        }, {});
+
+        let foundValues: any[] = [];
+        //Exclude duplicates, map contracts to symbols
+        prices.forEach(price => {
+            tokens.forEach((token) => {
+                if (price.symbol === token.symbol) {
+                    foundValues.push({price, token});
+                }
+            })
+        })
+
+        return foundValues.map((obj) => {
+            const priceKey = "price_" + currency.toLowerCase();
+            return {
+                id: obj.price.id,
+                name: obj.price.name,
+                symbol: obj.price.symbol,
+                price: obj.price[priceKey],
+                percent_change_24h: obj.price.percent_change_24h,
+                contract: obj.token.contract
+            }
+        })
     }
 
     private static filterPrices(prices: any[], symbols: string[], currency: string): any {
