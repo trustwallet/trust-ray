@@ -54,9 +54,10 @@ export class Notification {
 
 	private createEthMeassage(transaction: any) {
 		const value = `${Config.web3.utils.fromWei(transaction.value)}`;
+		const networkSymbol = process.env.NETWORK_SYMBOL;
 
 		return {
-			title: `You received ${value} ETH from`,
+			title: `You received ${value} ${networkSymbol} from`,
 			body: `${transaction.addresses[0]}`,
 			topic: process.env.APN_BUNDLEID,
 		}
