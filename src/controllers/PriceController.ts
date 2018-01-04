@@ -8,7 +8,7 @@ const client = new CoinMarketCap();
 
 let lastUpdated: any = {};
 let latestPrices: any = {};
-const refreshLimit = 250;
+const refreshLimit = 150;
 const limit = 2000;
 
 export class PriceController {
@@ -32,12 +32,9 @@ export class PriceController {
 
     private static filterPrices(prices: any[], symbols: string[], currency: string): any {
         //Improve. Exclude duplicate symbols. order by market cap.
-        let ignofredSymbols = new Set<any>("CAT");
         let foundSymbols = new Set<any>();
         let foundPrices: any[] = []
         prices.forEach(price => {
-        let ignofredSymbols = new Set<any>();
-            if (ignofredSymbols.has(price.symbol)) return;
             if (price.symbol === symbols.find(x => x === price.symbol) && !foundSymbols.has(price.symbol)) {
                 foundPrices.push(price)
                 foundSymbols.add(price.symbol)
