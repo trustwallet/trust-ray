@@ -107,7 +107,7 @@ export function getTokenBalanceForAddress(address: string, contractAddress: stri
  * @param {number} t
  * @returns {Promise<any>}
  */
-export function setDelay(t: number) {
+export function setDelay(t: number): Promise<void> {
     return new Promise((resolve) => {
         setTimeout(resolve, t);
     });
