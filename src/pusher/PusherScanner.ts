@@ -48,6 +48,8 @@ export class PusherScanner {
         })
         .catch((error: Error) => {
             winston.error("Error getPusherLatestBlock ", error);
+        })
+        .then(() => {
             utils.setDelay(this.delay).then(() => {
                 this.start();
             });
