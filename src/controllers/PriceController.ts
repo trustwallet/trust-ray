@@ -32,22 +32,26 @@ export class PriceController {
 
     private static filterPrices(prices: any[], symbols: string[], currency: string): any {
         //Improve. Exclude duplicate symbols. order by market cap.
+
+        const ignoredSymbols = new Set<string>(["CAT"]);
         let foundSymbols = new Set<any>();
-        let foundPrices: any[] = []
+        let foundPrices: any[] = [];
         prices.forEach(price => {
+            if (ignoredSymbols.has(price.symbol)) return;
+
             if (price.symbol === symbols.find(x => x === price.symbol) && !foundSymbols.has(price.symbol)) {
-                foundPrices.push(price)
-                foundSymbols.add(price.symbol)
+                foundPrices.push(price);
+                foundSymbols.add(price.symbol);
             }
         })
         return foundPrices.map((price) => {
-            let priceKey = "price_" + currency.toLowerCase();
+            const priceKey = "price_" + currency.toLowerCase();
             return {
                 id: price.id,
                 name: price.name,
                 symbol: price.symbol,
                 price: price[priceKey],
-                percent_change_24h: price.percent_change_24h
+                percent_change_24h: price.percent_change_24h,
             }
         })
     }
