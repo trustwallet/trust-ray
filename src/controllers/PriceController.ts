@@ -35,7 +35,6 @@ export class PriceController {
         let foundSymbols = new Set<any>();
         let foundPrices: any[] = []
         prices.forEach(price => {
-            if (price.symbol === "CAT") return;
             if (price.symbol === symbols.find(x => x === price.symbol) && !foundSymbols.has(price.symbol)) {
                 foundPrices.push(price)
                 foundSymbols.add(price.symbol)
