@@ -30,6 +30,24 @@ export class PriceController {
         })        
     }
 
+    getTokenPrices(req: Request, res: Response) {
+        const currency = req.query.currency || "USD";
+        const symbols = req.body.map((item: any) => item.symbol )
+
+        PriceController.getRemotePrices(currency).then((value: any) => {
+            let prices = PriceController.filterPrices(value, symbols, currency)
+            sendJSONresponse(res, 200, {
+                status: true, 
+                response: prices,
+            })
+        }).catch((error: Error) => {
+            sendJSONresponse(res, 500, {
+                status: 500, 
+                error,
+            });
+        })   
+    }
+
     private static filterPrices(prices: any[], symbols: string[], currency: string): any {
         //Improve. Exclude duplicate symbols. order by market cap.
 

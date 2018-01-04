@@ -28,6 +28,7 @@ router.post("/push/register", pusherController.register);
 router.delete("/push/unregister", pusherController.unregister);
 
 router.get("/prices", priceController.getPrices)
+router.post("/tokenPrices", priceController.getTokenPrices)
 
 export {
     router
