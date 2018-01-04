@@ -59,6 +59,7 @@
     "mongoose-paginate": "^5.0.3",
     "morgan": "^1.7.0",
     "node-cron": "^1.2.1",
+    "node-pushnotifications": "^1.0.18",
     "request": "^2.78.0",
     "ts-node": "^4.1.0",
     "tsc-watch": "^1.0.10",
