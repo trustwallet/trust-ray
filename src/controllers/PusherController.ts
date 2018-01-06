@@ -24,7 +24,7 @@ export class Pusher {
         }).catch((error: Error) => {
             winston.error("Failed to save device ", error);
             sendJSONresponse(res, 500, {
-                status: 500, 
+                status: 500,
                 message: "Failed to save device", 
                 error,
               });

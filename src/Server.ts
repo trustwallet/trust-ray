@@ -14,6 +14,7 @@ import * as winston from "winston";
 import { BlockchainParser } from "./common/BlockchainParser";
 import { LegacyParser } from "./common/LegacyParser";
 import { Config } from "./common/Config";
+import { PusherScanner } from "./pusher/PusherScanner"
 
 // Load environment variables from .env file, where API keys and passwords are configured.
 dotenv.config();
@@ -22,6 +23,7 @@ const port = process.env.PORT || 8000;
 const sessionSecret = "ashdfjhasdlkjfhalksdjhflak";
 const MongoStore = mongo(session);
 const parser = new BlockchainParser();
+const pusher = new PusherScanner();
 
 export class Server {
 
@@ -95,6 +97,7 @@ export class Server {
         });
 
         parser.start();
+        pusher.start();
     }
 }
 
