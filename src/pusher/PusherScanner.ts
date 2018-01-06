@@ -17,14 +17,13 @@ export class PusherScanner {
 
             return this.getBlockTransactions(block).then((transactions: any[]) => {
                 winston.info(`Found ${transactions.length} in block ${block}`);
-            // return this.getBlockTransactions(4779189).then((transactions: any[]) => {
+
                  return Promise.mapSeries(transactions, (transaction) => {
-                    //  console.log('transaction', transaction)
+
                     this.findDevicesByAddresses(transaction.addresses).then((devices: any[]) => {
                         if (devices.length > 0) {
-                            // console.log("transaction", transaction);
+
                             Promise.mapSeries(devices, (device: any) => {
-                                // winston.info("devices", device);
                                 const notification = new Notification();
                                 notification.process(transaction, device);
                             });
