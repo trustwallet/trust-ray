@@ -34,7 +34,7 @@ export class Notification {
 		return Promise.mapSeries(device.wallets, (wallet: string) => {
 			if (addresses.indexOf(wallet) >= 0) {
 				if (transactionType === "transfer") {
-					const title = `Received ${this.getValueInEth(transaction.value)} ${this.networkSymbol} from`;
+					const title = `Received ${this.getValueInEth(transaction.value)} ETH ${this.networkSymbol} from`;
 					const ethMessage = this.createMeassage(title, from);
 
 					return this.send(token, ethMessage).then((notificationResult: any) => {
@@ -69,7 +69,7 @@ export class Notification {
 
 	private getTransactionType(transaction: {operations: any[]}): string {
 		const operations = transaction.operations;
-		
+
 		return operations.length >= 1 ? operations[0].type : "transfer";
 	}
 
