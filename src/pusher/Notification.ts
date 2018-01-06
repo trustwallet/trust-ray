@@ -50,7 +50,7 @@ export class Notification {
 					const tokenMessage = this.createMeassage(title, from);
 
 					return this.send(token, tokenMessage).then((notificationResult: any) => {
-						winston.info("Notification result :", JSON.stringify(notificationResult);
+						winston.info("Notification result :", JSON.stringify(notificationResult));
 					});
 				}
 			}
