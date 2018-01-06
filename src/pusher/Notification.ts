@@ -5,7 +5,8 @@ import { Promise } from "bluebird";
 import { Config } from "../common/Config";
 
 export class Notification {
-	private push: any;
+    private push: any;
+	private networkSymbol = process.env.NETWORK_SYMBOL;
 
 	private settings = {
 		apn: {
@@ -23,67 +24,61 @@ export class Notification {
 	}
 
 	process(transaction: any, device: any) {
-		const transactionType = this.getTransactionType(transaction);
+		winston.info(`Processing device transaction block: ${transaction.blockNumber} id: ${transaction._id}, ${JSON.stringify(device)}`);
 
+		const transactionType = this.getTransactionType(transaction);
 		const addresses: string[] = transaction.addresses;
 		const from: string = addresses[0];
-		const to: string = addresses[1];
-		const wallets: string[] = device.wallets;
 		const token: string = device.token;
 
-		return Promise.mapSeries(wallets, (wallet: string) => {
+		return Promise.mapSeries(device.wallets, (wallet: string) => {
 			if (addresses.indexOf(wallet) >= 0) {
-				if (transactionType === "ETH" && transaction.value !== "0") {
-					const ethMessage = this.createEthMeassage(transaction);
+				if (transactionType === "transfer") {
+					const title = `Received ${this.getValueInEth(transaction.value)} ${this.networkSymbol} from`;
+					const ethMessage = this.createMeassage(title, from);
 
 					return this.send(token, ethMessage).then((notificationResult: any) => {
-						winston.info("Notification result :", notificationResult);
+						winston.info("Notification result :", JSON.stringify(notificationResult));
 					});
 				}
 
-				if (transactionType === "TOKEN") {
-					const tokenMessage = this.createTokenMeassage(transaction);
+				if (transactionType === "token_transfer") {
+					const operations = transaction.operations[0];
+					const title = `Received ${this.getValueInEth(operations.value)} ${operations.contract.symbol} from`;
+					const tokenMessage = this.createMeassage(title, from);
 
 					return this.send(token, tokenMessage).then((notificationResult: any) => {
 						winston.info("Notification result :", notificationResult);
 					});
 				}
 			}
-		});	
+		});
 	};
 
-	private createEthMeassage(transaction: any) {
-		const value = `${Config.web3.utils.fromWei(transaction.value)}`;
-		const networkSymbol = process.env.NETWORK_SYMBOL;
+	private getValueInEth(value: string): string {
+		return Config.web3.utils.fromWei(value);
+	}
 
+	private createMeassage(title: string, from: string): {title: string, body: string, topic: string} {
 		return {
-			title: `You received ${value} ${networkSymbol} from`,
-			body: `${transaction.addresses[0]}`,
+			title,
+			body: from,
 			topic: process.env.APN_BUNDLEID,
 		}
 	}
 
-	private createTokenMeassage(transaction: any) {
-		const operations = transaction.operations[0];
-		return {
-			title: `You received ${Config.web3.utils.fromWei(operations.value)} ${operations.contract.symbol} from`, 
-			body: `${transaction.addresses[0]}`,
-			topic: process.env.APN_BUNDLEID,
-		}
-	}
-
-	private getTransactionType(transaction: any) {
-		return transaction.operations.length >= 1 ? "TOKEN" : "ETH"
+	private getTransactionType(transaction: {operations: any[]}): string {
+		const operations = transaction.operations;
+		
+		return operations.length >= 1 ? operations[0].type : "transfer";
 	}
 
 	private send(token: string, data: any) {
 		return this.push.send(token, data).then((results: any) => {
-					winston.info("Push result :", results);
-					return results;
-				})
-				.catch((error: Error) => {
-					winston.info("Error sending notification: ", error);
-				});
-	}
-	
+				// winston.info("Push result :", results);
+				return results;
+			}).catch((error: Error) => {
+				winston.info("Error sending notification: ", error);
+			});
+	}	
 }
