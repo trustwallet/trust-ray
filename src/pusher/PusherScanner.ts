@@ -7,23 +7,24 @@ import { Config } from "../common/Config";
 import * as utils from "../common/Utils"
 import { Notification } from "./Notification";
 import { Promise, reject } from "bluebird";
-import { error } from "util";
 
 export class PusherScanner {
     private delay: number = 5000;
-    private currentProcessingBlock: number;
 
     public start() {
-        this.getPusherLatestBlock().then((block: number) => {
-            winston.info("Pusher processing block :", block , new Date());
-            this.currentProcessingBlock = block + 1;
+        this.getNextPusherBlock().then((block: number) => {
+            winston.info("Pusher processing block ", block);
 
-            return this.getBlockTransactions(4779189).then((transactions: any[]) => {
+            return this.getBlockTransactions(block).then((transactions: any[]) => {
+                winston.info(`Found ${transactions.length} in block ${block}`);
+            // return this.getBlockTransactions(4779189).then((transactions: any[]) => {
                  return Promise.mapSeries(transactions, (transaction) => {
+                    //  console.log('transaction', transaction)
                     this.findDevicesByAddresses(transaction.addresses).then((devices: any[]) => {
-                        // console.log('devices', devices)
                         if (devices.length >= 1) {
+                            // console.log("transaction", transaction);
                             Promise.mapSeries(devices, (device: any) => {
+                                // winston.info("devices", device);
                                 const notification = new Notification();
                                 notification.process(transaction, device);
                             });
@@ -35,43 +36,50 @@ export class PusherScanner {
             }).catch((error: Error) => {
                 winston.error("Error getBlockTransactions ", error);
             })
-
-        })
-        .then(() => LastParsedBlock.findOneAndUpdate({}, {$set: {lastPusherBlock: this.currentProcessingBlock}}, {upsert: true, new: true})
-        .then((saveResult: any) => {
-            winston.info('saveResult', saveResult);
-        })
-        .then((res: any) => {
+        }).then(() => {
+            return LastParsedBlock.findOne().then((lastParsed: any) => {
+                if (!lastParsed.lastPusherBlock) {
+                    lastParsed.lastPusherBlock = lastParsed.lastBlock;
+                    return lastParsed.save();
+                }
+                return LastParsedBlock.findOneAndUpdate({}, {$inc: {lastPusherBlock: 1}}, {upsert: true, new: true})
+            })
+        }).then(() => {
             utils.setDelay(this.delay).then(() => {
                 this.start();
             });
-        })
-        .catch((error: Error) => {
+        }).catch((error: Error) => {
             winston.error("Error getPusherLatestBlock ", error);
-        })
-        .then(() => {
             utils.setDelay(this.delay).then(() => {
                 this.start();
             });
-        })
-    )}
+        });
+    }
 
-    private findDevicesByAddresses(addresses: any) {
+    private findDevicesByAddresses(addresses: string[]) {
         return Device.find({wallets: {$in: addresses}});
     }
 
-    private getPusherLatestBlock(): Promise<number> {
+    private getNextPusherBlock(): Promise<number> {
         return LastParsedBlock.findOne({}).then((lastParsedBlock: any) => {
             return new Promise((resolve, reject) => {
-                if (lastParsedBlock && lastParsedBlock !== null) {
-                    const lastPusherBlock = lastParsedBlock.lastPusherBlock;
-                    if (lastPusherBlock) return resolve(lastPusherBlock);
+                const lastPusherBlock = lastParsedBlock.lastPusherBlock;
+                const lastBlock = lastParsedBlock.lastBlock;
 
-                    const lastBlock = lastParsedBlock.lastBlock;
-                    if (lastBlock) return resolve(lastBlock);
+                if (!lastBlock) return reject();
+
+                if (!lastPusherBlock && lastBlock) return resolve(lastBlock);
+                
+                if (lastPusherBlock >= lastBlock) {
+                    winston.info(`lastPusherBlock ${lastPusherBlock - lastBlock} ahead of lastBlock`);
+                    return reject();
                 }
+
+                if (lastPusherBlock < lastBlock) return resolve(lastPusherBlock + 1);
+
+                return resolve(lastBlock);
             });
-        }).catch((error: Error) => reject(error));
+        });
     }
 
     private getBlockTransactions(blockNumber: number): Promise<any[]> {
