@@ -6,7 +6,7 @@ import { Config } from "../common/Config";
 
 export class Notification {
     private push: any;
-	private networkSymbol = process.env.NETWORK_SYMBOL;
+	private networkSymbol = process.env.NETWORK_SYMBOL || "ETH";
 
 	private settings = {
 		apn: {
