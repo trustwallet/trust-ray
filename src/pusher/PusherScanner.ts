@@ -21,7 +21,7 @@ export class PusherScanner {
                  return Promise.mapSeries(transactions, (transaction) => {
                     //  console.log('transaction', transaction)
                     this.findDevicesByAddresses(transaction.addresses).then((devices: any[]) => {
-                        if (devices.length >= 1) {
+                        if (devices.length > 0) {
                             // console.log("transaction", transaction);
                             Promise.mapSeries(devices, (device: any) => {
                                 // winston.info("devices", device);
