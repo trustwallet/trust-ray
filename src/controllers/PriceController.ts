@@ -8,7 +8,7 @@ const client = new CoinMarketCap();
 
 let lastUpdated: any = {};
 let latestPrices: any = {};
-const refreshLimit = 150;
+const refreshLimit = 300;
 const limit = 2000;
 
 export class PriceController {
