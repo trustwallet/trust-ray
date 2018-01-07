@@ -11,13 +11,8 @@ export class PriceController {
     private refreshLimit = 300;
     private lastUpdated: any = {};
     private latestPrices: any = {};
-
-    constructor() {
-        this.getPrices = this.getPrices.bind(this);
-        this.getTokenPrices = this.getTokenPrices.bind(this);
-    }
     
-    getPrices(req: Request, res: Response) {
+    getPrices = (req: Request, res: Response) => {
         const currency = req.query.currency || "USD";
         const symbols = (req.query.symbols || "").split(",");
 
@@ -34,7 +29,7 @@ export class PriceController {
         })        
     }
 
-    getTokenPrices(req: Request, res: Response) {
+    getTokenPrices = (req: Request, res: Response) => {
         const currency = req.body.currency || "USD";
         const symbols = req.body.tokens.map((item: any) => item.symbol )
 
