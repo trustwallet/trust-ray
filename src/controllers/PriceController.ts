@@ -16,11 +16,10 @@ export class PriceController {
         const currency = req.query.currency || "USD";
         const symbols = (req.query.symbols || "").split(",");
         
-        PriceController.getRemotePrices(currency).then((value: any) => {
-            let prices = PriceController.filterPrices(value, symbols, currency)
+        PriceController.getRemotePrices(currency).then((prices: any) => {
             sendJSONresponse(res, 200, {
                 status: true, 
-                response: prices,
+                response: PriceController.filterPrices(prices, symbols, currency),
             })
         }).catch((error: Error) => {
             sendJSONresponse(res, 500, {
@@ -33,8 +32,6 @@ export class PriceController {
     getTokenPrices(req: Request, res: Response) {
         const currency = req.body.currency || "USD";
         const symbols = req.body.tokens.map((item: any) => item.symbol )
-
-        console.log(req.body.tokens)
 
         PriceController.getRemotePrices(currency).then((prices: any) => {
             sendJSONresponse(res, 200, {
@@ -111,11 +108,13 @@ export class PriceController {
             const difference = (now - lastUpdatedTime) / 1000;
 
             if (lastUpdated === 0 || difference >= refreshLimit) {
-                return client.getTicker({limit: 0, convert: currency}).then((value: any) => {
+                return client.getTicker({limit: 0, convert: currency}).then((prices: any) => {
                     lastUpdated[currency] = now;
-                    latestPrices[currency] = value;
+                    latestPrices[currency] = prices;
                     return resolve(latestPrices[currency]);
-                })
+                }).catch((error: Error) => {
+                    return resolve(latestPrices[currency] || [])
+                });
             } else {
                 return resolve(latestPrices[currency]);
             }            
