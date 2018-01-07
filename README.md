@@ -39,6 +39,9 @@ Install docker and docker-compose.
 Set in *~/.bashrc*
 ```export COMPOSE_FILE=docker-compose.yml:docker-compose.dev.yml```
 
+Set in .env
+```MONGODB_URI=mongodb://mongodb:27017/trust-wallet```
+
 Dev tool:
 
 * Run build for npm install and build
