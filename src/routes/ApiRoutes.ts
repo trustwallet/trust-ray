@@ -23,11 +23,12 @@ router.get("/transactions/:transactionId", transactionController.readOneTransact
 router.get("/tokens", tokenController.readAllTokens);
 router.get("/tokens/:tokenWalletAddress", tokenController.readOneToken);
 
-//URLs for push notifications
+// URLs for push notifications
 router.post("/push/register", pusherController.register);
 router.delete("/push/unregister", pusherController.unregister);
 
 router.get("/prices", priceController.getPrices)
+router.post("/tokenPrices", priceController.getTokenPrices)
 
 export {
     router
