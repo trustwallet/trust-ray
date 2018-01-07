@@ -37,14 +37,17 @@ export class BlockchainParser {
             const startBlock = blockInDb ? blockInDb.lastBlock : 0;
             // determine if we should start parsing now
             // or schedule a restart in 10 seconds
-            winston.info(`Last parsed block: ${startBlock}, current block in chain: ${blockInChain}`);
+            winston.info(`Last parsed block in DB ${startBlock}, current block in chain: ${blockInChain}. Difference ${blockInChain - startBlock}`);
 
             const nextBlock: number = startBlock + 1;
             if (nextBlock <= blockInChain) {
+                winston.info("Start parsing block", nextBlock);
+
                 const lastBlock = blockInChain
                 this.parse(nextBlock, blockInChain).then((endBlock: number) => {
                     return this.saveLastParsedBlock(endBlock);
-                }).then(() => {
+                }).then((saved: {lastBlock: number}) => {
+                    winston.info("New latest block in DB :", saved.lastBlock);
                     return setDelay(100);
                 }).then(() =>  {
                     return this.startForwardParsing();
@@ -163,7 +166,7 @@ export class BlockchainParser {
     }
 
     private saveLastParsedBlock(block: number) {
-        return LastParsedBlock.findOneAndUpdate({}, {lastBlock: block}, {upsert: true}).catch((err: Error) => {
+        return LastParsedBlock.findOneAndUpdate({}, {lastBlock: block}, {upsert: true, new: true}).catch((err: Error) => {
             winston.error(`Could not save last parsed block to DB with error: ${err}`);
         });
     }
