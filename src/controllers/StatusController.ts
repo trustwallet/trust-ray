@@ -32,9 +32,12 @@ export class StatusController {
                     transaction_operations: parseInt(operationsCount).toLocaleString(),
                     erc20contracts: parseInt(erc20contractsCount).toLocaleString(),
                 },
-                latestBlockNumberInBC,
-                latestBlockNumberInDB,
-                latestBackwordBlockNumberInDB,
+                parsing: {
+                    latestBlockNumberInBC,
+                    latestBlockNumberInDB,
+                    latestBackwordBlockNumberInDB,
+                    lastPusherBlock: lastParsedBlock.lastPusherBlock
+                },
                 sync: {
                     blocksToSync,
                     blocksToSyncBackward,
