@@ -22,7 +22,6 @@ export class PusherScanner {
 
                     this.findDevicesByAddresses(transaction.addresses).then((devices: any[]) => {
                         if (devices.length > 0) {
-
                             Promise.mapSeries(devices, (device: any) => {
                                 const notification = new Notification();
                                 notification.process(transaction, device);
@@ -48,7 +47,7 @@ export class PusherScanner {
                 this.start();
             });
         }).catch((error: Error) => {
-            winston.error("Error getPusherLatestBlock ", error);
+            winston.error("getPusherLatestBlock ", error);
             utils.setDelay(this.delay).then(() => {
                 this.start();
             });
@@ -65,14 +64,11 @@ export class PusherScanner {
                 const lastPusherBlock = lastParsedBlock.lastPusherBlock;
                 const lastBlock = lastParsedBlock.lastBlock;
 
-                if (!lastBlock) return reject();
+                if (!lastBlock) return reject(`No lastBlock`);
 
                 if (!lastPusherBlock && lastBlock) return resolve(lastBlock);
                 
-                if (lastPusherBlock >= lastBlock) {
-                    winston.info(`lastPusherBlock ${lastPusherBlock - lastBlock} ahead of lastBlock`);
-                    return reject();
-                }
+                if (lastPusherBlock >= lastBlock) return reject(`lastPusherBlock ${lastPusherBlock - lastBlock} ahead of lastBlock`);
 
                 if (lastPusherBlock < lastBlock) return resolve(lastPusherBlock + 1);
 
