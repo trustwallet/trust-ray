@@ -18,7 +18,7 @@ export class BlockchainParser {
     private transactionParser: TransactionParser;
     private tokenParser: TokenParser;
     private concurrentBlocks = 1;
-    private rebalanceOffset = 15
+    private rebalanceOffset = 15;
 
     constructor() {
         this.transactionParser = new TransactionParser();
@@ -26,8 +26,8 @@ export class BlockchainParser {
     }
 
     public start() {
-        this.startForwardParsing()
-        this.startBackwardParsing()
+        this.startForwardParsing();
+        this.startBackwardParsing();
     }
 
     public startForwardParsing() {
@@ -39,7 +39,7 @@ export class BlockchainParser {
             // or schedule a restart in 10 seconds
             winston.info(`Last parsed block: ${startBlock}, current block in chain: ${blockInChain}`);
 
-            const nextBlock = startBlock + 1
+            const nextBlock: number = startBlock + 1;
             if (nextBlock <= blockInChain) {
                 const lastBlock = blockInChain
                 this.parse(nextBlock, blockInChain).then((endBlock: number) => {
@@ -54,11 +54,11 @@ export class BlockchainParser {
                 });
             } else {
                 winston.info("Last block is parsed on the blockchain, waiting for new blocks");
-                this.scheduleForwardParsing()
+                this.scheduleForwardParsing();
             }
         }).catch((err: Error) => {
             winston.error("Failed to load initial block state in startForwardParsing: " + err);
-            this.scheduleForwardParsing()
+            this.scheduleForwardParsing();
         });
     }
 
@@ -74,7 +74,7 @@ export class BlockchainParser {
             }
 
             if (nextBlock >= blockInChain) {
-                return this.scheduleBackwardParsing()
+                return this.scheduleBackwardParsing();
             }
 
             this.parse(nextBlock, blockInChain, false).then((endBlock: number) => {
