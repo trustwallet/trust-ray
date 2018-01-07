@@ -9,7 +9,8 @@ import { Notification } from "./Notification";
 import { Promise, reject } from "bluebird";
 
 export class PusherScanner {
-    private delay: number = 5000;
+    private delay: number = Number(process.env.PUSHER_DELAY) || 5000;
+    
 
     public start() {
         this.getNextPusherBlock().then((block: number) => {
