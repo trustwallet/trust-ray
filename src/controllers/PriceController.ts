@@ -4,22 +4,22 @@ import * as winston from "winston";
 import * as axios from "axios"
 
 const CoinMarketCap = require('coinmarketcap-api')
-const client = new CoinMarketCap();
-
-let lastUpdated: any = {};
-let latestPrices: any = {};
-const refreshLimit = 300;
-const limit = 2000;
 
 export class PriceController {
-    getPrices(req: Request, res: Response) {
+    private client = new CoinMarketCap();
+    private limit = 2000;
+    private refreshLimit = 300;
+    private lastUpdated: any = {};
+    private latestPrices: any = {};
+    
+    getPrices = (req: Request, res: Response) => {
         const currency = req.query.currency || "USD";
         const symbols = (req.query.symbols || "").split(",");
-        
-        PriceController.getRemotePrices(currency).then((prices: any) => {
+
+        this.getRemotePrices(currency).then((prices: any) => {
             sendJSONresponse(res, 200, {
                 status: true, 
-                response: PriceController.filterPrices(prices, symbols, currency),
+                response: this.filterPrices(prices, symbols, currency),
             })
         }).catch((error: Error) => {
             sendJSONresponse(res, 500, {
@@ -29,14 +29,14 @@ export class PriceController {
         })        
     }
 
-    getTokenPrices(req: Request, res: Response) {
+    getTokenPrices = (req: Request, res: Response) => {
         const currency = req.body.currency || "USD";
         const symbols = req.body.tokens.map((item: any) => item.symbol )
 
-        PriceController.getRemotePrices(currency).then((prices: any) => {
+        this.getRemotePrices(currency).then((prices: any) => {
             sendJSONresponse(res, 200, {
                 status: true, 
-                response: PriceController.filterTokenPrices(prices, req.body.tokens, currency),
+                response: this.filterTokenPrices(prices, req.body.tokens, currency),
             })
         }).catch((error: Error) => {
             sendJSONresponse(res, 500, {
@@ -46,7 +46,7 @@ export class PriceController {
         })   
     }
 
-    private static filterTokenPrices(prices: any[], tokens: any[], currency: string): any {
+    private filterTokenPrices(prices: any[], tokens: any[], currency: string): any {
         const result = prices.reduce(function(map, obj) {
             map[obj.id] = obj;
             return map;
@@ -75,7 +75,7 @@ export class PriceController {
         })
     }
 
-    private static filterPrices(prices: any[], symbols: string[], currency: string): any {
+    private filterPrices(prices: any[], symbols: string[], currency: string): any {
         //Improve. Exclude duplicate symbols. order by market cap.
 
         const ignoredSymbols = new Set<string>(["CAT"]);
@@ -101,22 +101,22 @@ export class PriceController {
         })
     }
 
-    private static getRemotePrices(currency: string) {
+    private getRemotePrices(currency: string) {
         return new Promise((resolve, reject) => {
             const now = Date.now();
-            const lastUpdatedTime = lastUpdated[currency] || 0
+            const lastUpdatedTime = this.lastUpdated[currency] || 0;
             const difference = (now - lastUpdatedTime) / 1000;
 
-            if (lastUpdated === 0 || difference >= refreshLimit) {
-                return client.getTicker({limit: 0, convert: currency}).then((prices: any) => {
-                    lastUpdated[currency] = now;
-                    latestPrices[currency] = prices;
-                    return resolve(latestPrices[currency]);
+            if (this.lastUpdated === 0 || difference >= this.refreshLimit) {
+                return this.client.getTicker({limit: 0, convert: currency}).then((prices: any) => {
+                    this.lastUpdated[currency] = now;
+                    this.latestPrices[currency] = prices;
+                    return resolve(this.latestPrices[currency]);
                 }).catch((error: Error) => {
-                    return resolve(latestPrices[currency] || [])
+                    return resolve(this.latestPrices[currency] || []);
                 });
             } else {
-                return resolve(latestPrices[currency]);
+                return resolve(this.latestPrices[currency]);
             }            
         })
     }
