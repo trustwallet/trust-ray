@@ -9,20 +9,18 @@ import { Notification } from "./Notification";
 import { Promise, reject } from "bluebird";
 
 export class PusherScanner {
-    private delay: number = 5000;
-
+    private onErrordelay: number = 5000;
+    private onRestartDelay: number = 150;
     public start() {
         this.getNextPusherBlock().then((block: number) => {
             winston.info("Pusher processing block ", block);
 
             return this.getBlockTransactions(block).then((transactions: any[]) => {
-                winston.info(`Found ${transactions.length} in block ${block}`);
+                winston.info(`Found ${transactions.length} transactions in block ${block}`);
 
                  return Promise.mapSeries(transactions, (transaction) => {
-
                     this.findDevicesByAddresses(transaction.addresses).then((devices: any[]) => {
                         if (devices.length > 0) {
-
                             Promise.mapSeries(devices, (device: any) => {
                                 const notification = new Notification();
                                 notification.process(transaction, device);
@@ -30,7 +28,7 @@ export class PusherScanner {
                         }
                     }).catch((error: Error) => {
                         winston.error("Error findDevicesByAddresses :", error);
-                    })
+                    });
                 })
             }).catch((error: Error) => {
                 winston.error("Error getBlockTransactions ", error);
@@ -44,12 +42,13 @@ export class PusherScanner {
                 return LastParsedBlock.findOneAndUpdate({}, {$inc: {lastPusherBlock: 1}}, {upsert: true, new: true})
             })
         }).then(() => {
-            utils.setDelay(this.delay).then(() => {
+            utils.setDelay(this.onRestartDelay).then(() => {
                 this.start();
             });
         }).catch((error: Error) => {
             winston.error("Error getPusherLatestBlock ", error);
-            utils.setDelay(this.delay).then(() => {
+            utils.setDelay(this.onErrordelay).then(() => {
+            winston.info(`Pusher will retry in ${this.onErrordelay}`);
                 this.start();
             });
         });
@@ -65,13 +64,12 @@ export class PusherScanner {
                 const lastPusherBlock = lastParsedBlock.lastPusherBlock;
                 const lastBlock = lastParsedBlock.lastBlock;
 
-                if (!lastBlock) return reject();
+                if (!lastBlock) return reject(`No lastBlock found in DB`);
 
                 if (!lastPusherBlock && lastBlock) return resolve(lastBlock);
                 
                 if (lastPusherBlock >= lastBlock) {
-                    winston.info(`lastPusherBlock ${lastPusherBlock - lastBlock} ahead of lastBlock`);
-                    return reject();
+                    return reject(`lastPusherBlock ${lastPusherBlock - lastBlock} ahead of lastBlock, waiting for new block in DB`);
                 }
 
                 if (lastPusherBlock < lastBlock) return resolve(lastPusherBlock + 1);
