@@ -7,7 +7,6 @@ const CoinMarketCap = require('coinmarketcap-api')
 
 export class PriceController {
     private client = new CoinMarketCap();
-    private limit = 2000;
     private refreshLimit = 300;
     private lastUpdated: any = {};
     private latestPrices: any = {};
