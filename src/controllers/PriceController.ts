@@ -111,12 +111,12 @@ export class PriceController {
                 this.getCoinMarketCapPrices(currency).timeout(3000).then((prices: any) => {
                     this.lastUpdated[currency] = now;
                     this.latestPrices[currency] = prices;
-                    return resolve(this.latestPrices[currency]);
+                    resolve(this.latestPrices[currency]);
                 }).catch((error: Error) => {
-                    return resolve(this.latestPrices[currency] || []);
+                    resolve(this.latestPrices[currency] || []);
                 });
             } else {
-                return resolve(this.latestPrices[currency]);
+                resolve(this.latestPrices[currency]);
             }            
         })
     }
