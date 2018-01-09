@@ -114,6 +114,7 @@ export class PriceController {
                     resolve(this.latestPrices[currency]);
                 }).catch((error: Error) => {
                     resolve(this.latestPrices[currency] || []);
+                    winston.error(`getRemotePrices `, error);
                 });
             } else {
                 resolve(this.latestPrices[currency]);
@@ -123,9 +124,9 @@ export class PriceController {
 
     private getCoinMarketCapPrices(currency: string) {
         return new Promise((resolve, reject) => {
-            return this.client.getTicker({limit: 0, convert: currency}).then((prices: any) => {
-                return resolve(prices);
-            })
-        })
+            this.client.getTicker({limit: 0, convert: currency}).then((prices: any) => {
+                resolve(prices);
+            });
+        });
     }
 }
