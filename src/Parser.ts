@@ -27,6 +27,8 @@ export class Parser {
     public db: Database;
 
     constructor() {
+        // create app
+        this.app = express();
 
         // configure
         this.configureMiddleware();
