@@ -11,7 +11,8 @@ export class PriceController {
     private refreshLimit = 600;
     private lastUpdated: any = {};
     private latestPrices: any = {};
-    
+    private isUpdating: any = {}
+
     getPrices = (req: Request, res: Response) => {
         const currency = req.query.currency || "USD";
         const symbols = (req.query.symbols || "").split(",");
@@ -107,12 +108,15 @@ export class PriceController {
             const lastUpdatedTime = this.lastUpdated[currency] || 0;
             const difference = (now - lastUpdatedTime) / 1000;
 
-            if (this.lastUpdated === 0 || difference >= this.refreshLimit) {
+            this.isUpdating[currency] = true
+            if ((this.lastUpdated === 0 || difference >= this.refreshLimit) && this.isUpdating[currency] || false) {
                 this.getCoinMarketCapPrices(currency).timeout(3000).then((prices: any) => {
                     this.lastUpdated[currency] = now;
                     this.latestPrices[currency] = prices;
+                    this.isUpdating[currency] = false
                     resolve(this.latestPrices[currency]);
                 }).catch((error: Error) => {
+                    this.isUpdating[currency] = false
                     resolve(this.latestPrices[currency] || []);
                     winston.error(`getRemotePrices `, error);
                 });
