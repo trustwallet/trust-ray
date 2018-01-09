@@ -7,7 +7,10 @@ import * as xss from "xss-filters";
 
 export class TransactionController {
 
-    public readAllTransactions(req: Request, res: Response) {
+    private defaultLimit: number = 25;
+    private maxLimit: number = 50;
+
+    public readAllTransactions = (req: Request, res: Response) => {
 
         // validate query input
         const validationErrors: any = TransactionController.validateQueryParameters(req);
@@ -17,7 +20,7 @@ export class TransactionController {
         }
 
         // extract query parameters
-        const queryParams = TransactionController.extractQueryParameters(req);
+        const queryParams = this.extractQueryParameters(req);
 
         // build up query
         const query: any = {};
@@ -91,7 +94,7 @@ export class TransactionController {
         return req.validationErrors();
     }
 
-    private static extractQueryParameters(req: Request) {
+    private extractQueryParameters(req: Request) {
         // page parameter
         let page = parseInt(xss.inHTMLData(req.query.page));
         if (isNaN(page) || page < 1) {
@@ -101,9 +104,9 @@ export class TransactionController {
         // limit parameter
         let limit = parseInt(xss.inHTMLData(req.query.limit));
         if (isNaN(limit)) {
-            limit = 50;
-        } else if (limit > 500) {
-            limit = 500;
+            limit = this.defaultLimit;
+        } else if (limit > this.maxLimit) {
+            limit = this.maxLimit;
         } else if (limit < 1) {
             limit = 1;
         }
