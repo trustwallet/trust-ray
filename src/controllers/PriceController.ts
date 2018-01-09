@@ -108,8 +108,8 @@ export class PriceController {
             const lastUpdatedTime = this.lastUpdated[currency] || 0;
             const difference = (now - lastUpdatedTime) / 1000;
 
-            const updating = this.isUpdating[currency] || false
-            if ((this.lastUpdated === 0 || difference >= this.refreshLimit) && updating) {
+            const needsUpdating = this.isUpdating[currency] || true
+            if ((this.lastUpdated === 0 || difference >= this.refreshLimit) && needsUpdating) {
                 this.isUpdating[currency] = true
                 this.getCoinMarketCapPrices(currency).timeout(3000).then((prices: any) => {
                     this.lastUpdated[currency] = now;
