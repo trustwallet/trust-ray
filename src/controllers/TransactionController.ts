@@ -10,7 +10,7 @@ export class TransactionController {
     private defaultLimit = 25
     private maxLimit = 50;
 
-    public readAllTransactions(req: Request, res: Response) {
+    public readAllTransactions = (req: Request, res: Response) => {
 
         // validate query input
         const validationErrors: any = TransactionController.validateQueryParameters(req);
