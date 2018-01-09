@@ -7,7 +7,7 @@ const CoinMarketCap = require('coinmarketcap-api')
 
 export class PriceController {
     private client = new CoinMarketCap();
-    private refreshLimit = 300;
+    private refreshLimit = 600;
     private lastUpdated: any = {};
     private latestPrices: any = {};
     
@@ -107,7 +107,7 @@ export class PriceController {
             const difference = (now - lastUpdatedTime) / 1000;
 
             if (this.lastUpdated === 0 || difference >= this.refreshLimit) {
-                return this.client.getTicker({limit: 0, convert: currency}).then((prices: any) => {
+                return this.client.getTicker({limit: 0, convert: currency}).timeout(3000).then((prices: any) => {
                     this.lastUpdated[currency] = now;
                     this.latestPrices[currency] = prices;
                     return resolve(this.latestPrices[currency]);
