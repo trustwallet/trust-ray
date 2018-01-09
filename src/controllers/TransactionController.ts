@@ -7,8 +7,8 @@ import * as xss from "xss-filters";
 
 export class TransactionController {
 
-    private defaultLimit = 25
-    private maxLimit = 50;
+    private defaultLimit: number = 25;
+    private maxLimit: number = 50;
 
     public readAllTransactions = (req: Request, res: Response) => {
 
