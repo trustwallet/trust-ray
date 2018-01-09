@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { sendJSONresponse } from "../common/Utils";
 import * as winston from "winston";
 import * as axios from "axios"
+import { Promise } from "bluebird";
 
 const CoinMarketCap = require('coinmarketcap-api')
 
@@ -107,16 +108,24 @@ export class PriceController {
             const difference = (now - lastUpdatedTime) / 1000;
 
             if (this.lastUpdated === 0 || difference >= this.refreshLimit) {
-                return this.client.getTicker({limit: 0, convert: currency}).timeout(3000).then((prices: any) => {
+                this.getCoinMarketCapPrices(currency).timeout(3000).then((prices: any) => {
                     this.lastUpdated[currency] = now;
                     this.latestPrices[currency] = prices;
-                    return resolve(this.latestPrices[currency]);
+                    resolve(this.latestPrices[currency]);
                 }).catch((error: Error) => {
-                    return resolve(this.latestPrices[currency] || []);
+                    resolve(this.latestPrices[currency] || []);
                 });
             } else {
-                return resolve(this.latestPrices[currency]);
+                resolve(this.latestPrices[currency]);
             }            
+        })
+    }
+
+    private getCoinMarketCapPrices(currency: string) {
+        return new Promise((resolve, reject) => {
+            return this.client.getTicker({limit: 0, convert: currency}).then((prices: any) => {
+                return resolve(prices);
+            })
         })
     }
 }
