@@ -26,10 +26,10 @@ export class TransactionParser {
             return this.mergeTransactionsAndReceipts(extractedTransactions, receipts);
         }).then((transactions: any) => {
             const bulkTransactions = Transaction.collection.initializeUnorderedBulkOp();
-            
-            transactions.forEach((transaction: any) => 
+
+            transactions.forEach((transaction: any) =>
                 bulkTransactions.find({_id: transaction._id}).upsert().replaceOne(transaction)
-            )
+            );
 
             if (bulkTransactions.length === 0) {
                 return Promise.resolve();
@@ -38,7 +38,7 @@ export class TransactionParser {
             return bulkTransactions.execute().then((bulkResult: any) => {
                 return Promise.resolve(transactions);
             });
-        })        
+        });
     }
 
     private mergeTransactionsAndReceipts(transactions: any[], receipts: any[]) {
@@ -150,7 +150,7 @@ export class TransactionParser {
         return new Promise((resolve, reject) => {
           let result: any = [];
           let completed = false;
-          let callback = (err: Error, obj: any) => {
+          const callback = (err: Error, obj: any) => {
             if (completed) return;
             if (err || !obj) {
                 completed = true;
@@ -162,9 +162,9 @@ export class TransactionParser {
                 resolve(result);
             }
           };
-      
+
           if (transactions.length > 0) {
-            var batch = new Config.web3.BatchRequest();
+            let batch = new Config.web3.BatchRequest();
             transactions.forEach((tx: any) => {
               batch.add(Config.web3.eth.getTransactionReceipt.request(tx, callback));
             });

@@ -81,5 +81,5 @@ export class Notification {
 			}).catch((error: Error) => {
 				winston.info("Error sending notification: ", error);
 			});
-	}	
+	}
 }

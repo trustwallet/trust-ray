@@ -68,7 +68,7 @@ export class BlockchainParser {
     public startBackwardParsing() {
         return this.getBlockState().then(([blockInChain, blockInDb]) => {
             const startBlock = !blockInDb ? blockInChain : (((blockInDb.lastBackwardBlock == undefined) ? blockInChain : blockInDb.lastBackwardBlock));
-            
+
             // winston.info(`Backward parsing: startBlock ${startBlock}, blockInChain: ${blockInChain} `);
             const nextBlock = startBlock - 1
             if (nextBlock < 1) {
@@ -143,9 +143,9 @@ export class BlockchainParser {
             return Config.web3.eth.getBlock(number, true);
         });
         return Promise.all(promises).then((blocks: any) => {
-            let hasNullBlocks = blocks.filter((block: any) => block == null);            
+            const hasNullBlocks = blocks.filter((block: any) => block === null);
             if (hasNullBlocks.length > 0) {
-                return Promise.reject('Has null blocks. Wait for RPC to build a block');
+                return Promise.reject("Has null blocks. Wait for RPC to build a block");
             }
             return this.transactionParser.parseTransactions(this.flatBlocksWithMissingTransactions(blocks));
         }).then((transactions: any) => {
