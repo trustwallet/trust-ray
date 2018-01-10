@@ -25,7 +25,7 @@ export class Pusher {
             winston.error("Failed to save device ", error);
             sendJSONresponse(res, 500, {
                 status: 500,
-                message: "Failed to save device", 
+                message: "Failed to save device",
                 error,
               });
         });
@@ -36,14 +36,14 @@ export class Pusher {
             deviceID: req.body.deviceID
         }).then((result: any) => {
             sendJSONresponse(res, 200, {
-                status: true, 
+                status: true,
                 message: "Successfully unregistered",
                 response: result,
             })
         }).catch((error: Error) => {
             winston.info("Error unregistering ", error);
             sendJSONresponse(res, 500, {
-                status: false, 
+                status: false,
                 message: "Failed to remove",
                 error,
             })

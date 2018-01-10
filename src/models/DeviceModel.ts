@@ -1,4 +1,4 @@
-import {Document, model, Schema} from "mongoose";
+import { Document, model, Schema } from "mongoose";
 
 interface Device {
     deviceID: string;
@@ -16,14 +16,14 @@ const deviceSchema = new Schema({
     token: {
         type: String,
         required: true
-    }, 
+    },
     wallets: {
         type: [String],
         required: true
-    } 
+    }
   }, {
     timestamps: true,
     versionKey: false
   });
-  
+
   export const Device = model<Device>("Device", deviceSchema);

@@ -4,7 +4,7 @@ import * as winston from "winston";
 import * as axios from "axios"
 import { Promise } from "bluebird";
 
-const CoinMarketCap = require('coinmarketcap-api')
+const CoinMarketCap = require("coinmarketcap-api")
 
 export class PriceController {
     private client = new CoinMarketCap();
@@ -19,15 +19,15 @@ export class PriceController {
 
         this.getRemotePrices(currency).then((prices: any) => {
             sendJSONresponse(res, 200, {
-                status: true, 
+                status: true,
                 response: this.filterPrices(prices, symbols, currency),
             })
         }).catch((error: Error) => {
             sendJSONresponse(res, 500, {
-                status: 500, 
+                status: 500,
                 error,
             });
-        })        
+        });
     }
 
     getTokenPrices = (req: Request, res: Response) => {
@@ -36,15 +36,15 @@ export class PriceController {
 
         this.getRemotePrices(currency).then((prices: any) => {
             sendJSONresponse(res, 200, {
-                status: true, 
+                status: true,
                 response: this.filterTokenPrices(prices, req.body.tokens, currency),
             })
         }).catch((error: Error) => {
             sendJSONresponse(res, 500, {
-                status: 500, 
+                status: 500,
                 error,
             });
-        })   
+        });
     }
 
     private filterTokenPrices(prices: any[], tokens: any[], currency: string): any {
@@ -54,7 +54,7 @@ export class PriceController {
         }, {});
 
         let foundValues: any[] = [];
-        //Exclude duplicates, map contracts to symbols
+        // Exclude duplicates, map contracts to symbols
         prices.forEach(price => {
             tokens.forEach((token) => {
                 if (price.symbol === token.symbol) {
@@ -77,7 +77,7 @@ export class PriceController {
     }
 
     private filterPrices(prices: any[], symbols: string[], currency: string): any {
-        //Improve. Exclude duplicate symbols. order by market cap.
+        // Improve. Exclude duplicate symbols. order by market cap.
 
         const ignoredSymbols = new Set<string>(["CAT"]);
         let foundSymbols = new Set<any>();
@@ -123,7 +123,7 @@ export class PriceController {
                 });
             } else {
                 resolve(this.latestPrices[currency]);
-            }            
+            }
         })
     }
 

@@ -67,7 +67,7 @@ export class PusherScanner {
                 if (!lastBlock) return reject(`No lastBlock found in DB`);
 
                 if (!lastPusherBlock && lastBlock) return resolve(lastBlock);
-                
+
                 if (lastPusherBlock >= lastBlock) {
                     return reject(`lastPusherBlock ${lastPusherBlock - lastBlock} ahead of lastBlock, waiting for new block in DB`);
                 }
