@@ -53,7 +53,7 @@ export class PriceController {
             return map;
         }, {});
 
-        let foundValues: any[] = [];
+        const foundValues: any[] = [];
         // Exclude duplicates, map contracts to symbols
         prices.forEach(price => {
             tokens.forEach((token) => {
@@ -80,8 +80,8 @@ export class PriceController {
         // Improve. Exclude duplicate symbols. order by market cap.
 
         const ignoredSymbols = new Set<string>(["CAT"]);
-        let foundSymbols = new Set<any>();
-        let foundPrices: any[] = [];
+        const foundSymbols = new Set<any>();
+        const foundPrices: any[] = [];
         prices.forEach(price => {
             if (ignoredSymbols.has(price.symbol)) return;
 
