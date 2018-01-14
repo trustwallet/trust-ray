@@ -58,7 +58,7 @@ export class TransactionParser {
     }
 
     private mergeTransactionWithReceipt(transaction: any, receipt: any) {
-        let newTransaction = transaction
+        const newTransaction = transaction
         newTransaction.gasUsed = receipt.gasUsed
         if (receipt.status) {
             newTransaction.error = receipt.status === "0x1" ? "" : "Error";
@@ -148,7 +148,7 @@ export class TransactionParser {
     // https://gist.github.com/jdkanani/e76baa731a2b0cb6bbff26d085476722
     private fetchTransactionReceipts (transactions: any) {
         return new Promise((resolve, reject) => {
-          let result: any = [];
+          const result: any = [];
           let completed = false;
           const callback = (err: Error, obj: any) => {
             if (completed) return;
@@ -164,9 +164,9 @@ export class TransactionParser {
           };
 
           if (transactions.length > 0) {
-            let batch = new Config.web3.BatchRequest();
+            const batch = new Config.web3.BatchRequest();
             transactions.forEach((tx: any) => {
-              batch.add(Config.web3.eth.getTransactionReceipt.request(tx, callback));
+                batch.add(Config.web3.eth.getTransactionReceipt.request(tx, callback));
             });
             batch.execute();
           } else {
