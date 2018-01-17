@@ -57,7 +57,7 @@
     "express-validator": "^4.3.0",
     "fs": "0.0.2",
     "mocha": "^4.0.1",
-    "mongoose": "^4.6.6",
+    "mongoose": "^5.0.0",
     "mongoose-paginate": "^5.0.3",
     "morgan": "^1.7.0",
     "node-cron": "^1.2.1",
