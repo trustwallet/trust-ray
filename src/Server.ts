@@ -12,7 +12,6 @@ import expressValidator = require("express-validator");
 import * as fs from "fs";
 import * as winston from "winston";
 import { BlockchainParser } from "./common/BlockchainParser";
-import { LegacyParser } from "./common/LegacyParser";
 import { Config } from "./common/Config";
 import { PusherScanner } from "./pusher/PusherScanner"
 
