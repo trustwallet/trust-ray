@@ -22,7 +22,7 @@ export function sendJSONresponse(res: Response, status: number, content: any) {
  * @param {string} numberString
  * @returns {string}
  */
-export function removeScientificNotationFromNumbString(numberString: string) {
+export function removeScientificNotationFromNumbString(numberString: string): string {
     const numb = +numberString;
     const data = String(numb).split(/[eE]/);
 
