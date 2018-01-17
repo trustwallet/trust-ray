@@ -1,4 +1,3 @@
-import { any } from "bluebird";
 import { LocalizedOperationConverter } from "../common/operations/LocalizedOperationConverter";
 
 const mongoose = require("mongoose");
