@@ -1,5 +1,4 @@
 import * as winston from "winston";
-import { block } from "./blockSample"; // Romove for produciton
 import { Transaction } from "../models/TransactionModel";
 import { TransactionOperation } from "../models/TransactionOperationModel";
 import { removeScientificNotationFromNumbString } from "./Utils";
@@ -14,8 +13,6 @@ export class TransactionParser {
     public parseTransactions(blocks: any) {
         if (blocks.length === 0) return Promise.resolve();
 
-        blocks = block // remove for production
-        // console.log("block :", blocks);
         const extractedTransactions = blocks.flatMap((block: any) => {
             return block.transactions.map((tx: any) => {
                 return new Transaction(this.extractTransactionData(block, tx));
