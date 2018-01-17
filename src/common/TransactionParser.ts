@@ -158,8 +158,9 @@ export class TransactionParser {
             value,
             contract: erc20ContractId,
         };
+        const trx = `${transactionId}_${from}`
 
-        return TransactionOperation.findOneAndUpdate({transactionId: transactionId}, operation, {upsert: true, new: true})
+        return TransactionOperation.findOneAndUpdate({transactionId: trx}, operation, {upsert: true, new: true})
             .then((operation: any) => {
                 return Promise.resolve(Transaction.findOneAndUpdate({_id: operation.transactionId}, {$push: {operations: operation._id}, address: [operation.from, operation.to]}))
             .catch((error: Error) => {
