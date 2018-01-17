@@ -1,5 +1,4 @@
 import * as winston from "winston";
-
 import { ERC20Contract } from "../models/Erc20ContractModel";
 import { Token } from "../models/TokenModel";
 import { Config } from "./Config";
@@ -7,37 +6,42 @@ import { getTokenBalanceForAddress, loadContractABIs } from "./Utils";
 import { TransactionOperation } from "../models/TransactionOperationModel";
 import { NotParsableContracts } from "../models/NotParsableContractModel";
 
-
 export class TokenParser {
-
-    private abiList = loadContractABIs();
+    
+    private abi = require("./contracts/Erc20Abi");
     private abiDecoder = require("abi-decoder");
+    private OperationTypes = {
+        Transfer: "Transfer",
+    }
 
     constructor() {
-        for (const abi of this.abiList) {
-            this.abiDecoder.addABI(abi);
-        }
+        this.abiDecoder.addABI(this.abi);
     }
 
     public parseERC20Contracts(transactions: any) {
-        if (!transactions) {
-            return Promise.resolve([undefined, undefined]);
-        }
+        if (!transactions) return Promise.resolve([undefined, undefined]);
 
-        // extract  valid contracts
-        let contractAddresses: any = [];
+        let contractAddresses: string[] = [];
+
         transactions.map((transaction: any) => {
-            const decodedInput = this.abiDecoder.decodeMethod(transaction.input);
-            if (
-                (decodedInput && decodedInput.name === "transfer" && Array.isArray(decodedInput.params) && decodedInput.params.length === 2 && transaction.to !== null) ||
-                (decodedInput && decodedInput.name === "mint" && Array.isArray(decodedInput.params) && decodedInput.params.length === 2 && transaction.to !== null)
-            ) {
-                contractAddresses.push(transaction.to.toLowerCase());
+            const decodedLogs = this.abiDecoder.decodeLogs(transaction.receipt.logs);
+            if (decodedLogs === undefined) {
+                console.log('decodedLogs***************', decodedLogs)
+            }
+            if (decodedLogs.length > 0) {
+                decodedLogs.forEach((log: any) => {
+                    if (log) {
+                        if (log.name === this.OperationTypes.Transfer) {
+                            console.log("log.name", log.name)
+                            console.log("adding contract ", log.address.toLowerCase());
+                            contractAddresses.push(log.address.toLowerCase());
+                        }
+                    }
+                });
             }
         });
-        // remove duplicates
-        contractAddresses = contractAddresses.filter((elem: any, pos: any, arr: any) => arr.indexOf(elem) == pos);
-        // process contracts
+
+        contractAddresses = contractAddresses.filter((elem: any, pos: any, arr: any) => arr.indexOf(elem) == pos);;
         const promises = contractAddresses.map((contractAddress: any) => {
             return this.findOrCreateERC20Contract(contractAddress);
         });
@@ -70,30 +74,30 @@ export class TokenParser {
      */
     private getContract(contract: String): Promise<void> {
         return NotParsableContracts.findOne({address: contract}).exec().then((notParsableToken: any) => {
-
+            // console.log("notParsableToken" , notParsableToken)
             if (notParsableToken) {
                 return Promise.resolve(undefined);
             }
 
             const promises = [];
-            for (const abi of this.abiList) {
-                const contractInstance = new Config.web3.eth.Contract(abi, contract);
+            // for (const abi of this.abiList) {
+            const contractInstance = new Config.web3.eth.Contract(this.abi, contract);
 
-                const p1 = contractInstance.methods.name().call();
-                const p2 = contractInstance.methods.totalSupply().call();
-                const p3 = contractInstance.methods.decimals().call();
-                const p4 = contractInstance.methods.symbol().call();
+            const p1 = contractInstance.methods.name().call();
+            const p2 = contractInstance.methods.totalSupply().call();
+            const p3 = contractInstance.methods.decimals().call();
+            const p4 = contractInstance.methods.symbol().call();
 
-                promises.push(Promise.all([p1, p2, p3, p4]).then(([name, totalSupply, decimals, receivedSymbol]: any[]) => {
-                    const symbol = this.convertSymbol(receivedSymbol)
-                    return [name, totalSupply, decimals, symbol];
-                }).catch((err: Error) => {
-                    /* don't do anything here, but catch error */
-                }));
-            }
+            promises.push(Promise.all([p1, p2, p3, p4]).then(([name, totalSupply, decimals, receivedSymbol]: any[]) => {
+                const symbol = this.convertSymbol(receivedSymbol)
+                return [name, totalSupply, decimals, symbol];
+            }).catch((error: Error) => {
+                winston.error(`Failed to get contract ${contract} object`);
+            }));
+            // }
 
             return Promise.all(promises).then((contracts: any[]) => {
-                const contractObj = contracts.filter((ele: any) => { return ele !== undefined })[0];
+                const contractObj = contracts.filter((ele: any) => ele !== undefined )[0];
                 return this.updateERC20Token(contract, {
                     name: contractObj[0],
                     totalSupply: contractObj[1],
@@ -128,7 +132,7 @@ export class TokenParser {
             name: obj.name,
             totalSupply: obj.totalSupply,
             decimals: obj.decimals,
-            symbol: obj.symbol
+            symbol: obj.symbol,
         }, {upsert: true, new: true}).then((savedToken: any) => savedToken);
     }
 
