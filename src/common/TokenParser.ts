@@ -25,16 +25,11 @@ export class TokenParser {
 
         transactions.map((transaction: any) => {
             const decodedLogs = this.abiDecoder.decodeLogs(transaction.receipt.logs);
-            if (decodedLogs === undefined) {
-                console.log('decodedLogs***************', decodedLogs)
-            }
             if (decodedLogs.length > 0) {
                 decodedLogs.forEach((log: any) => {
                     if (log) {
                         if (log.name === this.OperationTypes.Transfer) {
-                            console.log("log.name", log.name)
-                            console.log("adding contract ", log.address.toLowerCase());
-                            contractAddresses.push(log.address.toLowerCase());
+                            contractAddresses.push(transaction.to.toLowerCase());
                         }
                     }
                 });
@@ -80,7 +75,6 @@ export class TokenParser {
             }
 
             const promises = [];
-            // for (const abi of this.abiList) {
             const contractInstance = new Config.web3.eth.Contract(this.abi, contract);
 
             const p1 = contractInstance.methods.name().call();
@@ -94,7 +88,6 @@ export class TokenParser {
             }).catch((error: Error) => {
                 winston.error(`Failed to get contract ${contract} object`);
             }));
-            // }
 
             return Promise.all(promises).then((contracts: any[]) => {
                 const contractObj = contracts.filter((ele: any) => ele !== undefined )[0];
