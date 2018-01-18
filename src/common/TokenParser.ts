@@ -68,9 +68,7 @@ export class TokenParser {
     private getContract(contract: String): Promise<void> {
         return NotParsableContracts.findOne({address: contract}).exec().then((notParsableToken: any) => {
             // console.log("notParsableToken" , notParsableToken)
-            if (notParsableToken) {
-                return Promise.resolve(undefined);
-            }
+            if (notParsableToken) return Promise.resolve(undefined);
 
             const promises = [];
             const contractInstance = new Config.web3.eth.Contract(this.abi, contract);
