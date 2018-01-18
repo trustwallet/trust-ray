@@ -36,15 +36,13 @@ export class TokenParser {
             }
         });
 
-        contractAddresses = contractAddresses.filter((elem: any, pos: any, arr: any) => arr.indexOf(elem) == pos);;
-        const promises = contractAddresses.map((contractAddress: any) => {
-            return this.findOrCreateERC20Contract(contractAddress);
-        });
-        return Promise.all(promises).then((contracts: any) => {
-            return [transactions, this.flatContracts(contracts)];
-        }).catch((err: Error) => {
-            winston.error(`Could not parse erc20 contracts with error: ${err}`);
-        });
+        const uniqueContracts = [...(new Set(contractAddresses))];
+        const promises = uniqueContracts.map((contractAddress: any) => this.findOrCreateERC20Contract(contractAddress));
+
+        return Promise.all(promises).then((contracts: any) => [transactions, this.flatContracts(contracts)])
+            .catch((err: Error) => {
+                winston.error(`Could not parse erc20 contracts with error: ${err}`);
+            });
     }
 
     private findOrCreateERC20Contract(contractAddress: String): Promise<void> {
