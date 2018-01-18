@@ -95,25 +95,15 @@ export class TransactionParser {
             const decodedLogs = erc20ABIDecoder.decodeLogs(transaction.receipt.logs);
                 if (contract) {
                     if (decodedLogs.length > 0) {
-                        console.log("decodedLogs", decodedLogs)
-                        // decodedLogs.forEach((eventLog: {address: string, events: any[], name: string}) => {
-                            // if (this.isLogValid(eventLog)) {
                                 const transfer = this.parseEventLog(decodedLogs[0]);
                                 const p = this.findOrCreateTransactionOperation(transaction._id, transfer.from, transfer.to, transfer.value, contract._id);
                                 operationPromises.push(p);
-                            // }
-                        // })
                     }
                 }
                 if (!contract && decodedLogs.length > 1) {
-                        // decodedLogs.forEach((decodedLog: {name: string, events: any[], address: string}) => {
-                            // if (this.isLogValid(decodedLog)) {
-                                console.log("NOcontractdecodedLogs", decodedLogs)
                                 const transfer = this.parseEventLog(decodedLogs[0]);
                                 const p = this.findOrCreateTransactionOperation(transaction._id, transfer.from, transfer.to, transfer.value);
                                 operationPromises.push(p);
-                            // }
-                        // });
                 }
         });
 
@@ -131,10 +121,6 @@ export class TransactionParser {
             value: transfer.value,
             contract: erc20ContractId
         };
-    }
-
-    private isLogValid(log: {name: string, events: any[]}) {
-        return ["trasfer", "mint", "Transfer"].indexOf(log.name) > -1 ? true : false;
     }
 
     private parseEventLog(eventLog: any): {from: string, to: string, value: string} {
