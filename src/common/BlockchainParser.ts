@@ -152,9 +152,6 @@ export class BlockchainParser {
             return this.tokenParser.parseERC20Contracts(transactions);
         }).then(([transactions, contracts]: any) => {
             return this.transactionParser.parseTransactionOperations(transactions, contracts);
-        // TODO: finish this
-        // }).then((transactionOperations: any) => {
-        //    return this.tokenParser.updateTokenBalances(transactionOperations);
         }).then(() => {
             const endBlock = ascending ? numberBlocks[numberBlocks.length - 1] : numberBlocks[0];
             if (endBlock) {
