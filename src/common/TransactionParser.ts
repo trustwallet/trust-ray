@@ -93,7 +93,6 @@ export class TransactionParser {
         transactions.map((transaction: any) => {
             const contract = contracts.find((c: any) => c.address === transaction.to);
             const decodedLogs = erc20ABIDecoder.decodeLogs(transaction.receipt.logs);
-                // Covers where contract https://etherscan.io/tx/0x83388873b5a6d2d462e1f61e09dfcc6df779e2da46c8a1727f76e0e68b4c5ecf
                 if (contract) {
                     if (decodedLogs.length > 0) {
                         console.log("decodedLogs", decodedLogs)
@@ -106,7 +105,6 @@ export class TransactionParser {
                         // })
                     }
                 }
-                // If no contract and operaions just add operations https://etherscan.io/tx/0x0696523adeb7fdcd1ef21c5fab30a00f8fbd6935a7fd1031f4635a949b3e5de2
                 if (!contract && decodedLogs.length > 1) {
                         // decodedLogs.forEach((decodedLog: {name: string, events: any[], address: string}) => {
                             // if (this.isLogValid(decodedLog)) {
