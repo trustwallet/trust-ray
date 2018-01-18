@@ -97,24 +97,25 @@ export class TransactionParser {
                 if (contract) {
                     if (decodedLogs.length > 0) {
                         console.log("decodedLogs", decodedLogs)
-                        decodedLogs.forEach((eventLog: {address: string, events: any[], name: string}) => {
-                            if (this.isLogValid(eventLog)) {
-                                const transfer = this.parseEventLog(eventLog);
+                        // decodedLogs.forEach((eventLog: {address: string, events: any[], name: string}) => {
+                            // if (this.isLogValid(eventLog)) {
+                                const transfer = this.parseEventLog(decodedLogs[0]);
                                 const p = this.findOrCreateTransactionOperation(transaction._id, transfer.from, transfer.to, transfer.value, contract._id);
                                 operationPromises.push(p);
-                            }
-                        })
+                            // }
+                        // })
                     }
                 }
                 // If no contract and operaions just add operations https://etherscan.io/tx/0x0696523adeb7fdcd1ef21c5fab30a00f8fbd6935a7fd1031f4635a949b3e5de2
                 if (!contract && decodedLogs.length > 1) {
-                        decodedLogs.forEach((decodedLog: {name: string, events: any[], address: string}) => {
-                            if (this.isLogValid(decodedLog)) {
-                                const transfer = this.parseEventLog(decodedLog);
+                        // decodedLogs.forEach((decodedLog: {name: string, events: any[], address: string}) => {
+                            // if (this.isLogValid(decodedLog)) {
+                                console.log("NOcontractdecodedLogs", decodedLogs)
+                                const transfer = this.parseEventLog(decodedLogs[0]);
                                 const p = this.findOrCreateTransactionOperation(transaction._id, transfer.from, transfer.to, transfer.value);
                                 operationPromises.push(p);
-                            }
-                        });
+                            // }
+                        // });
                 }
         });
 
@@ -155,11 +156,10 @@ export class TransactionParser {
             value,
             contract: erc20ContractId,
         };
-        const trx = `${transactionId}_${from}`
 
-        return TransactionOperation.findOneAndUpdate({transactionId: trx}, operation, {upsert: true, new: true})
+        return TransactionOperation.findOneAndUpdate({transactionId: transactionId}, operation, {upsert: true, new: true})
             .then((operation: any) => {
-                return Promise.resolve(Transaction.findOneAndUpdate({_id: operation.transactionId}, {$push: {operations: operation._id}, address: [operation.from, operation.to]}))
+                return Transaction.findOneAndUpdate({_id: operation.transactionId}, {operations: operation._id, address: [operation.from, operation.to]})
             .catch((error: Error) => {
                 winston.error(`Could not update operation and address to transactionID ${transactionId} with error: ${error}`);
             })
