@@ -93,7 +93,7 @@ export class TokenParser {
                     symbol: contractObj[3]
                 });
             }).catch((err: Error) => {
-                winston.error(`Could not parse input for contract ${contract}.`);
+                winston.error(`Could not parse input for contract ${contract}`);
                 NotParsableContracts.findOneAndUpdate(
                     {address: contract},
                     {address: contract},
