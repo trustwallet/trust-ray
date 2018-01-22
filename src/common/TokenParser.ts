@@ -6,8 +6,7 @@ import { getTokenBalanceForAddress, loadContractABIs } from "./Utils";
 import { TransactionOperation } from "../models/TransactionOperationModel";
 import { NotParsableContracts } from "../models/NotParsableContractModel";
 
-export class TokenParser {
-    
+export class TokenParser {    
     private abi = require("./contracts/Erc20Abi");
     private abiDecoder = require("abi-decoder");
     private OperationTypes = {
@@ -29,7 +28,7 @@ export class TokenParser {
                 decodedLogs.forEach((log: any) => {
                     if (log) {
                         if (log.name === this.OperationTypes.Transfer) {
-                            contractAddresses.push(transaction.to.toLowerCase());
+                            contractAddresses.push(log.address.toLowerCase());
                         }
                     }
                 });
