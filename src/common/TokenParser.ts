@@ -6,7 +6,7 @@ import { getTokenBalanceForAddress, loadContractABIs } from "./Utils";
 import { TransactionOperation } from "../models/TransactionOperationModel";
 import { NotParsableContracts } from "../models/NotParsableContractModel";
 
-export class TokenParser {    
+export class TokenParser {
     private abi = require("./contracts/Erc20Abi");
     private abiDecoder = require("abi-decoder");
     private OperationTypes = {
@@ -20,7 +20,7 @@ export class TokenParser {
     public parseERC20Contracts(transactions: any) {
         if (!transactions) return Promise.resolve([undefined, undefined]);
 
-        let contractAddresses: string[] = [];
+        const contractAddresses: string[] = [];
 
         transactions.map((transaction: any) => {
             const decodedLogs = this.abiDecoder.decodeLogs(transaction.receipt.logs);
