@@ -7,14 +7,16 @@ import { TransactionOperation } from "../models/TransactionOperationModel";
 import { NotParsableContracts } from "../models/NotParsableContractModel";
 
 export class TokenParser {
-    private abi = require("./contracts/Erc20Abi");
     private abiDecoder = require("abi-decoder");
+    private abiList = loadContractABIs();
     private OperationTypes = {
         Transfer: "Transfer",
     }
 
     constructor() {
-        this.abiDecoder.addABI(this.abi);
+        for (const abi of this.abiList) {
+            this.abiDecoder.addABI(abi);
+        }
     }
 
     public parseERC20Contracts(transactions: any) {
@@ -23,6 +25,7 @@ export class TokenParser {
         const contractAddresses: string[] = [];
 
         transactions.map((transaction: any) => {
+            // console.log('transaction', transaction.id)
             const decodedLogs = this.abiDecoder.decodeLogs(transaction.receipt.logs);
             if (decodedLogs.length > 0) {
                 decodedLogs.forEach((log: any) => {
@@ -76,28 +79,29 @@ export class TokenParser {
             const p3 = contractInstance.methods.decimals().call();
             const p4 = contractInstance.methods.symbol().call();
 
-            promises.push(Promise.all([p1, p2, p3, p4]).then(([name, totalSupply, decimals, receivedSymbol]: any[]) => {
-                const symbol = this.convertSymbol(receivedSymbol)
+            promises.push(Promise.all([p1, p2, p3, p4]).then(([name, totalSupply, decimals, receivedSymbol]: string[]) => {
+                const symbol = this.convertSymbol(receivedSymbol);
                 return [name, totalSupply, decimals, symbol];
             }).catch((error: Error) => {
-                winston.error(`Failed to get contract ${contract} object`);
+                winston.error(`Failed to get contract ${contract} object with error ${error}`);
             }));
 
             return Promise.all(promises).then((contracts: any[]) => {
                 const contractObj = contracts.filter((ele: any) => ele !== undefined )[0];
+
                 return this.updateERC20Token(contract, {
                     name: contractObj[0],
                     totalSupply: contractObj[1],
                     decimals: contractObj[2],
                     symbol: contractObj[3]
                 });
-            }).catch((err: Error) => {
-                winston.error(`Could not parse input for contract ${contract}`);
+            }).catch((error: Error) => {
+                winston.error(`Could not parse input for contract ${contract} with error ${error}`);
                 NotParsableContracts.findOneAndUpdate(
                     {address: contract},
                     {address: contract},
                     {upsert: true, new: true}
-                ).then((npc: any) => {
+                ).then(() => {
                     winston.info(`Saved ${contract} to non-parsable contracts`);
                 }).catch((err: Error) => {
                     winston.error(`Could not save non-parsable contract for ${contract}.`);
