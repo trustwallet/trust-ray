@@ -72,19 +72,22 @@ export class TokenParser {
             if (notParsableToken) return Promise.resolve(undefined);
 
             const promises = [];
-            const contractInstance = new Config.web3.eth.Contract(this.abi, contract);
-
-            const p1 = contractInstance.methods.name().call();
-            const p2 = contractInstance.methods.totalSupply().call();
-            const p3 = contractInstance.methods.decimals().call();
-            const p4 = contractInstance.methods.symbol().call();
-
-            promises.push(Promise.all([p1, p2, p3, p4]).then(([name, totalSupply, decimals, receivedSymbol]: string[]) => {
-                const symbol = this.convertSymbol(receivedSymbol);
-                return [name, totalSupply, decimals, symbol];
-            }).catch((error: Error) => {
-                winston.error(`Failed to get contract ${contract} object with error ${error}`);
-            }));
+            
+            for (const abi of this.abiDecoder) {
+                const contractInstance = new Config.web3.eth.Contract(abi, contract);
+    
+                const p1 = contractInstance.methods.name().call();
+                const p2 = contractInstance.methods.totalSupply().call();
+                const p3 = contractInstance.methods.decimals().call();
+                const p4 = contractInstance.methods.symbol().call();
+    
+                promises.push(Promise.all([p1, p2, p3, p4]).then(([name, totalSupply, decimals, receivedSymbol]: string[]) => {
+                    const symbol = this.convertSymbol(receivedSymbol);
+                    return [name, totalSupply, decimals, symbol];
+                }).catch((error: Error) => {
+                    winston.error(`Failed to get contract ${contract} object with error ${error}`);
+                }));
+            }
 
             return Promise.all(promises).then((contracts: any[]) => {
                 const contractObj = contracts.filter((ele: any) => ele !== undefined )[0];
