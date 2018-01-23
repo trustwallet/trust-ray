@@ -27,7 +27,7 @@ export class BlockchainParser {
 
     public start() {
         this.startForwardParsing();
-        // this.startBackwardParsing();
+        this.startBackwardParsing();
     }
 
     public startForwardParsing() {
@@ -48,9 +48,9 @@ export class BlockchainParser {
                     return this.saveLastParsedBlock(endBlock);
                 }).then((saved: {lastBlock: number}) => {
                     winston.info("New latest block in DB :", saved.lastBlock);
-                    // return setDelay(100);
+                    return setDelay(100);
                 }).then(() =>  {
-                    // return this.startForwardParsing();
+                    return this.startForwardParsing();
                 }).catch((err: Error) => {
                     winston.error(`Forward parsing failed for blocks ${nextBlock} to ${lastBlock} with error: ${err}. \nRestarting parsing for those blocks...`);
                     this.scheduleForwardParsing();
@@ -69,7 +69,7 @@ export class BlockchainParser {
         return this.getBlockState().then(([blockInChain, blockInDb]) => {
             const startBlock = !blockInDb ? blockInChain : (((blockInDb.lastBackwardBlock == undefined) ? blockInChain : blockInDb.lastBackwardBlock));
 
-            // winston.info(`Backward parsing: startBlock ${startBlock}, blockInChain: ${blockInChain} `);
+            winston.info(`Backward parsing: startBlock ${startBlock}, blockInChain: ${blockInChain} `);
             const nextBlock = startBlock - 1
             if (nextBlock < 1) {
                 winston.info(`Backward already finished`);
