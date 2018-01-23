@@ -25,7 +25,6 @@ export class TokenParser {
         const contractAddresses: string[] = [];
 
         transactions.map((transaction: any) => {
-            // console.log('transaction', transaction.id)
             const decodedLogs = this.abiDecoder.decodeLogs(transaction.receipt.logs);
             if (decodedLogs.length > 0) {
                 decodedLogs.forEach((log: any) => {
@@ -70,10 +69,9 @@ export class TokenParser {
     private getContract(contract: String): Promise<void> {
         return NotParsableContracts.findOne({address: contract}).exec().then((notParsableToken: any) => {
             if (notParsableToken) return Promise.resolve(undefined);
-
             const promises = [];
-            
-            for (const abi of this.abiDecoder) {
+
+            for (const abi of this.abiList) {
                 const contractInstance = new Config.web3.eth.Contract(abi, contract);
     
                 const p1 = contractInstance.methods.name().call();
@@ -115,7 +113,7 @@ export class TokenParser {
 
     private convertSymbol(symbol: string): string {
         if (symbol.startsWith("0x")) {
-            return Config.web3.utils.hexToAscii(symbol);
+            return Config.web3.utils.hexToAscii(symbol).replace(/\u0000*$/, "");
         }
         return symbol;
     }
