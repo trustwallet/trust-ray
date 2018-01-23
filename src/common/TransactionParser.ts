@@ -3,6 +3,7 @@ import { Transaction } from "../models/TransactionModel";
 import { TransactionOperation } from "../models/TransactionOperationModel";
 import { removeScientificNotationFromNumbString } from "./Utils";
 import { Config } from "./Config";
+import { Promise } from "bluebird";
 
 const erc20abi = require("./contracts/Erc20Abi");
 const erc20ABIDecoder = require("abi-decoder");
@@ -88,26 +89,24 @@ export class TransactionParser {
     public parseTransactionOperations(transactions: any[], contracts: any[]) {
         if (!transactions || !contracts) return Promise.resolve();
 
-        const operationPromises: any = [];
-
-        transactions.map((transaction: any) => {
-            const contract = contracts.find((c: any) => c.address === transaction.to);
+        return Promise.map(transactions, (transaction) => {
             const decodedLogs = erc20ABIDecoder.decodeLogs(transaction.receipt.logs);
-                if (contract) {
-                    if (decodedLogs.length > 0) {
-                                const transfer = this.parseEventLog(decodedLogs[0]);
-                                const p = this.findOrCreateTransactionOperation(transaction._id, transfer.from, transfer.to, transfer.value, contract._id);
-                                operationPromises.push(p);
-                    }
+            const contract = contracts.find((c: any) => {
+                if (decodedLogs.length > 0) {
+                    return c.address === decodedLogs[0].address.toLowerCase();
                 }
-                if (!contract && decodedLogs.length > 1) {
-                                const transfer = this.parseEventLog(decodedLogs[0]);
-                                const p = this.findOrCreateTransactionOperation(transaction._id, transfer.from, transfer.to, transfer.value);
-                                operationPromises.push(p);
-                }
-        });
+            });
 
-        return Promise.all(operationPromises).catch((err: Error) => {
+            if (contract && decodedLogs.length > 0) {
+                const transfer = this.parseEventLog(decodedLogs[0]);
+                return this.findOrCreateTransactionOperation(transaction._id, transfer.from, transfer.to, transfer.value, contract._id);
+            }
+
+            if (!contract && decodedLogs.length > 0) {
+                const transfer = this.parseEventLog(decodedLogs[0]);
+                return this.findOrCreateTransactionOperation(transaction._id, transfer.from, transfer.to, transfer.value);
+            }
+        }).catch((err: Error) => {
             winston.error(`Could not parse transaction operations with error: ${err}`);
         });
     }
@@ -143,7 +142,7 @@ export class TransactionParser {
 
         return TransactionOperation.findOneAndUpdate({transactionId: transactionId}, operation, {upsert: true, new: true})
             .then((operation: any) => {
-                return Transaction.findOneAndUpdate({_id: operation.transactionId}, {operations: operation._id, address: [operation.from, operation.to]})
+                return Transaction.findOneAndUpdate({_id: operation.transactionId}, {operations: [operation._id]})
             .catch((error: Error) => {
                 winston.error(`Could not update operation and address to transactionID ${transactionId} with error: ${error}`);
             })
@@ -153,7 +152,7 @@ export class TransactionParser {
     }
 
     // https://gist.github.com/jdkanani/e76baa731a2b0cb6bbff26d085476722
-    private fetchTransactionReceipts (transactions: any): Promise<any> {
+    private fetchTransactionReceipts (transactions: any) {
         return new Promise((resolve, reject) => {
           const result: any = [];
           let completed = false;
