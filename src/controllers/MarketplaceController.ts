@@ -11,6 +11,8 @@ export class MarketplaceController {
     ]
 
     getMarkets = (req: Request, res: Response) => {
-        sendJSONresponse(res, 200, this.json)
+        sendJSONresponse(res, 200, {
+            docs: this.json
+        })
     }
 }
