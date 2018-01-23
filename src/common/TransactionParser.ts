@@ -13,7 +13,6 @@ export class TransactionParser {
 
     public parseTransactions(blocks: any) {
         if (blocks.length === 0) return Promise.resolve();
-
         const extractedTransactions = blocks.flatMap((block: any) => {
             return block.transactions.map((tx: any) => {
                 return new Transaction(this.extractTransactionData(block, tx));
@@ -103,8 +102,13 @@ export class TransactionParser {
             }
 
             if (!contract && decodedLogs.length > 0) {
-                const transfer = this.parseEventLog(decodedLogs[0]);
-                return this.findOrCreateTransactionOperation(transaction._id, transfer.from, transfer.to, transfer.value);
+                for(let i = 0; i <= decodedLogs.length; i++) {
+                    const log = decodedLogs[i];
+                    if (log) {
+                        const transfer = this.parseEventLog(log);
+                        return this.findOrCreateTransactionOperation(transaction._id, transfer.from, transfer.to, transfer.value);
+                    }
+                }        
             }
         }).catch((err: Error) => {
             winston.error(`Could not parse transaction operations with error: ${err}`);
