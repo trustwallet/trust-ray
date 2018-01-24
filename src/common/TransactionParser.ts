@@ -13,6 +13,7 @@ export class TransactionParser {
 
     public parseTransactions(blocks: any) {
         if (blocks.length === 0) return Promise.resolve();
+
         const extractedTransactions = blocks.flatMap((block: any) => {
             return block.transactions.map((tx: any) => {
                 return new Transaction(this.extractTransactionData(block, tx));
@@ -82,33 +83,20 @@ export class TransactionParser {
             addresses: [from, to]
         };
     }
-
+     
     // ========================== OPERATION PARSING ========================== //
 
     public parseTransactionOperations(transactions: any[], contracts: any[]) {
         if (!transactions || !contracts) return Promise.resolve();
 
         return Promise.map(transactions, (transaction) => {
-            const decodedLogs = erc20ABIDecoder.decodeLogs(transaction.receipt.logs);
-            const contract = contracts.find((c: any) => {
-                if (decodedLogs.length > 0) {
-                    return c.address === decodedLogs[0].address.toLowerCase();
+            const decodedLogs = erc20ABIDecoder.decodeLogs(transaction.receipt.logs).filter((log: any) => log);
+            if (decodedLogs.length > 0) {
+                const contract = contracts.find((c: any) => c.address === decodedLogs[0].address.toLowerCase());
+                if (contract) {
+                    const transfer = this.parseEventLog(decodedLogs[0]);
+                    return this.findOrCreateTransactionOperation(transaction._id, transfer.from, transfer.to, transfer.value, contract._id);
                 }
-            });
-
-            if (contract && decodedLogs.length > 0) {
-                const transfer = this.parseEventLog(decodedLogs[0]);
-                return this.findOrCreateTransactionOperation(transaction._id, transfer.from, transfer.to, transfer.value, contract._id);
-            }
-
-            if (!contract && decodedLogs.length > 0) {
-                for(let i = 0; i <= decodedLogs.length; i++) {
-                    const log = decodedLogs[i];
-                    if (log) {
-                        const transfer = this.parseEventLog(log);
-                        return this.findOrCreateTransactionOperation(transaction._id, transfer.from, transfer.to, transfer.value);
-                    }
-                }        
             }
         }).catch((err: Error) => {
             winston.error(`Could not parse transaction operations with error: ${err}`);
