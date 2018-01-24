@@ -9,7 +9,6 @@ export class LocalizedOperationConverter {
     };
 
     private static tokenTransfer(operation: any) {
-        if (operation.contract) {
             const contract = operation.contract;
             const value = operation.value / 10 ** contract.decimals;
             return {
@@ -23,9 +22,6 @@ export class LocalizedOperationConverter {
                 "symbol": contract.symbol,
                 "decimals": contract.decimals
             }
-        } else {
-            return null;
-        }
     };
 }
 
