@@ -25,16 +25,16 @@ export class TokenParser {
         const contractAddresses: string[] = [];
 
         transactions.map((transaction: any) => {
-            const decodedLogs = this.abiDecoder.decodeLogs(transaction.receipt.logs);
-            if (decodedLogs.length > 0) {
-                decodedLogs.forEach((log: any) => {
-                    if (log) {
-                        if (log.name === this.OperationTypes.Transfer) {
-                            contractAddresses.push(log.address.toLowerCase());
+                const decodedLogs = this.abiDecoder.decodeLogs(transaction.receipt.logs).filter((log: any) => log);
+                if (decodedLogs.length > 0) {
+                    decodedLogs.forEach((log: any) => {
+                        if (log) {
+                            if (log.name === this.OperationTypes.Transfer) {
+                                contractAddresses.push(log.address.toLowerCase());
+                            }
                         }
-                    }
-                });
-            }
+                    });
+                }
         });
 
         const uniqueContracts = [...(new Set(contractAddresses))];
@@ -73,12 +73,12 @@ export class TokenParser {
 
             for (const abi of this.abiList) {
                 const contractInstance = new Config.web3.eth.Contract(abi, contract);
-    
+
                 const p1 = contractInstance.methods.name().call();
                 const p2 = contractInstance.methods.totalSupply().call();
                 const p3 = contractInstance.methods.decimals().call();
                 const p4 = contractInstance.methods.symbol().call();
-    
+
                 promises.push(Promise.all([p1, p2, p3, p4]).then(([name, totalSupply, decimals, receivedSymbol]: string[]) => {
                     const symbol = this.convertSymbol(receivedSymbol);
                     return [name, totalSupply, decimals, symbol];
