@@ -70,7 +70,7 @@ export class PriceController {
                 name: obj.price.name,
                 symbol: obj.price.symbol,
                 price: obj.price[priceKey],
-                percent_change_24h: obj.price.percent_change_24h,
+                percent_change_24h: obj.price.percent_change_24h || "0",
                 contract: obj.token.contract
             }
         })
@@ -97,7 +97,7 @@ export class PriceController {
                 name: price.name,
                 symbol: price.symbol,
                 price: price[priceKey],
-                percent_change_24h: price.percent_change_24h,
+                percent_change_24h: price.percent_change_24h || "0",
             }
         })
     }
