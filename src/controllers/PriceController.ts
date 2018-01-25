@@ -4,15 +4,15 @@ import * as winston from "winston";
 import * as axios from "axios"
 import { Promise } from "bluebird";
 
-const CoinMarketCap = require("coinmarketcap-api")
+const CoinMarketCap = require("coinmarketcap-api");
 
 export class PriceController {
     private client = new CoinMarketCap();
     private refreshLimit = 600;
     private lastUpdated: any = {};
     private latestPrices: any = {};
-    private isUpdating: any = {}
-    private coinmarketcapImageURL = 'https://files.coinmarketcap.com/static/img/coins/128x128/'
+    private isUpdating: any = {};
+    private coinmarketcapImageURL = "https://files.coinmarketcap.com/static/img/coins/128x128/";
 
     getPrices = (req: Request, res: Response) => {
         const currency = req.query.currency || "USD";
@@ -33,7 +33,7 @@ export class PriceController {
 
     getTokenPrices = (req: Request, res: Response) => {
         const currency = req.body.currency || "USD";
-        const symbols = req.body.tokens.map((item: any) => item.symbol )
+        const symbols = req.body.tokens.map((item: any) => item.symbol);
 
         this.getRemotePrices(currency).then((prices: any) => {
             sendJSONresponse(res, 200, {
@@ -65,6 +65,7 @@ export class PriceController {
         })
 
         return foundValues.map((obj) => {
+            console.log('obj', obj)
             const priceKey = "price_" + currency.toLowerCase();
             return {
                 id: obj.price.id,
@@ -94,6 +95,7 @@ export class PriceController {
         })
         return foundPrices.map((price) => {
             const priceKey = "price_" + currency.toLowerCase();
+            console.log("price", price)
             return {
                 id: price.id,
                 name: price.name,
@@ -130,8 +132,8 @@ export class PriceController {
         })
     }
 
-    private imageForPrice(token: any) {
-        return this.coinmarketcapImageURL + token.price.id + ".png"
+    private imageForPrice(token: {id: string}) {
+        return this.coinmarketcapImageURL + token.id + ".png";
     }
 
     private getCoinMarketCapPrices(currency: string) {
