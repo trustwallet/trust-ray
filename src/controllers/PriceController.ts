@@ -85,11 +85,13 @@ export class PriceController {
         const foundSymbols = new Set<any>();
         const foundPrices: any[] = [];
         prices.forEach(price => {
-            if (ignoredSymbols.has(price.symbol)) return;
+            const priceSymbol = price.symbol;
 
-            if (price.symbol === symbols.find(x => x === price.symbol) && !foundSymbols.has(price.symbol)) {
+            if (ignoredSymbols.has(priceSymbol)) return;
+
+            if (priceSymbol === symbols.find(x => x === priceSymbol) && !foundSymbols.has(priceSymbol)) {
                 foundPrices.push(price);
-                foundSymbols.add(price.symbol);
+                foundSymbols.add(priceSymbol);
             }
         })
         return foundPrices.map((price) => {
@@ -111,9 +113,9 @@ export class PriceController {
             const lastUpdatedTime = this.lastUpdated[currency] || 0;
             const difference = (now - lastUpdatedTime) / 1000;
 
-            const isUpdating = this.isUpdating[currency] || false
+            const isUpdating = this.isUpdating[currency] || false;
             if ((this.lastUpdated === 0 || difference >= this.refreshLimit) && !isUpdating) {
-                this.isUpdating[currency] = true
+                this.isUpdating[currency] = true;
                 this.getCoinMarketCapPrices(currency).timeout(3000).then((prices: any) => {
                     this.lastUpdated[currency] = now;
                     this.latestPrices[currency] = prices;
