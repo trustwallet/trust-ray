@@ -12,6 +12,7 @@ export class PriceController {
     private lastUpdated: any = {};
     private latestPrices: any = {};
     private isUpdating: any = {}
+    private coinmarketcapImageURL = 'https://files.coinmarketcap.com/static/img/coins/128x128/'
 
     getPrices = (req: Request, res: Response) => {
         const currency = req.query.currency || "USD";
@@ -71,7 +72,8 @@ export class PriceController {
                 symbol: obj.price.symbol,
                 price: obj.price[priceKey],
                 percent_change_24h: obj.price.percent_change_24h || "0",
-                contract: obj.token.contract
+                contract: obj.token.contract,
+                image: this.imageForPrice(obj.price),
             }
         })
     }
@@ -98,6 +100,7 @@ export class PriceController {
                 symbol: price.symbol,
                 price: price[priceKey],
                 percent_change_24h: price.percent_change_24h || "0",
+                image: this.imageForPrice(price),
             }
         })
     }
@@ -125,6 +128,10 @@ export class PriceController {
                 resolve(this.latestPrices[currency]);
             }
         })
+    }
+
+    private imageForPrice(token: any) {
+        return this.coinmarketcapImageURL + token.price.id + ".png"
     }
 
     private getCoinMarketCapPrices(currency: string) {
