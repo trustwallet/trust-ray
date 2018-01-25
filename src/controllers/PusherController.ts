@@ -6,10 +6,12 @@ import { Error } from "mongoose";
 
 export class Pusher {
     register(req: Request, res: Response) {
+        const wallets = req.body.wallets.map((wallet: any) => wallet.toLowerCase());
+
         Device.findOneAndUpdate({
             deviceID: req.body.deviceID
         }, {
-            wallets: req.body.wallets,
+            wallets,
             token: req.body.token
         }, {
             upsert: true,
