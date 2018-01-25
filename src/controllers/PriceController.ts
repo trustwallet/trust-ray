@@ -65,7 +65,6 @@ export class PriceController {
         })
 
         return foundValues.map((obj) => {
-            console.log('obj', obj)
             const priceKey = "price_" + currency.toLowerCase();
             return {
                 id: obj.price.id,
@@ -95,7 +94,6 @@ export class PriceController {
         })
         return foundPrices.map((price) => {
             const priceKey = "price_" + currency.toLowerCase();
-            console.log("price", price)
             return {
                 id: price.id,
                 name: price.name,
