@@ -4,14 +4,15 @@ import * as winston from "winston";
 import * as axios from "axios"
 import { Promise } from "bluebird";
 
-const CoinMarketCap = require("coinmarketcap-api")
+const CoinMarketCap = require("coinmarketcap-api");
 
 export class PriceController {
     private client = new CoinMarketCap();
     private refreshLimit = 600;
     private lastUpdated: any = {};
     private latestPrices: any = {};
-    private isUpdating: any = {}
+    private isUpdating: any = {};
+    private coinmarketcapImageURL = "https://files.coinmarketcap.com/static/img/coins/128x128/";
 
     getPrices = (req: Request, res: Response) => {
         const currency = req.query.currency || "USD";
@@ -32,7 +33,7 @@ export class PriceController {
 
     getTokenPrices = (req: Request, res: Response) => {
         const currency = req.body.currency || "USD";
-        const symbols = req.body.tokens.map((item: any) => item.symbol )
+        const symbols = req.body.tokens.map((item: any) => item.symbol);
 
         this.getRemotePrices(currency).then((prices: any) => {
             sendJSONresponse(res, 200, {
@@ -71,7 +72,8 @@ export class PriceController {
                 symbol: obj.price.symbol,
                 price: obj.price[priceKey],
                 percent_change_24h: obj.price.percent_change_24h || "0",
-                contract: obj.token.contract
+                contract: obj.token.contract,
+                image: this.imageForPrice(obj.price),
             }
         })
     }
@@ -83,11 +85,13 @@ export class PriceController {
         const foundSymbols = new Set<any>();
         const foundPrices: any[] = [];
         prices.forEach(price => {
-            if (ignoredSymbols.has(price.symbol)) return;
+            const priceSymbol = price.symbol;
 
-            if (price.symbol === symbols.find(x => x === price.symbol) && !foundSymbols.has(price.symbol)) {
+            if (ignoredSymbols.has(priceSymbol)) return;
+
+            if (priceSymbol === symbols.find(x => x === priceSymbol) && !foundSymbols.has(priceSymbol)) {
                 foundPrices.push(price);
-                foundSymbols.add(price.symbol);
+                foundSymbols.add(priceSymbol);
             }
         })
         return foundPrices.map((price) => {
@@ -98,6 +102,7 @@ export class PriceController {
                 symbol: price.symbol,
                 price: price[priceKey],
                 percent_change_24h: price.percent_change_24h || "0",
+                image: this.imageForPrice(price),
             }
         })
     }
@@ -108,9 +113,9 @@ export class PriceController {
             const lastUpdatedTime = this.lastUpdated[currency] || 0;
             const difference = (now - lastUpdatedTime) / 1000;
 
-            const isUpdating = this.isUpdating[currency] || false
+            const isUpdating = this.isUpdating[currency] || false;
             if ((this.lastUpdated === 0 || difference >= this.refreshLimit) && !isUpdating) {
-                this.isUpdating[currency] = true
+                this.isUpdating[currency] = true;
                 this.getCoinMarketCapPrices(currency).timeout(3000).then((prices: any) => {
                     this.lastUpdated[currency] = now;
                     this.latestPrices[currency] = prices;
@@ -125,6 +130,10 @@ export class PriceController {
                 resolve(this.latestPrices[currency]);
             }
         })
+    }
+
+    private imageForPrice(token: {id: string}) {
+        return this.coinmarketcapImageURL + token.id + ".png";
     }
 
     private getCoinMarketCapPrices(currency: string) {
