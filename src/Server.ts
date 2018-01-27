@@ -14,7 +14,7 @@ import * as winston from "winston";
 import { BlockchainParser } from "./common/BlockchainParser";
 import { Config } from "./common/Config";
 import { PusherScanner } from "./pusher/PusherScanner"
-
+const cors = require("cors");
 // Load environment variables from .env file, where API keys and passwords are configured.
 dotenv.config();
 
@@ -49,6 +49,7 @@ export class Server {
 
 
     private configureMiddleware() {
+        this.app.use(cors());
         this.app.set("port", port);
         this.app.use(logger("dev"));
         this.app.use(logger("common", {stream: fs.createWriteStream("./access.log", {flags: "a"})}));
