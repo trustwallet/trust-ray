@@ -28,10 +28,8 @@ export class TokenParser {
                 const decodedLogs = this.abiDecoder.decodeLogs(transaction.receipt.logs).filter((log: any) => log);
                 if (decodedLogs.length > 0) {
                     decodedLogs.forEach((log: any) => {
-                        if (log) {
-                            if (log.name === this.OperationTypes.Transfer) {
-                                contractAddresses.push(log.address.toLowerCase());
-                            }
+                        if (log.name === this.OperationTypes.Transfer) {
+                            contractAddresses.push(log.address.toLowerCase());
                         }
                     });
                 }
