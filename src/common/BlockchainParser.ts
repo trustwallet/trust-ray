@@ -69,7 +69,7 @@ export class BlockchainParser {
         return this.getBlockState().then(([blockInChain, blockInDb]) => {
             const startBlock = !blockInDb ? blockInChain : (((blockInDb.lastBackwardBlock == undefined) ? blockInChain : blockInDb.lastBackwardBlock));
 
-            // winston.info(`Backward parsing: startBlock ${startBlock}, blockInChain: ${blockInChain} `);
+            winston.info(`Backward parsing: startBlock ${startBlock}, blockInChain: ${blockInChain} `);
             const nextBlock = startBlock - 1
             if (nextBlock < 1) {
                 winston.info(`Backward already finished`);
@@ -152,9 +152,6 @@ export class BlockchainParser {
             return this.tokenParser.parseERC20Contracts(transactions);
         }).then(([transactions, contracts]: any) => {
             return this.transactionParser.parseTransactionOperations(transactions, contracts);
-        // TODO: finish this
-        // }).then((transactionOperations: any) => {
-        //    return this.tokenParser.updateTokenBalances(transactionOperations);
         }).then(() => {
             const endBlock = ascending ? numberBlocks[numberBlocks.length - 1] : numberBlocks[0];
             if (endBlock) {

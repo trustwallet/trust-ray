@@ -9,19 +9,19 @@ export class LocalizedOperationConverter {
     };
 
     private static tokenTransfer(operation: any) {
-        const contract = operation.contract;
-        const value = operation.value / 10 ** contract.decimals;
-        return {
-            "title": `Transfer ${contract.symbol}`,
-            "type": operation.type,
-            "from": operation.from,
-            "to": operation.to,
-            "contract": contract.address,
-            "value": String(value),
-            "new_value": operation.value,
-            "symbol": contract.symbol,
-            "decimals": contract.decimals
-        }
+            const contract = operation.contract;
+            const value = operation.value / 10 ** contract.decimals;
+            return {
+                "title": `Transfer ${contract.symbol}`,
+                "type": operation.type,
+                "from": operation.from,
+                "to": operation.to,
+                "contract": contract.address,
+                "value": String(value),
+                "new_value": operation.value,
+                "symbol": contract.symbol,
+                "decimals": contract.decimals
+            }
     };
 }
 
