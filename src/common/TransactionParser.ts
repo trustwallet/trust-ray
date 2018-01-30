@@ -83,7 +83,7 @@ export class TransactionParser {
             addresses: [from, to]
         };
     }
-     
+
     // ========================== OPERATION PARSING ========================== //
 
     public parseTransactionOperations(transactions: any[], contracts: any[]) {
