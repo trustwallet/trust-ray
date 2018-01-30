@@ -32,7 +32,7 @@
     "@types/jquery": "^3.2.17",
     "@types/mocha": "^2.2.44",
     "@types/mongodb": "^3.0.1",
-    "@types/mongoose": "^4.7.24",
+    "@types/mongoose": "^5.0.0",
     "@types/mongoose-paginate": "^5.0.6",
     "@types/morgan": "^1.7.35",
     "@types/node": "^9.3.0",
