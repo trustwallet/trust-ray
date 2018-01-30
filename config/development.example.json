@@ -1,0 +1,15 @@
+{
+    "Mongo": {
+        "uri": "FILL_ME_IN"
+    },
+    "RPC": "FILL_ME_IN",
+    "Network_symbol": "FILL_ME_IN",
+    "Pusher": {
+        "APN": {
+            "key": "FILL_ME_IN",
+            "keyId": "FILL_ME_IN",
+            "teamId": "FILL_ME_IN",
+            "bundle": "FILL_ME_IN"
+        }
+    }
+}
