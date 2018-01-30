@@ -12,13 +12,11 @@ export class Database {
     }
 
     public connect() {
-        const options: any = {
+        const options = {
             autoIndex: true,
             poolSize: 500,
-            // sets how many times to try reconnecting
             reconnectTries: Number.MAX_VALUE,
-           // sets the delay between every retry (milliseconds)
-           reconnectInterval: 1000
+            reconnectInterval: 1000,
         };
 
         mongoose.connect(this.dbURI, options)
