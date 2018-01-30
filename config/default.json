@@ -1,0 +1,6 @@
+{
+        "Mongo": {
+            "uri": "mongodb://localhost:27017/trust-wallet"
+        },
+        "RPC": "http://127.0.0.1:8545"
+}
