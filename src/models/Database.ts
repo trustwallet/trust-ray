@@ -12,7 +12,7 @@ export class Database {
     }
 
     public connect() {
-        const options: any = {
+        const options = {
             autoIndex: true,
             poolSize: 500,
             // sets how many times to try reconnecting
