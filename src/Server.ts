@@ -2,7 +2,7 @@
 import * as express from "express";
 import * as bodyParser from "body-parser";
 import * as session from "express-session";
-import * as dotenv from "dotenv";
+// import * as dotenv from "dotenv";
 import * as logger from "morgan";
 import * as mongo from "connect-mongo";
 import * as errorHandler from "errorhandler";
@@ -16,7 +16,7 @@ import { Config } from "./common/Config";
 import { PusherScanner } from "./pusher/PusherScanner"
 const cors = require("cors");
 // Load environment variables from .env file, where API keys and passwords are configured.
-dotenv.config();
+// dotenv.config();
 
 const port = process.env.PORT || 8000;
 const sessionSecret = "ashdfjhasdlkjfhalksdjhflak";
