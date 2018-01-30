@@ -1,0 +1,15 @@
+{
+    "Mongo": {
+        "uri": "MONGODB_URI"
+    },
+    "RPC": "MONGODB_URI",
+    "Network_symbol": "NETWORK_SYMBOL",
+    "Pusher": {
+        "APN": {
+            "key": "APN_KEY",
+            "keyId": "APN_KEYID",
+            "teamId": "APN_TEAMID",
+            "bundle": "APN_BUNDLEID"
+        }
+    }
+}
