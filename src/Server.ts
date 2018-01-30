@@ -2,7 +2,6 @@
 import * as express from "express";
 import * as bodyParser from "body-parser";
 import * as session from "express-session";
-// import * as dotenv from "dotenv";
 import * as logger from "morgan";
 import * as mongo from "connect-mongo";
 import * as errorHandler from "errorhandler";
@@ -15,8 +14,8 @@ import { BlockchainParser } from "./common/BlockchainParser";
 import { Config } from "./common/Config";
 import { PusherScanner } from "./pusher/PusherScanner"
 const cors = require("cors");
+const config = require("config");
 // Load environment variables from .env file, where API keys and passwords are configured.
-// dotenv.config();
 
 const port = process.env.PORT || 8000;
 const sessionSecret = "ashdfjhasdlkjfhalksdjhflak";
@@ -61,7 +60,7 @@ export class Server {
             saveUninitialized: true,
             secret: sessionSecret,
             store: new MongoStore({
-                url: process.env.MONGODB_URI,
+                url: config.get("Mongo.uri"),
                 autoReconnect: true
             })
         }));
@@ -82,7 +81,7 @@ export class Server {
     }
 
     private setupDatabase() {
-        this.db = new Database(process.env.MONGODB_URI);
+        this.db = new Database(config.get("Mongo.uri"));
         this.db.connect();
     }
 
