@@ -58,7 +58,7 @@ export class PriceController {
         const foundSymbols = new Set<string>();
 
         tokens.forEach((token) => {
-            const existedToken = listOfTokens[token.contract]
+            const existedToken = listOfTokens[token.contract.toLowerCase()]
             if (existedToken) {
                 const price = result[existedToken.id];
                 foundValues.push({price, token});
