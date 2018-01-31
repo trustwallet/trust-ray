@@ -4,6 +4,7 @@ import * as winston from "winston";
 import * as axios from "axios"
 import { Promise } from "bluebird";
 
+const listOfTokens = require("../common/tokens/contracts");
 const CoinMarketCap = require("coinmarketcap-api");
 
 export class PriceController {
@@ -53,17 +54,26 @@ export class PriceController {
             map[obj.id] = obj;
             return map;
         }, {});
-
         const foundValues: any[] = [];
-        // Exclude duplicates, map contracts to symbols
-        prices.forEach(price => {
-            tokens.forEach((token) => {
-                if (price.symbol === token.symbol) {
-                    foundValues.push({price, token});
-                }
-            })
-        })
+        const foundSymbols = new Set<string>();
 
+        tokens.forEach((token) => {
+            const existedToken = listOfTokens[token.contract]
+            if (existedToken) {
+                const price = result[existedToken.id];
+                foundValues.push({price, token});
+            } else {
+                prices.forEach(price => {
+                    const priceSymbol =  price.symbol.toLowerCase()
+                    const tokenSymbol = token.symbol.toLowerCase()
+                    if (priceSymbol === tokenSymbol && !foundSymbols.has(tokenSymbol)) {
+                        foundSymbols.add(tokenSymbol);
+                        foundValues.push({price, token});
+                    }
+                })
+            }
+        })
+        
         return foundValues.map((obj) => {
             const priceKey = "price_" + currency.toLowerCase();
             return {
