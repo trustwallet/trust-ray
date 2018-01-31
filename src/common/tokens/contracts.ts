@@ -7,5 +7,8 @@ module.exports = {
     },
     "0xdd974d5c2e2928dea5f71b9825b8b646686bd200": {
         id: "kyber-network"
+    },
+    "0x1234567461d3f8db7496581774bd869c83d51c93": {
+        id: "bitclave"
     }
 }
