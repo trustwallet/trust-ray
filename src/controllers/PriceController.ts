@@ -89,7 +89,7 @@ export class PriceController {
             }
 
         })
-        
+
         return foundValues.map((obj) => {
             return {
                 id: obj.id || "0",
@@ -98,7 +98,7 @@ export class PriceController {
                 price: obj["price_" + currency.toLowerCase()] || "0",
                 percent_change_24h: obj.percent_change_24h || "",
                 contract: obj.contract || "",
-                image: obj.image || this.imageForPrice(obj.id),
+                image: obj.image.toLocaleLowerCase() || this.imageForPrice(obj.id),
             }
         })
     }
