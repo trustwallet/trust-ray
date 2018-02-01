@@ -89,7 +89,7 @@ export class PriceController {
             }
 
         })
-        console.log("foundValues", foundValues)
+        
         return foundValues.map((obj) => {
             return {
                 id: obj.id || "0",
