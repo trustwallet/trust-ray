@@ -78,12 +78,12 @@ export class PriceController {
                     } 
                 });
 
-                if (!foundSymbols.has(token.symbol.toLocaleLowerCase())) {
-                    foundSymbols.add(token.symbol.toLocaleLowerCase());
+                if (!foundSymbols.has(token.symbol.toLowerCase())) {
+                    foundSymbols.add(token.symbol.toLowerCase());
                     foundValues.push({
                             symbol: token.symbol,
                             contract: token.contract,
-                            image: `https://raw.githubusercontent.com/TrustWallet/tokens/master/images/${token.contract}.png`,
+                            image: `https://raw.githubusercontent.com/TrustWallet/tokens/master/images/${token.contract.toLowerCase()}.png`,
                     });
                 }
             }
@@ -98,7 +98,7 @@ export class PriceController {
                 price: obj["price_" + currency.toLowerCase()] || "0",
                 percent_change_24h: obj.percent_change_24h || "",
                 contract: obj.contract || "",
-                image: obj.image.toLocaleLowerCase() || this.imageForPrice(obj.id),
+                image: obj.image || this.imageForPrice(obj.id),
             }
         })
     }
