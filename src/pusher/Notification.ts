@@ -36,7 +36,7 @@ export class Notification {
 
             if (addresses.indexOf(wallet) !== -1) {
                 if (transactionType === "transfer") {
-                    const title = `${transactionAction} ${this.getValueInEth(transaction.value)} ${this.networkSymbol} from`;
+                    const title = `${transactionAction} ${transaction.value} ${this.networkSymbol} from`;
                     const ethMessage = this.createMeassage(title, from);
 
                     return this.send(token, ethMessage).then((notificationResult: any) => {
@@ -46,7 +46,7 @@ export class Notification {
 
                 if (transactionType === "token_transfer") {
                     const operations = transaction.operations[0];
-                    const title = `${transactionAction} ${this.getValueInEth(operations.value)} ${operations.contract.symbol} from`;
+                    const title = `${transactionAction} ${operations.value} ${operations.contract.symbol} from`;
                     const tokenMessage = this.createMeassage(title, from);
 
                     return this.send(token, tokenMessage).then((notificationResult: any) => {
