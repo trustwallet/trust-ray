@@ -7,6 +7,11 @@ import { Promise } from "bluebird";
 const listOfTokens = require("../common/tokens/contracts");
 const CoinMarketCap = require("coinmarketcap-api");
 
+interface Token {
+    contract: string;
+    symbol: string;
+}
+
 export class PriceController {
     private client = new CoinMarketCap();
     private refreshLimit = 600;
@@ -34,8 +39,7 @@ export class PriceController {
 
     getTokenPrices = (req: Request, res: Response) => {
         const currency = req.body.currency || "USD";
-        const symbols = req.body.tokens.map((item: any) => item.symbol);
-
+        const symbols = req.body.tokens.map((item: Token) => item.symbol);
         this.getRemotePrices(currency).then((prices: any) => {
             sendJSONresponse(res, 200, {
                 status: true,
@@ -49,7 +53,7 @@ export class PriceController {
         });
     }
 
-    private filterTokenPrices(prices: any[], tokens: any[], currency: string): any {
+    private filterTokenPrices(prices: any[], tokens: Token[], currency: string): any {
         const result = prices.reduce(function(map, obj) {
             map[obj.id] = obj;
             return map;
@@ -57,33 +61,44 @@ export class PriceController {
         const foundValues: any[] = [];
         const foundSymbols = new Set<string>();
 
-        tokens.forEach((token) => {
+        tokens.forEach((token: Token) => {
             const existedToken = listOfTokens[token.contract.toLowerCase()]
+
             if (existedToken) {
                 const price = result[existedToken.id];
-                foundValues.push({price, token});
-            } else {
+                foundValues.push({...price, ...token});
+            } 
+            else {
+                const tokenSymbol = token.symbol.toLowerCase()
                 prices.forEach(price => {
-                    const priceSymbol =  price.symbol.toLowerCase()
-                    const tokenSymbol = token.symbol.toLowerCase()
+                    const priceSymbol = price.symbol.toLowerCase()
                     if (priceSymbol === tokenSymbol && !foundSymbols.has(tokenSymbol)) {
-                        foundSymbols.add(tokenSymbol);
-                        foundValues.push({price, token});
-                    }
-                })
+                        foundSymbols.add(tokenSymbol);   
+                        foundValues.push({...price, ...token});
+                    } 
+                });
+
+                if (!foundSymbols.has(tokenSymbol)) {
+                    foundSymbols.add(tokenSymbol);
+                    foundValues.push({
+                            symbol: token.symbol,
+                            contract: token.contract,
+                            image: `https://raw.githubusercontent.com/TrustWallet/tokens/master/images/${token.contract.toLowerCase()}.png`,
+                    });
+                }
             }
+
         })
-        
+
         return foundValues.map((obj) => {
-            const priceKey = "price_" + currency.toLowerCase();
             return {
-                id: obj.price.id,
-                name: obj.price.name,
-                symbol: obj.price.symbol,
-                price: obj.price[priceKey],
-                percent_change_24h: obj.price.percent_change_24h || "0",
-                contract: obj.token.contract,
-                image: this.imageForPrice(obj.price),
+                id: obj.id || "0",
+                name: obj.name || "",
+                symbol: obj.symbol || "",
+                price: obj["price_" + currency.toLowerCase()] || "0",
+                percent_change_24h: obj.percent_change_24h || "",
+                contract: obj.contract || "",
+                image: obj.image || this.imageForPrice(obj.id),
             }
         })
     }
@@ -95,7 +110,7 @@ export class PriceController {
         const foundSymbols = new Set<any>();
         const foundPrices: any[] = [];
         prices.forEach(price => {
-            const priceSymbol = price.symbol;
+            const priceSymbol: string = price.symbol;
 
             if (ignoredSymbols.has(priceSymbol)) return;
 
@@ -142,8 +157,8 @@ export class PriceController {
         })
     }
 
-    private imageForPrice(token: {id: string}) {
-        return this.coinmarketcapImageURL + token.id + ".png";
+    private imageForPrice(id: string) {
+        return this.coinmarketcapImageURL + id + ".png";
     }
 
     private getCoinMarketCapPrices(currency: string) {
