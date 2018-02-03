@@ -53,7 +53,6 @@ export class Server {
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({ extended: true }));
         this.app.use(expressValidator());
-        this.app.use(session({
 
         // configure winston logger
         winston.add(
