@@ -1,7 +1,6 @@
 
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import * as session from "express-session";
 import * as dotenv from "dotenv";
 import * as logger from "morgan";
 import * as mongo from "connect-mongo";
@@ -19,8 +18,6 @@ const cors = require("cors");
 dotenv.config();
 
 const port = process.env.PORT || 8000;
-const sessionSecret = "ashdfjhasdlkjfhalksdjhflak";
-const MongoStore = mongo(session);
 const parser = new BlockchainParser();
 const pusher = new PusherScanner();
 
@@ -56,15 +53,6 @@ export class Server {
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({ extended: true }));
         this.app.use(expressValidator());
-        this.app.use(session({
-            resave: true,
-            saveUninitialized: true,
-            secret: sessionSecret,
-            store: new MongoStore({
-                url: process.env.MONGODB_URI,
-                autoReconnect: true
-            })
-        }));
 
         // configure winston logger
         winston.add(
