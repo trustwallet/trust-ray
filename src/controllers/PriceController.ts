@@ -69,17 +69,17 @@ export class PriceController {
                 foundValues.push({...price, ...token});
             } 
             else {
+                const tokenSymbol = token.symbol.toLowerCase()
                 prices.forEach(price => {
                     const priceSymbol = price.symbol.toLowerCase()
-                    const tokenSymbol = token.symbol.toLowerCase()
                     if (priceSymbol === tokenSymbol && !foundSymbols.has(tokenSymbol)) {
                         foundSymbols.add(tokenSymbol);   
                         foundValues.push({...price, ...token});
                     } 
                 });
 
-                if (!foundSymbols.has(token.symbol.toLowerCase())) {
-                    foundSymbols.add(token.symbol.toLowerCase());
+                if (!foundSymbols.has(tokenSymbol)) {
+                    foundSymbols.add(tokenSymbol);
                     foundValues.push({
                             symbol: token.symbol,
                             contract: token.contract,
