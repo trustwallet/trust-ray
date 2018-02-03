@@ -127,7 +127,7 @@ export class PriceController {
                 symbol: price.symbol,
                 price: price[priceKey],
                 percent_change_24h: price.percent_change_24h || "0",
-                image: this.imageForPrice(price),
+                image: this.imageForPrice(price.id),
             }
         })
     }
