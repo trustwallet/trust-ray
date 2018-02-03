@@ -73,7 +73,6 @@
     "xss-filters": "^1.2.7"
   },
   "devDependencies": {
-    "chai-bignumber": "^2.0.2",
     "nodemon": "^1.14.3"
   }
 }
