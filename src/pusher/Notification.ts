@@ -3,6 +3,7 @@ import { Error } from "mongoose";
 import * as winston from "winston";
 import { Promise } from "bluebird";
 import { Config } from "../common/Config";
+import { getValueInEth } from "../common/ValueConverter";
 
 export class Notification {
     private push: any;
@@ -25,7 +26,7 @@ export class Notification {
 
     process(transaction: any, device: any) {
         winston.info(`Processing device transaction block: ${transaction.blockNumber} id: ${transaction._id}, ${JSON.stringify(device)}`);
-
+        
         const transactionType = this.getTransactionType(transaction);
         const addresses: string[] = transaction.addresses;
         const from: string = addresses[0];
@@ -36,7 +37,7 @@ export class Notification {
 
             if (addresses.indexOf(wallet) !== -1) {
                 if (transactionType === "transfer") {
-                    const title = `${transactionAction} ${this.getValueInEth(transaction.value)} ${this.networkSymbol} from`;
+                    const title = `${transactionAction} ${getValueInEth(transaction.value, 18)} ${this.networkSymbol} from`;
                     const ethMessage = this.createMeassage(title, from);
 
                     return this.send(token, ethMessage).then((notificationResult: any) => {
@@ -46,7 +47,8 @@ export class Notification {
 
                 if (transactionType === "token_transfer") {
                     const operations = transaction.operations[0];
-                    const title = `${transactionAction} ${this.getValueInEth(operations.value)} ${operations.contract.symbol} from`;
+                    const decimal = operations.contract.decimals;
+                    const title = `${transactionAction} ${getValueInEth(operations.value, decimal)} ${operations.contract.symbol} from`;
                     const tokenMessage = this.createMeassage(title, from);
 
                     return this.send(token, tokenMessage).then((notificationResult: any) => {
@@ -56,10 +58,6 @@ export class Notification {
             }
         });
     };
-
-    private getValueInEth(value: string): string {
-        return Config.web3.utils.fromWei(value);
-    }
 
     private createMeassage(title: string, from: string): {title: string, body: string, topic: string} {
         return {
