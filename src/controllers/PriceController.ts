@@ -216,9 +216,8 @@ export class PriceController {
                     sortedPrices.push(price);
                 }
             });
-            return sortedPrices;
         }
-
+        
         return sortedPrices;
     }
 
