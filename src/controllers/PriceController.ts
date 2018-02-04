@@ -3,6 +3,7 @@ import { sendJSONresponse } from "../common/Utils";
 import * as winston from "winston";
 const axios = require("axios");
 import { Promise } from "bluebird";
+import { Config } from "../common/Config";
 
 const listOfTokens = require("../common/tokens/contracts");
 const CoinMarketCap = require("coinmarketcap-api");
@@ -91,7 +92,7 @@ export class PriceController {
                         symbol: tokenSymbol,
                         price: altToken.current_price.toString(),
                         percent_change_24h: altToken['24_hours_change_%'].toString().substr(0, 4),
-                        contract: altToken.contract,
+                        contract: Config.web3.utils.toChecksumAddress(altToken.contract),
                         image: this.getImageUrl(altToken.contract)
                     })
                 }
