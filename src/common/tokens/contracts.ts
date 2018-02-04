@@ -49,5 +49,15 @@ module.exports = {
     },
     "0x6f6deb5db0c4994a8283a01d6cfeeb27fc3bbe9c": {
         id: "smartbillions"
+    },
+    "0x02eb3da777eb3ff40914fd3d5c249123cc2df04a": {
+        id: "edu-stars-coin",
+        name: "Edu Stars Coin",
+        symbol: "EDSTR"
+    },
+    "0xa7adc14fc624617a18e5a476d80a7fefe90a11b7": {
+        id: "edustar-lite",
+        name: "Edustar Lite",
+        symbol: "EDSLTE"
     }
 }
