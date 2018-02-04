@@ -88,7 +88,7 @@ export class PriceController {
                     name:  existedToken.name,
                     symbol: tokenSymbol,
                     price: altToken.current_price,
-                    percent_change_24h: altToken['24_hours_change_%'],
+                    percent_change_24h: altToken['24_hours_change_%'].toString(),
                     contract: altToken.contract,
                     image: this.getImageUrl(altToken.contract)
                 })
