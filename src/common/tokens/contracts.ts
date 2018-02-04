@@ -59,5 +59,20 @@ module.exports = {
         id: "edustar-lite",
         name: "Edustar Lite",
         symbol: "EDSLTE"
+    },
+    "0xddcaf6c604592b37f775f3d303a02013bbd7ad93": {
+        id: "",
+        name: "CWC",
+        symbol: "CWC"
+    },
+    "0x4c54a332e3c962d5e513c3cc927c4ccf3452c79c": {
+        id: "",
+        name: "UET",
+        symbol: "UET"
+    },
+    "0xc8110527a0b803c0ba15456861d720864915b6ed": {
+        id: "",
+        name: "DET",
+        symbol: "DET"
     }
 }
