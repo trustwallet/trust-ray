@@ -3,6 +3,7 @@ import { sendJSONresponse } from "../common/Utils";
 import * as winston from "winston";
 const axios = require("axios");
 import { Promise } from "bluebird";
+import { Config } from "../common/Config";
 
 const listOfTokens = require("../common/tokens/contracts");
 const CoinMarketCap = require("coinmarketcap-api");
@@ -43,6 +44,7 @@ export class PriceController {
     getTokenPrices = (req: Request, res: Response) => {
         const currency = req.body.currency || "USD";
         const symbols = req.body.tokens.map((item: Token) => item.symbol);
+
         this.getRemotePrices(currency).then((prices: any) => {
             sendJSONresponse(res, 200, {
                 status: true,
@@ -59,7 +61,7 @@ export class PriceController {
     private filterTokenPrices(prices: any[], tokens: Token[], currency: string): any {
         const pricesCoinmarket = prices[0];
         const pricesAlternative = prices[1];
-        
+
         const result = pricesCoinmarket.reduce(function(map:any, obj:any) {
             map[obj.id] = obj;
             return map;
@@ -79,30 +81,31 @@ export class PriceController {
 
             if (existedToken) {
                 const altToken = alternativeResult[contract];
-                const tokenSymbol = existedToken.symbol;
 
-                foundSymbols.add(tokenSymbol.toLowerCase());
-
-                foundValues.push({
-                    id: existedToken.id,
-                    name:  existedToken.name,
-                    symbol: tokenSymbol,
-                    price: altToken.current_price.toString(),
-                    percent_change_24h: altToken['24_hours_change_%'].toString(),
-                    contract: altToken.contract,
-                    image: this.getImageUrl(altToken.contract)
-                })
+                if (altToken) {
+                    const tokenSymbol = existedToken.symbol;
+                    foundSymbols.add(tokenSymbol.toLowerCase());
+    
+                    foundValues.push({
+                        id: existedToken.id,
+                        name:  existedToken.name,
+                        symbol: tokenSymbol,
+                        price: altToken.current_price.toString(),
+                        percent_change_24h: altToken['24_hours_change_%'].toString().substr(0, 4),
+                        contract: Config.web3.utils.toChecksumAddress(altToken.contract),
+                        image: this.getImageUrl(altToken.contract)
+                    })
+                }
             }
         });
 
         tokens.forEach((token: Token) => {
             const existedToken = listOfTokens[token.contract.toLowerCase()]
-
+            
             if (existedToken && !foundSymbols.has(existedToken.symbol.toLowerCase())) {
                 const price = result[existedToken.id];
                 foundValues.push({...price, ...token});
-            } 
-            else {
+            }else {
                 const tokenSymbol = token.symbol.toLowerCase()
                 pricesCoinmarket.forEach((price:any) => {
                     const priceSymbol = price.symbol.toLowerCase()
@@ -216,7 +219,6 @@ export class PriceController {
                     sortedPrices.push(price);
                 }
             });
-            return sortedPrices;
         }
 
         return sortedPrices;
