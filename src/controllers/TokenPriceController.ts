@@ -84,6 +84,7 @@ export class TokenPriceController {
 
                 if (altToken) {
                     const tokenSymbol = existedToken.symbol;
+                    const priceChange24 = altToken['24_hours_change_%'].toString();
                     foundSymbols.add(tokenSymbol.toLowerCase());
     
                     foundValues.push({
@@ -91,7 +92,7 @@ export class TokenPriceController {
                         name:  existedToken.name,
                         symbol: tokenSymbol,
                         price: altToken.current_price.toString(),
-                        percent_change_24h: altToken['24_hours_change_%'].toString().substr(0, 4),
+                        percent_change_24h: priceChange24.substr(0, priceChange24.indexOf(".") + 2),
                         contract: Config.web3.utils.toChecksumAddress(altToken.contract),
                         image: this.getImageUrl(altToken.contract)
                     })
