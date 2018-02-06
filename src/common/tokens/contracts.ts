@@ -91,5 +91,9 @@ module.exports = {
         id: "",
         name: "DET",
         symbol: "DET"
+    },
+    "0x2c4e8f2d746113d0696ce89b35f0d8bf88e0aeca": {
+        id: "simple-token",
+        symbol: "ST"
     }
 }
