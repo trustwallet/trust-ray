@@ -12,11 +12,10 @@ import * as fs from "fs";
 import * as winston from "winston";
 import { BlockchainParser } from "./common/BlockchainParser";
 import { Config } from "./common/Config";
-import { PusherScanner } from "./pusher/PusherScanner"
+import { PusherScanner } from "./pusher/PusherScanner";
+
 const cors = require("cors");
 const config = require("config");
-// Load environment variables from .env file, where API keys and passwords are configured.
-
 const port = process.env.PORT || 8000;
 const parser = new BlockchainParser();
 const pusher = new PusherScanner();
