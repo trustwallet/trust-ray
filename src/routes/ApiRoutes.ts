@@ -4,7 +4,6 @@ import { TokenController } from "../controllers/TokenController";
 import { StatusController } from "../controllers/StatusController";
 import { Pusher } from "../controllers/PusherController";
 import { PriceController } from "../controllers/PriceController";
-import { MarketplaceController } from "../controllers/MarketplaceController";
 
 const router = express["Router"]();
 
@@ -13,7 +12,6 @@ const tokenController = new TokenController();
 const statusController = new StatusController();
 const pusherController = new Pusher();
 const priceController = new PriceController();
-const marketplaceController = new MarketplaceController();
 
 // URLs for transactions
 router.get("/", statusController.getStatus);
@@ -30,8 +28,6 @@ router.delete("/push/unregister", pusherController.unregister);
 
 router.get("/prices", priceController.getPrices);
 router.post("/tokenPrices", priceController.getTokenPrices);
-
-router.get("/marketplace", marketplaceController.getMarkets);
 
 export {
     router
