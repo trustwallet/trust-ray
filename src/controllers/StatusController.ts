@@ -8,6 +8,7 @@ import { Config } from "../common/Config";
 
 import * as winston from "winston";
 const packageJSON = require("../../package.json");
+const config = require("config");
 
 export class StatusController {
 
@@ -44,7 +45,7 @@ export class StatusController {
                 },
                 version: packageJSON.version,
                 config: {
-                    rpc_server: process.env.RPC_SERVER,
+                    rpc_server: config.get("RPC"),
                     network_id: networkId
                 }
             });

@@ -11,12 +11,13 @@ node_modules
 # Ignore local notes folder
 notes
 
-$ Ignore the .env file for the server
-.env
-
 # Ignore local logs
 *.log
 
 dist
 
 docker/data/
+
+# Ignore config enviroment
+config/test.json
+config/development.json
