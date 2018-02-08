@@ -19,11 +19,11 @@ export class PusherScanner {
                 winston.info(`Found ${transactions.length} transactions in block ${block}`);
 
                  return Promise.mapSeries(transactions, (transaction) => {
-                    this.findDevicesByAddresses(transaction.addresses).then((devices: any[]) => {
+                    return this.findDevicesByAddresses(transaction.addresses).then((devices: any[]) => {
                         if (devices.length > 0) {
-                            Promise.mapSeries(devices, (device: any) => {
+                            return Promise.mapSeries(devices, (device: any) => {
                                 const notification = new Notification();
-                                notification.process(transaction, device);
+                                return notification.process(transaction, device);
                             });
                         }
                     }).catch((error: Error) => {
@@ -46,7 +46,7 @@ export class PusherScanner {
                 this.start();
             });
         }).catch((error: Error) => {
-            winston.error("Error getPusherLatestBlock ", error);
+            winston.error("Error getPusherLatestBlock ", JSON.stringify(error));
             utils.setDelay(this.onErrordelay).then(() => {
             winston.info(`Pusher will retry in ${this.onErrordelay}`);
                 this.start();
