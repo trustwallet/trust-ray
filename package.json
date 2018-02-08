@@ -5,10 +5,10 @@
   "description": "API for Trust Ethereum Wallet",
   "author": "Philipp Rieger",
   "scripts": {
-    "start": "npm run watch-ts && npm run tslint",
+    "start": "cross-env NODE_ENV=development npm run watch-ts && npm run tslint",
     "build": "tsc",
     "watch-ts": "tsc-watch --onSuccess \"nodemon dist/Server.js\"",
-    "test": "mocha --compilers ts:ts-node/register",
+    "test": "cross-env NODE_ENV=test mocha --compilers ts:ts-node/register",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
     "tslint-fix": "tslint -c tslint.json -p tsconfig.json --fix",
     "debug": "npm run build && npm run watch-debug",
