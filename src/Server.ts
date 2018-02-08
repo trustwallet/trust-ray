@@ -13,6 +13,7 @@ import { BlockchainParser } from "./common/BlockchainParser";
 import { Config } from "./common/Config";
 import { PusherScanner } from "./pusher/PusherScanner";
 
+const config = require("config");
 const cors = require("cors");
 const port = process.env.PORT || 8000;
 const parser = new BlockchainParser();
@@ -67,7 +68,7 @@ export class Server {
     }
 
     private setupDatabase() {
-        this.db = new Database(process.env.MONGODB_URI);
+        this.db = new Database(config.get("Mongo.uri"));
         this.db.connect();
     }
 
