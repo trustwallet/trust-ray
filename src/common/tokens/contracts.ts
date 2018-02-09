@@ -95,5 +95,10 @@ module.exports = {
     "0x2c4e8f2d746113d0696ce89b35f0d8bf88e0aeca": {
         id: "simple-token",
         symbol: "ST"
+    },
+    "0x75c79b88facE8892E7043797570c390bc2Db52A7": {
+        id: "",
+        name: "Gas Files",
+        symbol: "GAS"
     }
 }
