@@ -58,18 +58,22 @@ export class PusherScanner {
         return Device.find({wallets: {$in: addresses}});
     }
 
-    private getNextPusherBlock(): Promise<number> {
+    private getNextPusherBlock(): Promise<any> {
         return LastParsedBlock.findOne({}).then((lastParsedBlock: any) => {
             return new Promise((resolve, reject) => {
                 const lastPusherBlock = lastParsedBlock.lastPusherBlock;
                 const lastBlock = lastParsedBlock.lastBlock;
 
                 if (!lastBlock) return reject(`No lastBlock found in DB`);
+                //TODO - correct promise rejection
+                // if (!lastBlock) return reject(new Error(`No lastBlock found in DB`));
 
                 if (!lastPusherBlock && lastBlock) return resolve(lastBlock);
 
                 if (lastPusherBlock >= lastBlock) {
                     return reject(`lastPusherBlock ${lastPusherBlock - lastBlock} ahead of lastBlock, waiting for new block in DB`);
+                    //TODO - correct promise rejection
+                    // return reject(new Error(`lastPusherBlock ${lastPusherBlock - lastBlock} ahead of lastBlock, waiting for new block in DB`));
                 }
 
                 if (lastPusherBlock < lastBlock) return resolve(lastPusherBlock + 1);
