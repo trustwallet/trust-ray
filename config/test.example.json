@@ -2,7 +2,7 @@
     "Mongo": {
         "uri": "FILL_ME_IN"
     },
-    "RPC": "FILL_ME_IN",
+    "RPC_SERVER": "FILL_ME_IN",
     "Network_symbol": "FILL_ME_IN",
     "Pusher": {
         "APN": {
