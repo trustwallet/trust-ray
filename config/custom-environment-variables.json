@@ -3,13 +3,13 @@
         "uri": "MONGODB_URI"
     },
     "RPC_SERVER": "RPC_SERVER",
-    "Network_symbol": "NETWORK_SYMBOL",
-    "Pusher": {
+    "NETWORK_SYMBOL": "NETWORK_SYMBOL",
+    "PUSHER": {
         "APN": {
-            "key": "APN_KEY",
-            "keyId": "APN_KEYID",
-            "teamId": "APN_TEAMID",
-            "bundle": "APN_BUNDLEID"
+            "KEY": "APN_KEY",
+            "KEYID": "APN_KEYID",
+            "TEAMID": "APN_TEAMID",
+            "BUNDLE": "APN_BUNDLEID"
         }
     }
 }

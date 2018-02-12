@@ -68,7 +68,7 @@ export class Server {
     }
 
     private setupDatabase() {
-        this.db = new Database(config.get("Mongo.uri"));
+        this.db = new Database(config.get("MONGO.URI"));
         this.db.connect();
     }
 

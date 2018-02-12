@@ -9,13 +9,13 @@ const config = require("config");
 
 export class Notification {
     private push: any;
-    private networkSymbol = config.get("Network_symbol") || "ETH";
+    private networkSymbol = config.get("NETWORK_SYMBOL") || "ETH";
     private settings = {
         apn: {
             token: {
-                key: Buffer.from(config.get("Pusher.APN.key"), "base64").toString(),
-                keyId: config.get("Pusher.APN.keyId"),
-                teamId: config.get("Pusher.APN.teamId"),
+                key: Buffer.from(config.get("PUSHER.APN.KEY"), "base64").toString(),
+                keyId: config.get("PUSHER.APN.KEYID"),
+                teamId: config.get("PUSHER.APN.TEAMID"),
             },
             production: true
         }
@@ -64,7 +64,7 @@ export class Notification {
         return {
             title,
             body: from,
-            topic: config.get("Pusher.APN.bundle"),
+            topic: config.get("PUSHER.APN.BUNDLE"),
         }
     }
 
