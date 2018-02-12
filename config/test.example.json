@@ -1,6 +1,6 @@
 {
-    "Mongo": {
-        "uri": "FILL_ME_IN"
+    "MONGO": {
+        "URI": "FILL_ME_IN"
     },
     "RPC_SERVER": "FILL_ME_IN",
     "NETWORK_SYMBOL": "FILL_ME_IN",
