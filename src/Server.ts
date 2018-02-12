@@ -1,7 +1,6 @@
 
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import * as dotenv from "dotenv";
 import * as logger from "morgan";
 import * as mongo from "connect-mongo";
 import * as errorHandler from "errorhandler";
@@ -12,11 +11,10 @@ import * as fs from "fs";
 import * as winston from "winston";
 import { BlockchainParser } from "./common/BlockchainParser";
 import { Config } from "./common/Config";
-import { PusherScanner } from "./pusher/PusherScanner"
-const cors = require("cors");
-// Load environment variables from .env file, where API keys and passwords are configured.
-dotenv.config();
+import { PusherScanner } from "./pusher/PusherScanner";
 
+const config = require("config");
+const cors = require("cors");
 const port = process.env.PORT || 8000;
 const parser = new BlockchainParser();
 const pusher = new PusherScanner();
@@ -70,7 +68,7 @@ export class Server {
     }
 
     private setupDatabase() {
-        this.db = new Database(process.env.MONGODB_URI);
+        this.db = new Database(config.get("MONGO.URI"));
         this.db.connect();
     }
 

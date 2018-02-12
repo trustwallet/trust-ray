@@ -1,20 +1,21 @@
-const PushNotifications = require("node-pushnotifications");
 import { Error } from "mongoose";
 import * as winston from "winston";
 import { Promise } from "bluebird";
 import { Config } from "../common/Config";
 import { getValueInEth } from "../common/ValueConverter";
 
+const PushNotifications = require("node-pushnotifications");
+const config = require("config");
+
 export class Notification {
     private push: any;
-    private networkSymbol = process.env.NETWORK_SYMBOL || "ETH";
-
+    private networkSymbol = config.get("NETWORK_SYMBOL") || "ETH";
     private settings = {
         apn: {
             token: {
-                key: Buffer.from(process.env.APN_KEY, "base64").toString(),
-                keyId: process.env.APN_KEYID,
-                teamId: process.env.APN_TEAMID,
+                key: Buffer.from(config.get("PUSHER.APN.KEY"), "base64").toString(),
+                keyId: config.get("PUSHER.APN.KEYID"),
+                teamId: config.get("PUSHER.APN.TEAMID"),
             },
             production: true
         }
@@ -63,7 +64,7 @@ export class Notification {
         return {
             title,
             body: from,
-            topic: process.env.APN_BUNDLEID,
+            topic: config.get("PUSHER.APN.BUNDLE"),
         }
     }
 

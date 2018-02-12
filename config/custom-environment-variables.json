@@ -1,0 +1,15 @@
+{
+    "MONGO": {
+        "URI": "MONGODB_URI"
+    },
+    "RPC_SERVER": "RPC_SERVER",
+    "NETWORK_SYMBOL": "NETWORK_SYMBOL",
+    "PUSHER": {
+        "APN": {
+            "KEY": "APN_KEY",
+            "KEYID": "APN_KEYID",
+            "TEAMID": "APN_TEAMID",
+            "BUNDLE": "APN_BUNDLEID"
+        }
+    }
+}

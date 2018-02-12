@@ -5,8 +5,9 @@ import { TransactionOperation } from "../models/TransactionOperationModel";
 import { ERC20Contract } from "../models/Erc20ContractModel";
 import { LastParsedBlock } from "../models/LastParsedBlockModel";
 import { Config } from "../common/Config";
-
 import * as winston from "winston";
+
+const config = require("config");
 const packageJSON = require("../../package.json");
 
 export class StatusController {
@@ -44,7 +45,7 @@ export class StatusController {
                 },
                 version: packageJSON.version,
                 config: {
-                    rpc_server: process.env.RPC_SERVER,
+                    rpc_server: config.get("RPC_SERVER"),
                     network_id: networkId
                 }
             });

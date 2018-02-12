@@ -19,11 +19,11 @@ export class PusherScanner {
                 winston.info(`Found ${transactions.length} transactions in block ${block}`);
 
                  return Promise.mapSeries(transactions, (transaction) => {
-                    this.findDevicesByAddresses(transaction.addresses).then((devices: any[]) => {
+                    return this.findDevicesByAddresses(transaction.addresses).then((devices: any[]) => {
                         if (devices.length > 0) {
-                            Promise.mapSeries(devices, (device: any) => {
+                            return Promise.mapSeries(devices, (device: any) => {
                                 const notification = new Notification();
-                                notification.process(transaction, device);
+                                return notification.process(transaction, device);
                             });
                         }
                     }).catch((error: Error) => {
@@ -46,7 +46,7 @@ export class PusherScanner {
                 this.start();
             });
         }).catch((error: Error) => {
-            winston.error("Error getPusherLatestBlock ", error);
+            winston.error("Error getPusherLatestBlock ", JSON.stringify(error));
             utils.setDelay(this.onErrordelay).then(() => {
             winston.info(`Pusher will retry in ${this.onErrordelay}`);
                 this.start();
@@ -58,18 +58,22 @@ export class PusherScanner {
         return Device.find({wallets: {$in: addresses}});
     }
 
-    private getNextPusherBlock(): Promise<number> {
+    private getNextPusherBlock(): Promise<any> {
         return LastParsedBlock.findOne({}).then((lastParsedBlock: any) => {
             return new Promise((resolve, reject) => {
                 const lastPusherBlock = lastParsedBlock.lastPusherBlock;
                 const lastBlock = lastParsedBlock.lastBlock;
 
                 if (!lastBlock) return reject(`No lastBlock found in DB`);
+                //TODO - correct promise rejection
+                // if (!lastBlock) return reject(new Error(`No lastBlock found in DB`));
 
                 if (!lastPusherBlock && lastBlock) return resolve(lastBlock);
 
                 if (lastPusherBlock >= lastBlock) {
                     return reject(`lastPusherBlock ${lastPusherBlock - lastBlock} ahead of lastBlock, waiting for new block in DB`);
+                    //TODO - correct promise rejection
+                    // return reject(new Error(`lastPusherBlock ${lastPusherBlock - lastBlock} ahead of lastBlock, waiting for new block in DB`));
                 }
 
                 if (lastPusherBlock < lastBlock) return resolve(lastPusherBlock + 1);
