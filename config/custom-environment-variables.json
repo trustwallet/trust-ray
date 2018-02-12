@@ -2,7 +2,7 @@
     "Mongo": {
         "uri": "MONGODB_URI"
     },
-    "RPC": "MONGODB_URI",
+    "RPC_SERVER": "RPC_SERVER",
     "Network_symbol": "NETWORK_SYMBOL",
     "Pusher": {
         "APN": {

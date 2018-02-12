@@ -45,7 +45,7 @@ export class StatusController {
                 },
                 version: packageJSON.version,
                 config: {
-                    rpc_server: config.get("Network_symbol"),
+                    rpc_server: config.get("RPC_SERVER"),
                     network_id: networkId
                 }
             });
