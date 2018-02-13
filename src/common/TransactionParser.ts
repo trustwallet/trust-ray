@@ -10,6 +10,9 @@ const erc20ABIDecoder = require("abi-decoder");
 erc20ABIDecoder.addABI(erc20abi);
 
 export class TransactionParser {
+    private OperationTypes = {
+        Transfer: "Transfer",
+    }
 
     public parseTransactions(blocks: any) {
         if (blocks.length === 0) return Promise.resolve();
@@ -83,7 +86,7 @@ export class TransactionParser {
             addresses: [from, to]
         };
     }
-     
+
     // ========================== OPERATION PARSING ========================== //
 
     public parseTransactionOperations(transactions: any[], contracts: any[]) {
@@ -91,27 +94,37 @@ export class TransactionParser {
 
         return Promise.map(transactions, (transaction) => {
             const decodedLogs = erc20ABIDecoder.decodeLogs(transaction.receipt.logs).filter((log: any) => log);
+
             if (decodedLogs.length > 0) {
-                const contract = contracts.find((c: any) => c.address === decodedLogs[0].address.toLowerCase());
-                if (contract) {
-                    const transfer = this.parseEventLog(decodedLogs[0]);
-                    return this.findOrCreateTransactionOperation(transaction._id, transfer.from, transfer.to, transfer.value, contract._id);
-                }
+                return Promise.mapSeries(decodedLogs, (decodedLog: any, index: number) => {
+                    if (decodedLog.name === this.OperationTypes.Transfer) {
+                        const contract = contracts.find((c: any) => c.address === decodedLog.address.toLowerCase());
+                        if (contract) {
+                            const transfer = this.parseEventLog(decodedLog);
+                            return this.findOrCreateTransactionOperation(transaction._id, index, transfer.from, transfer.to, transfer.value, contract._id);
+                        }
+                    }
+                })
+
             }
         }).catch((err: Error) => {
             winston.error(`Could not parse transaction operations with error: ${err}`);
         });
     }
 
-    private createOperationObject(transactionId: any, transfer: any, erc20ContractId?: any) {
+    private createOperationObject(transactionId: string, index: number, from: string, to: string, value: string, erc20ContractId?: any) {
         return {
-            transactionId: transactionId.toLowerCase(),
+            transactionId: this.getIndexedOperation(transactionId, index),
             type: "token_transfer",
-            from: transfer.from,
-            to: transfer.to,
-            value: transfer.value,
+            from: from.toLocaleLowerCase(),
+            to,
+            value,
             contract: erc20ContractId
         };
+    }
+
+    private getIndexedOperation(transactionId: string, index: number): string {
+        return `${transactionId}-${index}`.toLowerCase();
     }
 
     private parseEventLog(eventLog: any): {from: string, to: string, value: string} {
@@ -122,19 +135,14 @@ export class TransactionParser {
         }
     }
 
-    private findOrCreateTransactionOperation(transactionId: string, from: string, to: string, value: string, erc20ContractId?: any): Promise<any> {
-        const operation = {
-            transactionId: transactionId,
-            type: "token_transfer",
-            from: from.toLocaleLowerCase(),
-            to,
-            value,
-            contract: erc20ContractId,
-        };
+    private findOrCreateTransactionOperation(transactionId: string, index: number, from: string, to: string, value: string, erc20ContractId?: any): Promise<any> {
 
-        return TransactionOperation.findOneAndUpdate({transactionId: transactionId}, operation, {upsert: true, new: true})
+        const operation = this.createOperationObject(transactionId, index, from, to, value, erc20ContractId);
+        const indexedOperation = this.getIndexedOperation(transactionId, index);
+
+        return TransactionOperation.findOneAndUpdate({transactionId: indexedOperation}, operation, {upsert: true, new: true})
             .then((operation: any) => {
-                return Transaction.findOneAndUpdate({_id: operation.transactionId}, {operations: [operation._id], "addresses.1": operation.to})
+                return Transaction.findOneAndUpdate({_id: transactionId}, {$push: {operations: operation._id}, "addresses.1": operation.to})
             .catch((error: Error) => {
                 winston.error(`Could not update operation and address to transactionID ${transactionId} with error: ${error}`);
             })
