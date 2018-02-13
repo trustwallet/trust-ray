@@ -2,7 +2,7 @@ module.exports = {
     "0x1d462414fe14cf489c7a21cac78509f4bf8cd7c0": {
         id: "canyacoin",
         symbol: "CAN"
-    }, 
+    },
     "0x5f3789907b35dce5605b00c0be0a7ecdbfa8a841": {
         id: "content-and-ad-network",
         symbol: "CAN"
