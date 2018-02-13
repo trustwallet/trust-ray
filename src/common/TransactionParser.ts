@@ -4,6 +4,7 @@ import { TransactionOperation } from "../models/TransactionOperationModel";
 import { removeScientificNotationFromNumbString } from "./Utils";
 import { Config } from "./Config";
 import { Promise } from "bluebird";
+import { IDecodedLog, IContract, ITransaction } from "./CommonInterfaces";
 
 const erc20abi = require("./contracts/Erc20Abi");
 const erc20ABIDecoder = require("abi-decoder");
@@ -89,16 +90,16 @@ export class TransactionParser {
 
     // ========================== OPERATION PARSING ========================== //
 
-    public parseTransactionOperations(transactions: any[], contracts: any[]) {
+    public parseTransactionOperations(transactions: ITransaction[], contracts: IContract[]) {
         if (!transactions || !contracts) return Promise.resolve();
 
         return Promise.map(transactions, (transaction) => {
-            const decodedLogs = erc20ABIDecoder.decodeLogs(transaction.receipt.logs).filter((log: any) => log);
+            const decodedLogs = erc20ABIDecoder.decodeLogs(transaction.receipt.logs).filter((decodedLog?: IDecodedLog) => decodedLog);
 
             if (decodedLogs.length > 0) {
-                return Promise.mapSeries(decodedLogs, (decodedLog: any, index: number) => {
+                return Promise.mapSeries(decodedLogs, (decodedLog: IDecodedLog, index: number) => {
                     if (decodedLog.name === this.OperationTypes.Transfer) {
-                        const contract = contracts.find((c: any) => c.address === decodedLog.address.toLowerCase());
+                        const contract = contracts.find((contract: IContract) => contract.address === decodedLog.address.toLowerCase());
                         if (contract) {
                             const transfer = this.parseEventLog(decodedLog);
                             return this.findOrCreateTransactionOperation(transaction._id, index, transfer.from, transfer.to, transfer.value, contract._id);
