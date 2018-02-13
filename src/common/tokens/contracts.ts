@@ -100,5 +100,10 @@ module.exports = {
         id: "",
         name: "Gas Files",
         symbol: "GAS"
+    },
+    "0x5e4abe6419650ca839ce5bb7db422b881a6064bb": {
+        id: "wi-coin",
+        name: "Wi Coin",
+        symbol: "WIC"
     }
 }
