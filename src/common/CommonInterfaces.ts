@@ -91,6 +91,6 @@ export interface IBlock {
     timestamp: number,
     totalDifficulty: string,
     transactions: ITransaction[],
-    transactionsRoot: "0xe082ef658233ff283c6a61a59abbc2939e13e7a39d91fd0493dfba11d100549f",
+    transactionsRoot: string,
     uncles: any[]
 }
