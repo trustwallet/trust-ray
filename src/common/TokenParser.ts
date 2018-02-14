@@ -25,11 +25,11 @@ export class TokenParser {
         const contractAddresses: string[] = [];
 
         transactions.map((transaction: any) => {
-            if (transaction.receipt.logs.length == 0 ) return;
+            if (transaction.receipt.logs.length === 0 ) return;
 
             const decodedLogs = this.abiDecoder.decodeLogs(transaction.receipt.logs).filter((log: any) => log);
 
-            if (decodedLogs.length == 0) return;
+            if (decodedLogs.length === 0) return;
 
             decodedLogs.forEach((decodedLog: any) => {
                 if (decodedLog.name === this.OperationTypes.Transfer) {
