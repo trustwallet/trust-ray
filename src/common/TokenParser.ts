@@ -25,14 +25,17 @@ export class TokenParser {
         const contractAddresses: string[] = [];
 
         transactions.map((transaction: any) => {
+            if (transaction.receipt.logs.length > 0 ) {
                 const decodedLogs = this.abiDecoder.decodeLogs(transaction.receipt.logs).filter((log: any) => log);
+
                 if (decodedLogs.length > 0) {
                     decodedLogs.forEach((log: any) => {
                         if (log.name === this.OperationTypes.Transfer) {
                             contractAddresses.push(log.address.toLowerCase());
                         }
-                    });
+                    })
                 }
+            }
         });
 
         const uniqueContracts = [...(new Set(contractAddresses))];
