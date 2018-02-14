@@ -19,18 +19,18 @@ export class TransactionParser {
         if (blocks.length === 0) return Promise.resolve();
 
         const extractedTransactions = blocks.flatMap((block: any) => {
-            return block.transactions.map((tx: any) => {
+            return block.transactions.map((tx: ITransaction) => {
                 return new Transaction(this.extractTransactionData(block, tx));
             });
         });
-        const txIDs = extractedTransactions.map((tx: any) => tx._id);
+        const txIDs = extractedTransactions.map((tx: ITransaction) => tx._id);
 
         return this.fetchTransactionReceipts(txIDs).then((receipts: any) => {
             return this.mergeTransactionsAndReceipts(extractedTransactions, receipts);
         }).then((transactions: any) => {
             const bulkTransactions = Transaction.collection.initializeUnorderedBulkOp();
 
-            transactions.forEach((transaction: any) =>
+            transactions.forEach((transaction: ITransaction) =>
                 bulkTransactions.find({_id: transaction._id}).upsert().replaceOne(transaction)
             );
 
