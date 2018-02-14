@@ -54,3 +54,43 @@ export interface ITransaction {
     to: string,
     value: string,
 }
+
+export interface ITransaction {
+        blockHash: string | null,
+        blockNumber: number,
+        from: string,
+        gas: string,
+        gasPrice: string,
+        hash: string,
+        input: string,
+        nonce: number,
+        to: string,
+        transactionIndex: number,
+        value: string,
+        v?: string,
+        r?: string,
+        s?: string
+}
+
+export interface IBlock {
+    difficulty: string,
+    extraData: string,
+    gasLimit: number,
+    gasUsed: number,
+    hash: string,
+    logsBloom: string,
+    miner: string,
+    mixHash: string,
+    nonce: string,
+    number: number,
+    parentHash: string,
+    receiptsRoot: string,
+    sha3Uncles: string,
+    size: number,
+    stateRoot: string,
+    timestamp: number,
+    totalDifficulty: string,
+    transactions: ITransaction[],
+    transactionsRoot: "0xe082ef658233ff283c6a61a59abbc2939e13e7a39d91fd0493dfba11d100549f",
+    uncles: any[]
+}
