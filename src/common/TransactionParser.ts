@@ -4,29 +4,33 @@ import { TransactionOperation } from "../models/TransactionOperationModel";
 import { removeScientificNotationFromNumbString } from "./Utils";
 import { Config } from "./Config";
 import { Promise } from "bluebird";
+import { IDecodedLog, IContract, ITransaction } from "./CommonInterfaces";
 
 const erc20abi = require("./contracts/Erc20Abi");
 const erc20ABIDecoder = require("abi-decoder");
 erc20ABIDecoder.addABI(erc20abi);
 
 export class TransactionParser {
+    private OperationTypes = {
+        Transfer: "Transfer",
+    }
 
     public parseTransactions(blocks: any) {
         if (blocks.length === 0) return Promise.resolve();
 
         const extractedTransactions = blocks.flatMap((block: any) => {
-            return block.transactions.map((tx: any) => {
+            return block.transactions.map((tx: ITransaction) => {
                 return new Transaction(this.extractTransactionData(block, tx));
             });
         });
-        const txIDs = extractedTransactions.map((tx: any) => tx._id);
+        const txIDs = extractedTransactions.map((tx: ITransaction) => tx._id);
 
         return this.fetchTransactionReceipts(txIDs).then((receipts: any) => {
             return this.mergeTransactionsAndReceipts(extractedTransactions, receipts);
         }).then((transactions: any) => {
             const bulkTransactions = Transaction.collection.initializeUnorderedBulkOp();
 
-            transactions.forEach((transaction: any) =>
+            transactions.forEach((transaction: ITransaction) =>
                 bulkTransactions.find({_id: transaction._id}).upsert().replaceOne(transaction)
             );
 
@@ -83,35 +87,45 @@ export class TransactionParser {
             addresses: [from, to]
         };
     }
-     
+
     // ========================== OPERATION PARSING ========================== //
 
-    public parseTransactionOperations(transactions: any[], contracts: any[]) {
+    public parseTransactionOperations(transactions: ITransaction[], contracts: IContract[]) {
         if (!transactions || !contracts) return Promise.resolve();
 
         return Promise.map(transactions, (transaction) => {
-            const decodedLogs = erc20ABIDecoder.decodeLogs(transaction.receipt.logs).filter((log: any) => log);
+            const decodedLogs = erc20ABIDecoder.decodeLogs(transaction.receipt.logs).filter((decodedLog?: IDecodedLog) => decodedLog);
+
             if (decodedLogs.length > 0) {
-                const contract = contracts.find((c: any) => c.address === decodedLogs[0].address.toLowerCase());
-                if (contract) {
-                    const transfer = this.parseEventLog(decodedLogs[0]);
-                    return this.findOrCreateTransactionOperation(transaction._id, transfer.from, transfer.to, transfer.value, contract._id);
-                }
+                return Promise.mapSeries(decodedLogs, (decodedLog: IDecodedLog, index: number) => {
+                    if (decodedLog.name === this.OperationTypes.Transfer) {
+                        const contract = contracts.find((contract: IContract) => contract.address === decodedLog.address.toLowerCase());
+                        if (contract) {
+                            const transfer = this.parseEventLog(decodedLog);
+                            return this.findOrCreateTransactionOperation(transaction._id, index, transfer.from, transfer.to, transfer.value, contract._id);
+                        }
+                    }
+                })
+
             }
         }).catch((err: Error) => {
             winston.error(`Could not parse transaction operations with error: ${err}`);
         });
     }
 
-    private createOperationObject(transactionId: any, transfer: any, erc20ContractId?: any) {
+    private createOperationObject(transactionId: string, index: number, from: string, to: string, value: string, erc20ContractId?: any) {
         return {
-            transactionId: transactionId.toLowerCase(),
+            transactionId: this.getIndexedOperation(transactionId, index),
             type: "token_transfer",
-            from: transfer.from,
-            to: transfer.to,
-            value: transfer.value,
+            from: from.toLocaleLowerCase(),
+            to,
+            value,
             contract: erc20ContractId
         };
+    }
+
+    private getIndexedOperation(transactionId: string, index: number): string {
+        return `${transactionId}-${index}`.toLowerCase();
     }
 
     private parseEventLog(eventLog: any): {from: string, to: string, value: string} {
@@ -122,19 +136,14 @@ export class TransactionParser {
         }
     }
 
-    private findOrCreateTransactionOperation(transactionId: string, from: string, to: string, value: string, erc20ContractId?: any): Promise<any> {
-        const operation = {
-            transactionId: transactionId,
-            type: "token_transfer",
-            from: from.toLocaleLowerCase(),
-            to,
-            value,
-            contract: erc20ContractId,
-        };
+    private findOrCreateTransactionOperation(transactionId: string, index: number, from: string, to: string, value: string, erc20ContractId?: any): Promise<any> {
 
-        return TransactionOperation.findOneAndUpdate({transactionId: transactionId}, operation, {upsert: true, new: true})
+        const operation = this.createOperationObject(transactionId, index, from, to, value, erc20ContractId);
+        const indexedOperation = this.getIndexedOperation(transactionId, index);
+
+        return TransactionOperation.findOneAndUpdate({transactionId: indexedOperation}, operation, {upsert: true, new: true})
             .then((operation: any) => {
-                return Transaction.findOneAndUpdate({_id: operation.transactionId}, {operations: [operation._id], "addresses.1": operation.to})
+                return Transaction.findOneAndUpdate({_id: transactionId}, {$push: {operations: operation._id}, "addresses.1": operation.to})
             .catch((error: Error) => {
                 winston.error(`Could not update operation and address to transactionID ${transactionId} with error: ${error}`);
             })
