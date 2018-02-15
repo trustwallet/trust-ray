@@ -39,7 +39,7 @@
     "@types/request": "2.47.0",
     "@types/winston": "^2.3.7",
     "@types/xss-filters": "0.0.27",
-    "abi-decoder": "^1.0.9",
+    "abi-decoder": "kolya182/abi-decoder#master",
     "async": "^2.1.2",
     "axios": "^0.17.1",
     "bignumber.js": "^6.0.0",
