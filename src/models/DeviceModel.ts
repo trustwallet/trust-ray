@@ -4,9 +4,6 @@ interface Device {
     deviceID: string;
     token: string;
     wallets: string[];
-    preferences: {
-        isAirdrop: boolean;
-    }
 }
 
 interface Device extends Document {}
@@ -26,12 +23,13 @@ const deviceSchema = new Schema({
     },
     preferences: {
         isAirdrop: {
-            type: Boolean
+            type: Boolean,
+            default: false
         }
     }
   }, {
     timestamps: true,
-    versionKey: false
+    versionKey: false,
   });
 
   export const Device = model<Device>("Device", deviceSchema);
