@@ -37,6 +37,7 @@ export class TransactionController {
             sort: {timeStamp: -1},
             populate: {
                 path: "operations",
+                match: {to: {$eq: queryParams.address}},
                 populate: {
                     path: "contract",
                     model: "ERC20Contract"
