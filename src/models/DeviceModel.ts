@@ -1,12 +1,5 @@
 import { Document, model, Schema } from "mongoose";
-
-interface Device {
-    deviceID: string;
-    token: string;
-    wallets: string[];
-}
-
-interface Device extends Document {}
+import { IDevice } from "../controllers/Interfaces/IPusherController"
 
 const deviceSchema = new Schema({
     deviceID: {
@@ -20,10 +13,16 @@ const deviceSchema = new Schema({
     wallets: {
         type: [String],
         required: true
+    },
+    preferences: {
+        isAirdrop: {
+            type: Boolean,
+            default: false
+        }
     }
   }, {
     timestamps: true,
-    versionKey: false
+    versionKey: false,
   });
 
-  export const Device = model<Device>("Device", deviceSchema);
+  export const Device = model<IDevice & Document>("Device", deviceSchema);
