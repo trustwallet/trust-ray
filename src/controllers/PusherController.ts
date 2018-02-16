@@ -7,7 +7,7 @@ import { Error } from "mongoose";
 export class Pusher {
     register(req: Request, res: Response) {
         const wallets: string[] = req.body.wallets.map((wallet: string) => wallet.toLowerCase());
-        const isAirdrop: boolean = req.body.preferences.isAirdrop;
+        const isAirdrop: boolean = "preferences" in req.body ? req.body.preferences.isAirdrop : false;
 
         Device.findOneAndUpdate({
             deviceID: req.body.deviceID
@@ -20,6 +20,7 @@ export class Pusher {
         }, {
             upsert: true,
             new: true,
+            setDefaultsOnInsert: true
         }
         ).then((result: any) => {
             sendJSONresponse(res, 200, {
