@@ -3,6 +3,7 @@ import { sendJSONresponse } from "../common/Utils";
 import { Device } from "../models/DeviceModel";
 import * as winston from "winston";
 import { Error } from "mongoose";
+import { ISavedDevice } from "./Interfaces/IPusherController"
 
 export class Pusher {
     register(req: Request, res: Response) {
@@ -23,11 +24,11 @@ export class Pusher {
             new: true,
             setDefaultsOnInsert: true
         }
-        ).then((result: any) => {
+        ).then((savedDevice: ISavedDevice) => {
             sendJSONresponse(res, 200, {
                 status: 200,
                 message: "Successfully saved",
-                response: result,
+                response: savedDevice,
             });
         }).catch((error: Error) => {
             winston.error("Failed to save device ", error);
@@ -42,11 +43,11 @@ export class Pusher {
     unregister(req: Request, res: Response): void {
         Device.findOneAndRemove({
             deviceID: req.body.deviceID
-        }).then((result: any) => {
+        }).then((savedDevice: ISavedDevice) => {
             sendJSONresponse(res, 200, {
                 status: true,
                 message: "Successfully unregistered",
-                response: result,
+                response: savedDevice,
             })
         }).catch((error: Error) => {
             winston.info("Error unregistering ", error);
