@@ -39,7 +39,7 @@ export class TransactionController {
                 path: "operations",
                 match: {$or: [
                     {to: {$eq: queryParams.address}},
-                    {rom: {$eq: queryParams.address}}
+                    {from: {$eq: queryParams.address}}
                 ]},
                 populate: {
                     path: "contract",
