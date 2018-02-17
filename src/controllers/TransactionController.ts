@@ -37,6 +37,10 @@ export class TransactionController {
             sort: {timeStamp: -1},
             populate: {
                 path: "operations",
+                match: {$or: [
+                    {to: {$eq: queryParams.address}},
+                    {from: {$eq: queryParams.address}}
+                ]},
                 populate: {
                     path: "contract",
                     model: "ERC20Contract"
@@ -113,7 +117,7 @@ export class TransactionController {
         }
 
         // address parameter
-        const address = xss.inHTMLData(req.query.address);
+        const address = xss.inHTMLData(req.query.address).toLowerCase();
 
         // start block parameter
         let startBlock = parseInt(xss.inHTMLData(req.query.startBlock));
