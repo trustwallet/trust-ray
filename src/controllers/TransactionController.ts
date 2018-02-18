@@ -41,9 +41,7 @@ export class TransactionController {
                 path: "operations",
                 match: {$or: [
                     {to: {$eq: address}},
-                    {from: {$eq: address}},
-                    {$and: [{
-                        to: {$ne: address}}, {from: {$ne: address}} ]}
+                    {from: {$eq: address}}
                 ]},
                 populate: {
                     path: "contract",
