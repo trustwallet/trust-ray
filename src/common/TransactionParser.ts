@@ -143,7 +143,7 @@ export class TransactionParser {
 
         return TransactionOperation.findOneAndUpdate({transactionId: indexedOperation}, operation, {upsert: true, new: true})
             .then((operation: any) => {
-                return Transaction.findOneAndUpdate({_id: transactionId}, {$push: {operations: operation._id, addresses: {$each: [operation.to], $slice: -8}}})
+                return Transaction.findOneAndUpdate({_id: transactionId}, {$push: {operations: operation._id, addresses: {$each: [operation.to]}}})
             .catch((error: Error) => {
                 winston.error(`Could not update operation and address to transactionID ${transactionId} with error: ${error}`);
             })

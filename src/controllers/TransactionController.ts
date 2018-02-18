@@ -31,6 +31,8 @@ export class TransactionController {
         }
         query.blockNumber = { "$gte": queryParams.startBlock, "$lte": queryParams.endBlock};
 
+        const address: string = queryParams.address;
+
         Transaction.paginate(query, {
             page: queryParams.page,
             limit: queryParams.limit,
@@ -38,8 +40,8 @@ export class TransactionController {
             populate: {
                 path: "operations",
                 match: {$or: [
-                    {to: {$eq: queryParams.address}},
-                    {from: {$eq: queryParams.address}}
+                    {to: {$eq: address}},
+                    {from: {$eq: address}}
                 ]},
                 populate: {
                     path: "contract",
