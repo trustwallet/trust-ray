@@ -67,7 +67,7 @@
     "ts-node": "^4.1.0",
     "tsc-watch": "^1.0.10",
     "tslint": "^5.0.0",
-    "typescript": "^2.6.2",
+    "typescript": "^2.7.2",
     "web3": "^1.0.0-beta.24",
     "winston": "^2.4.0",
     "xss-filters": "^1.2.7"
