@@ -16,7 +16,7 @@
     "watch-debug": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-ts\" \"npm run serve-debug\""
   },
   "engines": {
-    "node": "6.11.3",
+    "node": "9.5.0",
     "npm": "5.6.0"
   },
   "dependencies": {
@@ -35,7 +35,7 @@
     "@types/mongoose": "^4.7.24",
     "@types/mongoose-paginate": "^5.0.6",
     "@types/morgan": "^1.7.35",
-    "@types/node": "^9.3.0",
+    "@types/node": "^9.4.6",
     "@types/request": "2.47.0",
     "@types/winston": "^2.3.7",
     "@types/xss-filters": "0.0.27",
