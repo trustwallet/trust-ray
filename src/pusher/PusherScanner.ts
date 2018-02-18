@@ -65,14 +65,14 @@ export class PusherScanner {
                 const lastBlock = lastParsedBlock.lastBlock;
 
                 if (!lastBlock) return reject(`No lastBlock found in DB`);
-                //TODO - correct promise rejection
+                // TODO - correct promise rejection
                 // if (!lastBlock) return reject(new Error(`No lastBlock found in DB`));
 
                 if (!lastPusherBlock && lastBlock) return resolve(lastBlock);
 
                 if (lastPusherBlock >= lastBlock) {
                     return reject(`lastPusherBlock ${lastPusherBlock - lastBlock} ahead of lastBlock, waiting for new block in DB`);
-                    //TODO - correct promise rejection
+                    // TODO - correct promise rejection
                     // return reject(new Error(`lastPusherBlock ${lastPusherBlock - lastBlock} ahead of lastBlock, waiting for new block in DB`));
                 }
 

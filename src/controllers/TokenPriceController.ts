@@ -62,12 +62,12 @@ export class TokenPriceController {
         const pricesCoinmarket = prices[0];
         const pricesAlternative = prices[1];
 
-        const result = pricesCoinmarket.reduce(function(map:any, obj:any) {
+        const result = pricesCoinmarket.reduce(function(map: any, obj: any) {
             map[obj.id] = obj;
             return map;
         }, {});
 
-        const alternativeResult = pricesAlternative.reduce(function(map:any, obj:any) {
+        const alternativeResult = pricesAlternative.reduce(function(map: any, obj: any) {
             map[obj.contract] = obj;
             return map;
         }, {});
@@ -75,7 +75,7 @@ export class TokenPriceController {
         const foundValues: any[] = [];
         const foundSymbols = new Set<string>();
 
-        tokens.forEach((token:any) => {
+        tokens.forEach((token: any) => {
             const contract = token.contract.toLowerCase();
             const existedToken = listOfTokens[contract];
 
@@ -84,9 +84,9 @@ export class TokenPriceController {
 
                 if (altToken) {
                     const tokenSymbol = existedToken.symbol;
-                    const priceChange24 = altToken['24_hours_change_%'].toString();
+                    const priceChange24 = altToken["24_hours_change_%"].toString();
                     foundSymbols.add(tokenSymbol.toLowerCase());
-    
+
                     foundValues.push({
                         id: existedToken.id,
                         name:  existedToken.name,
@@ -102,18 +102,18 @@ export class TokenPriceController {
 
         tokens.forEach((token: Token) => {
             const existedToken = listOfTokens[token.contract.toLowerCase()]
-            
+
             if (existedToken && !foundSymbols.has(existedToken.symbol.toLowerCase())) {
                 const price = result[existedToken.id];
                 foundValues.push({...price, ...token});
-            }else {
+            } else {
                 const tokenSymbol = token.symbol.toLowerCase()
-                pricesCoinmarket.forEach((price:any) => {
+                pricesCoinmarket.forEach((price: any) => {
                     const priceSymbol = price.symbol.toLowerCase()
                     if (priceSymbol === tokenSymbol && !foundSymbols.has(tokenSymbol)) {
-                        foundSymbols.add(tokenSymbol);   
+                        foundSymbols.add(tokenSymbol);
                         foundValues.push({...price, ...token});
-                    } 
+                    }
                 });
 
                 if (!foundSymbols.has(tokenSymbol)) {
@@ -186,7 +186,7 @@ export class TokenPriceController {
                     this.latestPrices[currency] = prices;
                     this.isUpdating[currency] = false;
 
-                    this.getAlternativePrices(currency).timeout(5000).then((altPrices:any) => {
+                    this.getAlternativePrices(currency).timeout(5000).then((altPrices: any) => {
                         this.latestAlternativePrices[currency] = altPrices;
                         resolve([this.latestPrices[currency], this.latestAlternativePrices[currency]]);
                     })
@@ -204,8 +204,8 @@ export class TokenPriceController {
     private getAlternativePrices(currency: string) {
         const url: string = this.privateAPIURL;
         return new Promise((resolve) => {
-            axios.get(url).then((res:any) => res)
-                .then((prices:any) => {
+            axios.get(url).then((res: any) => res)
+                .then((prices: any) => {
                     const filtered: any = this.filterAlternativePricesByCurrency(currency, prices.data.Sheet1);
                     resolve(filtered);
                 })
