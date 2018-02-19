@@ -105,5 +105,9 @@ module.exports = {
         id: "wi-coin",
         name: "Wi Coin",
         symbol: "WIC"
+    },
+    "0x629aee55ed49581c33ab27f9403f7992a289ffd5": {
+        name: "StrikeCoin Token",
+        symbol: "STC"
     }
 }
