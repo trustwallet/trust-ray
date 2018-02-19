@@ -18,7 +18,7 @@ export class BlockchainParser {
     private transactionParser: TransactionParser;
     private tokenParser: TokenParser;
     private concurrentBlocks = 1;
-    private rebalanceOffset = 15;
+    private rebalanceOffsets = [15, 100];
 
     constructor() {
         this.transactionParser = new TransactionParser();
@@ -133,10 +133,12 @@ export class BlockchainParser {
         const sBlock = ascending ? startBlock : Math.max(startBlock - blocksToProcess + 1, 0)
         const numberBlocks = range(sBlock, startBlock + blocksToProcess - 1);
 
-        const rebalanceBlock = startBlock - this.rebalanceOffset
-        if (rebalanceBlock > 0) {
-            numberBlocks.unshift(rebalanceBlock)
-        }
+        this.rebalanceOffsets.forEach((rebalanceOffset: number) => {
+            const rebalanceBlock: number = startBlock - rebalanceOffset;
+            if (rebalanceBlock > 0) {
+                numberBlocks.unshift(rebalanceBlock);
+            }
+        });
 
         // parse blocks
         const promises = numberBlocks.map((number) => {
