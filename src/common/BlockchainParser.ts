@@ -155,7 +155,7 @@ export class BlockchainParser {
         }).then(([transactions, contracts]: any) => {
             return this.transactionParser.parseTransactionOperations(transactions, contracts);
         }).then(() => {
-            const endBlock = ascending ? numberBlocks[numberBlocks.length - 1] : numberBlocks[0];
+            const endBlock = numberBlocks[numberBlocks.length - 1];
             if (endBlock) {
                 return Promise.resolve(endBlock);
             } else {
