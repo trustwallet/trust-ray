@@ -122,8 +122,12 @@ export class BlockchainParser {
         return Array.from(Array(end - start + 1).keys()).map((i: number) => i + start);
     }
 
+    getBlocksToParse(startBlock: number, lastBlock: number, concurrentBlocks: number) {
+        return Math.min(concurrentBlocks, Math.min(lastBlock - startBlock + 1), 1);
+    }
+
     getNumberBlocks(startBlock: number, lastBlock: number, ascending: boolean, rebalanceOffsets: number[]): number[] {
-        const blocksToProcess = Math.min(this.concurrentBlocks, Math.min(lastBlock - startBlock + 1), 1);
+        const blocksToProcess = this.getBlocksToParse(startBlock, lastBlock, this.concurrentBlocks);
         const sBlock: number = ascending ? startBlock : Math.max(startBlock - blocksToProcess + 1, 0);
         const numberBlocks: number[] = this.getBlocksRange(sBlock, startBlock + blocksToProcess - 1);
 
