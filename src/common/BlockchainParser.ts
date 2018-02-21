@@ -17,8 +17,8 @@ export class BlockchainParser {
 
     private transactionParser: TransactionParser;
     private tokenParser: TokenParser;
-    private concurrentBlocks = 1;
-    private rebalanceOffsets = [30];
+    private concurrentBlocks: number = 1;
+    private rebalanceOffsets: number[] = [30];
 
     constructor() {
         this.transactionParser = new TransactionParser();
