@@ -22,37 +22,67 @@ describe("Test BlockchainParser", () => {
         });
     });
 
-    describe("Test getNumberBlocks()", () => {;
+    describe("Test getNumberBlocks() in forward mode", () => {
         let blockchainParser;
+        const concurrentBlocks = 1;
+        const rebalanceOffsets = [30];
+        const ascending = true;
 
         beforeEach(() => {
             blockchainParser = new BlockchainParser();
+            blockchainParser.concurrentBlocks = concurrentBlocks;
+            blockchainParser.rebalanceOffsets = rebalanceOffsets;
+            blockchainParser.ascending = ascending;
         });
 
         it("Should return only one block if difference between lastBlock and startBlock > 10 when ascending", () => {
-            const concurrentBlocks = 1;
-            const rebalanceOffsets = [30];
-            const ascending = true;
             const startBlock = 100;
-            const lastBlock = 112
-            const getBlocksToParse = blockchainParser.getBlocksToParse(startBlock, lastBlock, concurrentBlocks);
+            const lastBlock = 112;
             const range = blockchainParser.getNumberBlocks(startBlock, lastBlock, ascending, rebalanceOffsets);
 
             expect(range).to.be.an("array");
-            expect(range).to.be.include.ordered.members([100])
+            expect(range).to.be.include.ordered.members([100]).to.have.lengthOf(1);
         });
 
         it("Should return only two block if difference between lastBlock and startBlock < 10 when ascending", () => {
-            const concurrentBlocks = 1;
-            const rebalanceOffsets = [30];
-            const ascending = true;
             const startBlock = 100;
             const lastBlock = 105
-            const getBlocksToParse = blockchainParser.getBlocksToParse(startBlock, lastBlock, concurrentBlocks);
             const range = blockchainParser.getNumberBlocks(startBlock, lastBlock, ascending, rebalanceOffsets);
 
             expect(range).to.be.an("array");
-            expect(range).to.be.include.ordered.members([70, 100])
+            expect(range).to.be.include.ordered.members([70, 100]).to.have.lengthOf(2);
+        });
+    });
+
+    describe("Test getNumberBlocks() in backword mode", () => {
+        let blockchainParser;
+        const concurrentBlocks = 2;
+        const rebalanceOffsets = [33];
+        const ascending = false;
+
+        beforeEach(() => {
+            blockchainParser = new BlockchainParser();
+            blockchainParser.concurrentBlocks = concurrentBlocks;
+            blockchainParser.rebalanceOffsets = rebalanceOffsets;
+            blockchainParser.ascending = ascending;
+        });
+
+        it("Should return only one block if difference between lastBlock and startBlock > 10 when descending", () => {
+            const startBlock = 100;
+            const lastBlock = 112;
+            const range = blockchainParser.getNumberBlocks(startBlock, lastBlock, ascending, rebalanceOffsets);
+
+            expect(range).to.be.an("array");
+            expect(range).to.be.include.ordered.members([100]).to.have.lengthOf(1);
+        });
+
+        it("Should return only two block if difference between lastBlock and startBlock < 10 when descending", () => {
+            const startBlock = 100;
+            const lastBlock = 105
+            const range = blockchainParser.getNumberBlocks(startBlock, lastBlock, ascending, rebalanceOffsets);
+
+            expect(range).to.be.an("array");
+            expect(range).to.be.include.ordered.members([100]).to.have.lengthOf(1);
         });
     });
 })
