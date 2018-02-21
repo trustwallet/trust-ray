@@ -17,7 +17,7 @@ export class BlockchainParser {
 
     private transactionParser: TransactionParser;
     private tokenParser: TokenParser;
-    private concurrentBlocks: number = 3;
+    private concurrentBlocks: number = 1;
     private rebalanceOffsets: number[] = [30];
 
     constructor() {
@@ -26,7 +26,7 @@ export class BlockchainParser {
     }
 
     public start() {
-        // this.startForwardParsing();
+        this.startForwardParsing();
         this.startBackwardParsing();
     }
 
@@ -69,8 +69,8 @@ export class BlockchainParser {
         return this.getBlockState().then(([blockInChain, blockInDb]) => {
             const startBlock = !blockInDb ? blockInChain : (((blockInDb.lastBackwardBlock == undefined) ? blockInChain : blockInDb.lastBackwardBlock));
 
-            winston.info(`Backward parsing: startBlock ${startBlock}, blockInChain: ${blockInChain} `);
-            const nextBlock = startBlock - 1
+            winston.info(`Backward parsing: startBlock ${startBlock}, blockInChain: ${blockInChain}`);
+            const nextBlock = startBlock - 1;
             if (nextBlock < 1) {
                 winston.info(`Backward already finished`);
                 return;
@@ -119,23 +119,18 @@ export class BlockchainParser {
     }
 
     getBlocksRange(start: number, end: number): number[] {
-        console.log({start, end})
         return Array.from(Array(end - start + 1).keys()).map((i: number) => i + start);
     }
 
     getBlocksToParse(startBlock: number, lastBlock: number, concurrentBlocks: number) {
-        // console.log("getBlocksToParse THIS", this)
-        // console.log("getBlocksToParse", {startBlock, lastBlock, concurrentBlocks})
         return Math.min(concurrentBlocks, Math.min(lastBlock - startBlock + 1), 1);
     }
 
     getNumberBlocks(startBlock: number, lastBlock: number, ascending: boolean, rebalanceOffsets: number[]): number[] {
-        console.log({startBlock, lastBlock, ascending, rebalanceOffsets})
-        // console.log("THIS1 ", this)
         const blocksToProcess = this.getBlocksToParse(startBlock, lastBlock, this.concurrentBlocks);
         const sBlock: number = ascending ? startBlock : Math.max(startBlock - blocksToProcess + 1, 0);
         const numberBlocks: number[] = this.getBlocksRange(sBlock, startBlock + blocksToProcess - 1);
-        // console.log({numberBlocks})
+
         if (lastBlock - startBlock < 10 && ascending) {
             rebalanceOffsets.forEach((rebalanceOffset: number) => {
                 const rebalanceBlock: number = startBlock - rebalanceOffset;
