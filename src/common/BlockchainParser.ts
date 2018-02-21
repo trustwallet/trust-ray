@@ -129,7 +129,7 @@ export class BlockchainParser {
 
         this.rebalanceOffsets.forEach((rebalanceOffset: number) => {
             const rebalanceBlock: number = startBlock - rebalanceOffset;
-            if (rebalanceBlock > 0) {
+            if (rebalanceBlock > 0 && (lastBlock - startBlock < 10)) {
                 numberBlocks.unshift(rebalanceBlock);
             }
         });
