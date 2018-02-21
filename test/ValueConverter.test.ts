@@ -16,7 +16,7 @@ describe("Test ValueConverter", () => {
     describe("Test getValueInEth", () => {
         tests.forEach(({value, decimal, expected}) => {
             it(`should turn value ${value} and decimal ${decimal} to ${expected}`, () => {
-                let result = getValueInEth(value, decimal);
+                const result = getValueInEth(value, decimal);
                 assert(expected.isEqualTo(result))
             });
         })
