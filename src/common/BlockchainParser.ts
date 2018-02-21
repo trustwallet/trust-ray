@@ -127,7 +127,7 @@ export class BlockchainParser {
         const sBlock: number = ascending ? startBlock : Math.max(startBlock - blocksToProcess + 1, 0);
         const numberBlocks: number[] = this.getBlocksRange(sBlock, startBlock + blocksToProcess - 1);
 
-        if (lastBlock - startBlock < 10) {
+        if (lastBlock - startBlock < 10 && ascending) {
             rebalanceOffsets.forEach((rebalanceOffset: number) => {
                 const rebalanceBlock: number = startBlock - rebalanceOffset;
                 if (rebalanceBlock > 0) {
