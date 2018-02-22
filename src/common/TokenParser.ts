@@ -5,6 +5,7 @@ import { Config } from "./Config";
 import { getTokenBalanceForAddress, loadContractABIs } from "./Utils";
 import { TransactionOperation } from "../models/TransactionOperationModel";
 import { NotParsableContracts } from "../models/NotParsableContractModel";
+import { Promise } from "bluebird";
 
 export class TokenParser {
     private abiDecoder = require("abi-decoder");
@@ -151,17 +152,30 @@ export class TokenParser {
                 {from: address}
             ]
         }).select("contract").exec().then((operations: any) => {
-            const tokenContracts = this.extractTokenContracts(operations);
-            const contractDetailsPromises = this.getContractDetails(tokenContracts);
-            return Promise.all(contractDetailsPromises).then((tokens: any[]) => {
-                const balancePromises: any = [];
+            const tokenContracts: any[] = this.extractTokenContracts(operations);
+            const contractDetailsPromises: any[] = this.getContractDetails(tokenContracts);
 
-                // get the balances
-                tokens.map((token: any) => {
-                    balancePromises.push(getTokenBalanceForAddress(address, token.address, token.decimals));
+            return Promise.map(contractDetailsPromises, (contract) => {
+                return this.getTokenBalance(address, contract.address).then((balance: string) => {
+                    return {
+                        name: contract.name,
+                        balance,
+                    }
                 });
-                return Promise.all(balancePromises);
             });
+        });
+    }
+
+    private getTokenBalance(address: string, contractAddress: string) {
+        const tokenAddress: string = address.substring(2);
+        const contractData: string = `0x70a08231000000000000000000000000${tokenAddress}`;
+
+        return Config.web3.eth.call({
+            to: contractAddress,
+            data: contractData
+        }).then((balance: string) => Config.web3.utils.toBN(balance).toString()
+        ).catch((error: Error) => {
+            winston.info("Error getting token balance ", error);
         });
     }
 
@@ -183,7 +197,6 @@ export class TokenParser {
             promises.push(ERC20Contract.findById(tokenContract).then((token: any) => {
                 return {
                     address: token.address,
-                    decimals: token.decimals
                 }
             }));
         });
