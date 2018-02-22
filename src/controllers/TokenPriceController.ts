@@ -135,7 +135,7 @@ export class TokenPriceController {
                 price: obj.price || obj["price_" + currency.toLowerCase()] || "0",
                 percent_change_24h: obj.percent_change_24h || "",
                 contract: obj.contract || "",
-                image: obj.image || this.imageForPrice(obj.id),
+                image: obj.image || this.getImageUrl(obj.contract),
             }
         })
     }
