@@ -9,7 +9,6 @@ describe("Test Util.ts", () => {
                 expect(result).to.be.equal("2000000000000000000000000");
                 expect(result).to.be.a("string");
             });
-         
             it("Converts a number given as string containing scientific notation #2", () => {
                 const result = removeScientificNotationFromNumbString("2.2093167076133973e+22");
                 expect(result).to.be.equal("22093167076133973000000");
