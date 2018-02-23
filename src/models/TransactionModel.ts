@@ -1,5 +1,3 @@
-import { LocalizedOperationConverter } from "../common/operations/LocalizedOperationConverter";
-
 const mongoose = require("mongoose");
 const mongoosePaginate = require("mongoose-paginate");
 const Schema = mongoose.Schema;
@@ -76,11 +74,6 @@ const transactionSchema = new Schema({
     toJSON: {
         virtuals: true
     }
-});
-
-
-transactionSchema.virtual("operations_localized").get(function() {
-    return LocalizedOperationConverter.from(this.operations);
 });
 
 transactionSchema.virtual("success").get(function() {

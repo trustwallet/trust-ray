@@ -47,7 +47,6 @@ export interface ITransaction {
     isNew?: boolean,
     nonce: number,
     operations: any[], // TODO add IOperation
-    operations_localized: any,
     receipt: ITransactionReceipt,
     success: any
     timeStamp: string,
