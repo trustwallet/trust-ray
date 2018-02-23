@@ -20,26 +20,8 @@ export class TokenPriceController {
     private latestPrices: any = {};
     private latestAlternativePrices: any = {};
     private isUpdating: any = {};
-    private coinmarketcapImageURL = "https://files.coinmarketcap.com/static/img/coins/128x128/";
     private githubImageURL = "https://raw.githubusercontent.com/TrustWallet/tokens/master/images/";
     private privateAPIURL = "https://script.googleusercontent.com/macros/echo?user_content_key=yLmyy_8aJ0fr1-ZwaEocEMwY6ONXZAmb8wBklpBolPXEjphIQzVF7msRQCOExuLzK3Cg1rcvFApc2btMF4MledH3NNXTJ0DPOJmA1Yb3SEsKFZqtv3DaNYcMrmhZHmUMWojr9NvTBuBLhyHCd5hHa1ZsYSbt7G4nMhEEDL32U4DxjO7V7yvmJPXJTBuCiTGh3rUPjpYM_V0PJJG7TIaKpz0N633sUmm0c4i8l6NExquAqcslHnMzWh_ptf1Lg73-03UfxvOKFRhO8HM20klqPcKiW3k6MDkf31SIMZH6H4k&lib=MbpKbbfePtAVndrs259dhPT7ROjQYJ8yx";
-
-    getPrices = (req: Request, res: Response) => {
-        const currency = req.query.currency || "USD";
-        const symbols = (req.query.symbols || "").split(",");
-
-        this.getRemotePrices(currency).then((prices: any) => {
-            sendJSONresponse(res, 200, {
-                status: true,
-                response: this.filterPrices(prices, symbols, currency),
-            })
-        }).catch((error: Error) => {
-            sendJSONresponse(res, 500, {
-                status: 500,
-                error,
-            });
-        });
-    }
 
     getTokenPrices = (req: Request, res: Response) => {
         const currency = req.body.currency || "USD";
@@ -135,41 +117,13 @@ export class TokenPriceController {
                 price: obj.price || obj["price_" + currency.toLowerCase()] || "0",
                 percent_change_24h: obj.percent_change_24h || "",
                 contract: obj.contract || "",
-                image: obj.image || this.imageForPrice(obj.id),
+                image: obj.image || this.getImageUrl(obj.contract),
             }
         })
     }
 
     private getImageUrl(contract: string): string {
         return `${this.githubImageURL}${contract.toLowerCase()}.png`;
-    }
-
-    private filterPrices(prices: any[], symbols: string[], currency: string): any {
-        // Improve. Exclude duplicate symbols. order by market cap.
-        const ignoredSymbols = new Set<string>(["CAT"]);
-        const foundSymbols = new Set<any>();
-        const foundPrices: any[] = [];
-        prices.forEach(price => {
-            const priceSymbol: string = price.symbol;
-
-            if (ignoredSymbols.has(priceSymbol)) return;
-
-            if (priceSymbol === symbols.find(x => x === priceSymbol) && !foundSymbols.has(priceSymbol)) {
-                foundPrices.push(price);
-                foundSymbols.add(priceSymbol);
-            }
-        })
-        return foundPrices.map((price) => {
-            const priceKey = "price_" + currency.toLowerCase();
-            return {
-                id: price.id,
-                name: price.name,
-                symbol: price.symbol,
-                price: price[priceKey],
-                percent_change_24h: price.percent_change_24h || "0",
-                image: this.imageForPrice(price.id),
-            }
-        })
     }
 
     private getRemotePrices(currency: string) {
@@ -223,10 +177,6 @@ export class TokenPriceController {
         }
 
         return sortedPrices;
-    }
-
-    private imageForPrice(id: string) {
-        return this.coinmarketcapImageURL + id + ".png";
     }
 
     private getCoinMarketCapPrices(currency: string) {
