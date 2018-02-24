@@ -4,7 +4,6 @@ import * as winston from "winston";
 const axios = require("axios");
 import * as BluebirbPromise from "bluebird";
 import { Config } from "../common/Config";
-import { resolve } from "dns";
 
 const listOfTokens = require("../common/tokens/contracts");
 const CoinMarketCap = require("coinmarketcap-api");
