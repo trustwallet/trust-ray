@@ -2,8 +2,9 @@ import { Request, Response } from "express";
 import { sendJSONresponse } from "../common/Utils";
 import * as winston from "winston";
 const axios = require("axios");
-import { Promise } from "bluebird";
+import * as BluebirbPromise from "bluebird";
 import { Config } from "../common/Config";
+import { resolve } from "dns";
 
 const listOfTokens = require("../common/tokens/contracts");
 const CoinMarketCap = require("coinmarketcap-api");
@@ -126,8 +127,7 @@ export class TokenPriceController {
         return `${this.githubImageURL}${contract.toLowerCase()}.png`;
     }
 
-    private getRemotePrices(currency: string) {
-        return new Promise((resolve, reject) => {
+    private async getRemotePrices(currency: string) {
             const now = Date.now();
             const lastUpdatedTime = this.lastUpdated[currency] || 0;
             const difference = (now - lastUpdatedTime) / 1000;
@@ -135,29 +135,40 @@ export class TokenPriceController {
             const isUpdating = this.isUpdating[currency] || false;
             if ((this.lastUpdated === 0 || difference >= this.refreshLimit) && !isUpdating) {
                 this.isUpdating[currency] = true;
-                this.getCoinMarketCapPrices(currency).timeout(5000).then((prices: any) => {
+
+                const p1 = this.getCoinMarketCapPrices(currency).timeout(5000).catch((error) => {
+                    winston.info("Error getting prices from coinmarketcap ", error);
+                })
+
+                const p2 = this.getAlternativePrices(currency).timeout(5000).catch((error) => {
+                    winston.info("Error getting prices for alternative tokens ", error);
+                })
+                return await Promise.all([p1, p2]).then(([prices, altPrices]) => {
                     this.lastUpdated[currency] = now;
                     this.latestPrices[currency] = prices;
                     this.isUpdating[currency] = false;
+                    this.latestAlternativePrices[currency] = altPrices;
 
-                    this.getAlternativePrices(currency).timeout(5000).then((altPrices: any) => {
-                        this.latestAlternativePrices[currency] = altPrices;
-                        resolve([this.latestPrices[currency], this.latestAlternativePrices[currency]]);
-                    })
+                    return [this.latestPrices[currency], this.latestAlternativePrices[currency]];
                 }).catch((error: Error) => {
-                    this.isUpdating[currency] = false
-                    resolve(this.latestPrices[currency] || []);
-                    winston.error(`getRemotePrices `, error);
-                });
+                    winston.error("getRemotePrices ", error);
+
+                    this.isUpdating[currency] = false;
+
+                    return new BluebirbPromise((resolve, reject) => {
+                        reject((this.latestPrices[currency] || []));
+                    })
+                })
             } else {
-                resolve([this.latestPrices[currency], this.latestAlternativePrices[currency]]);
+                return new BluebirbPromise(resolve => {
+                    resolve(([this.latestPrices[currency], this.latestAlternativePrices[currency]]))
+                })
             }
-        })
     }
 
     private getAlternativePrices(currency: string) {
         const url: string = this.privateAPIURL;
-        return new Promise((resolve) => {
+        return new BluebirbPromise((resolve) => {
             axios.get(url).then((res: any) => res)
                 .then((prices: any) => {
                     const filtered: any = this.filterAlternativePricesByCurrency(currency, prices.data.Sheet1);
@@ -180,7 +191,7 @@ export class TokenPriceController {
     }
 
     private getCoinMarketCapPrices(currency: string) {
-        return new Promise((resolve, reject) => {
+        return new BluebirbPromise((resolve) => {
             this.client.getTicker({limit: 0, convert: currency}).then((prices: any) => {
                 resolve(prices);
             });
