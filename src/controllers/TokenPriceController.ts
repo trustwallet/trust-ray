@@ -4,14 +4,10 @@ import * as winston from "winston";
 const axios = require("axios");
 import * as BluebirbPromise from "bluebird";
 import { Config } from "../common/Config";
+import { IToken } from "./Interfaces/ITokenPriceController";
 
 const listOfTokens = require("../common/tokens/contracts");
 const CoinMarketCap = require("coinmarketcap-api");
-
-interface Token {
-    contract: string;
-    symbol: string;
-}
 
 export class TokenPriceController {
     private client = new CoinMarketCap();
@@ -20,12 +16,12 @@ export class TokenPriceController {
     private latestPrices: any = {};
     private latestAlternativePrices: any = {};
     private isUpdating: any = {};
-    private githubImageURL = "https://raw.githubusercontent.com/TrustWallet/tokens/master/images/";
-    private privateAPIURL = "https://script.googleusercontent.com/macros/echo?user_content_key=yLmyy_8aJ0fr1-ZwaEocEMwY6ONXZAmb8wBklpBolPXEjphIQzVF7msRQCOExuLzK3Cg1rcvFApc2btMF4MledH3NNXTJ0DPOJmA1Yb3SEsKFZqtv3DaNYcMrmhZHmUMWojr9NvTBuBLhyHCd5hHa1ZsYSbt7G4nMhEEDL32U4DxjO7V7yvmJPXJTBuCiTGh3rUPjpYM_V0PJJG7TIaKpz0N633sUmm0c4i8l6NExquAqcslHnMzWh_ptf1Lg73-03UfxvOKFRhO8HM20klqPcKiW3k6MDkf31SIMZH6H4k&lib=MbpKbbfePtAVndrs259dhPT7ROjQYJ8yx";
+    private githubImageURL: string = "https://raw.githubusercontent.com/TrustWallet/tokens/master/images/";
+    private privateAPIURL: string = "https://script.googleusercontent.com/macros/echo?user_content_key=yLmyy_8aJ0fr1-ZwaEocEMwY6ONXZAmb8wBklpBolPXEjphIQzVF7msRQCOExuLzK3Cg1rcvFApc2btMF4MledH3NNXTJ0DPOJmA1Yb3SEsKFZqtv3DaNYcMrmhZHmUMWojr9NvTBuBLhyHCd5hHa1ZsYSbt7G4nMhEEDL32U4DxjO7V7yvmJPXJTBuCiTGh3rUPjpYM_V0PJJG7TIaKpz0N633sUmm0c4i8l6NExquAqcslHnMzWh_ptf1Lg73-03UfxvOKFRhO8HM20klqPcKiW3k6MDkf31SIMZH6H4k&lib=MbpKbbfePtAVndrs259dhPT7ROjQYJ8yx";
 
     getTokenPrices = (req: Request, res: Response) => {
         const currency = req.body.currency || "USD";
-        const symbols = req.body.tokens.map((item: Token) => item.symbol);
+        const symbols = req.body.tokens.map((item: IToken) => item.symbol);
 
         this.getRemotePrices(currency).then((prices: any) => {
             sendJSONresponse(res, 200, {
@@ -40,7 +36,7 @@ export class TokenPriceController {
         });
     }
 
-    private filterTokenPrices(prices: any[], tokens: Token[], currency: string): any {
+    private filterTokenPrices(prices: any[], tokens: IToken[], currency: string): any {
         const pricesCoinmarket = prices[0];
         const pricesAlternative = prices[1];
 
@@ -82,7 +78,7 @@ export class TokenPriceController {
             }
         });
 
-        tokens.forEach((token: Token) => {
+        tokens.forEach((token: IToken) => {
             const existedToken = listOfTokens[token.contract.toLowerCase()]
 
             if (existedToken && !foundSymbols.has(existedToken.symbol.toLowerCase())) {
