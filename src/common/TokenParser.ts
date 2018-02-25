@@ -153,11 +153,13 @@ export class TokenParser {
         return BluebirdPromise.map(contractDetails, (contract: any) => {
             return this.getTokenBalance(address, contract.address).then((balance: string) => {
                 return {
-                    name: contract.name,
-                    address: contract.address,
-                    symbol: contract.symbol,
                     balance,
-                    decimals: contract.decimals,
+                    contract: {
+                        address: contract.address,
+                        name: contract.name,
+                        symbol: contract.symbol,
+                        decimals: contract.decimals,
+                    }
                 }
             });
         });
