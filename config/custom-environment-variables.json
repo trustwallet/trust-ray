@@ -11,5 +11,11 @@
             "TEAMID": "APN_TEAMID",
             "BUNDLE": "APN_BUNDLEID"
         }
+    },
+    "PARSER": {
+        "DELAYS": {
+            "FORWARD": "PARSER_DELAY_FORWARD",
+            "BACKWARD": "PARSER_DELAY_BACKWARD"
+        }
     }
 }
