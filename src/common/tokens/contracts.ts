@@ -109,5 +109,9 @@ module.exports = {
     "0x629aee55ed49581c33ab27f9403f7992a289ffd5": {
         name: "StrikeCoin Token",
         symbol: "STC"
+    },
+    "0xf41e5fbc2f6aac200dd8619e121ce1f05d150077": {
+        name: "CrycashToken",
+        symbol: "SRC"
     }
 }
