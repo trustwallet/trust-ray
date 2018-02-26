@@ -2,5 +2,20 @@
         "MONGO": {
             "URI": "mongodb://localhost:27017/trust-wallet"
         },
-        "RPC_SERVER": "http://127.0.0.1:8545"
+        "RPC_SERVER": "http://127.0.0.1:8545",
+        "NETWORK_SYMBOL": "ETH",
+        "PUSHER": {
+            "APN": {
+                "KEY": "",
+                "KEYID": "",
+                "TEAMID": "",
+                "BUNDLE": ""
+            }
+        },
+        "PARSER": {
+            "DELAYS": {
+                "FORWARD": "",
+                "BACKWARD": ""
+            }
+        }
 }
