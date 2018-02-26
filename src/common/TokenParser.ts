@@ -5,6 +5,7 @@ import { Config } from "./Config";
 import { getTokenBalanceForAddress, loadContractABIs } from "./Utils";
 import { TransactionOperation } from "../models/TransactionOperationModel";
 import { NotParsableContracts } from "../models/NotParsableContractModel";
+import * as BluebirdPromise from "bluebird";
 
 export class TokenParser {
     private abiDecoder = require("abi-decoder");
@@ -144,24 +145,48 @@ export class TokenParser {
     }
 
 
-    public getTokenBalances(address: string) {
+    public async getTokenBalances(address: string) {
+        const operations = await this.getTransactionOperations(address);
+        const tokenContracts: any[] = this.extractTokenContracts(operations);
+        const contractDetails: any = await this.getContractDetails(tokenContracts);
+
+        return BluebirdPromise.map(contractDetails, (contract: any) => {
+            return this.getTokenBalance(address, contract.address).then((balance: string) => {
+                return {
+                    balance,
+                    contract: {
+                        address: contract.address,
+                        name: contract.name,
+                        symbol: contract.symbol,
+                        decimals: contract.decimals,
+                    }
+                }
+            });
+        });
+    }
+
+    public getTransactionOperations(address: string) {
         return TransactionOperation.find({
             "$or": [
                 {to: address},
                 {from: address}
             ]
-        }).select("contract").exec().then((operations: any) => {
-            const tokenContracts = this.extractTokenContracts(operations);
-            const contractDetailsPromises = this.getContractDetails(tokenContracts);
-            return Promise.all(contractDetailsPromises).then((tokens: any[]) => {
-                const balancePromises: any = [];
+            }).select("contract").exec().then((operations: any) => operations)
+            .catch((error: Error) => {
+                winston.error(`Error getting operations by address ${error}`)
+            })
+    }
 
-                // get the balances
-                tokens.map((token: any) => {
-                    balancePromises.push(getTokenBalanceForAddress(address, token.address, token.decimals));
-                });
-                return Promise.all(balancePromises);
-            });
+    private getTokenBalance(address: string, contractAddress: string) {
+        const tokenAddress: string = address.substring(2);
+        const getBalanceSelector: string = Config.web3.utils.sha3("balanceOf(address)").slice(0, 10);
+
+        return Config.web3.eth.call({
+            to: contractAddress,
+            data: `${getBalanceSelector}000000000000000000000000${tokenAddress}`
+        }).then((balance: string) => Config.web3.utils.toBN(balance).toString()
+        ).catch((error: Error) => {
+            winston.info("Error getting token balance ", error);
         });
     }
 
@@ -177,17 +202,17 @@ export class TokenParser {
             : a, []);
     }
 
-    private getContractDetails(tokenContracts: any) {
-        const promises: any = [];
-        tokenContracts.map((tokenContract: any) => {
-            promises.push(ERC20Contract.findById(tokenContract).then((token: any) => {
+    private getContractDetails(contracts: any) {
+        return BluebirdPromise.map(contracts, (contract: string) => {
+            return ERC20Contract.findById(contract).then((contract: any) => {
                 return {
-                    address: token.address,
-                    decimals: token.decimals
+                    address: contract.address,
+                    symbol: contract.symbol,
+                    decimals: contract.decimals,
+                    name: contract.name,
                 }
-            }));
+            });
         });
-        return promises;
     }
 
     private performSingleTokenBalanceUpdate(address: string, contractAddress: string, updateVal: number, txId: string) {
