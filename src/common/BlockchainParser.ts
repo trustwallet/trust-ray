@@ -1,11 +1,10 @@
 import * as winston from "winston";
-
 import { TransactionParser } from "./TransactionParser";
 import { TokenParser } from "./TokenParser";
 import { Config } from "./Config";
 import { LastParsedBlock } from "../models/LastParsedBlockModel";
 import { setDelay } from "./Utils";
-
+const config = require("config");
 
 /**
  * Parses the blockchain for transactions and tokens.
@@ -19,6 +18,8 @@ export class BlockchainParser {
     private tokenParser: TokenParser;
     private concurrentBlocks: number = 1;
     private rebalanceOffsets: number[] = [30];
+    private forwardParsedDelay: number = parseInt(config.get("PARSER.DELAYS.FORWARD")) || 100;
+    private backwardParsedDelay: number = parseInt(config.get("PARSER.DELAYS.BACKWARD")) || 300;
 
     constructor() {
         this.transactionParser = new TransactionParser();
@@ -48,7 +49,7 @@ export class BlockchainParser {
                     return this.saveLastParsedBlock(endBlock);
                 }).then((saved: {lastBlock: number}) => {
                     winston.info("New latest block in DB :", saved.lastBlock);
-                    return setDelay(100);
+                    return setDelay(this.forwardParsedDelay);
                 }).then(() =>  {
                     return this.startForwardParsing();
                 }).catch((err: Error) => {
@@ -83,7 +84,7 @@ export class BlockchainParser {
             this.parse(nextBlock, blockInChain, false).then((endBlock: number) => {
                 return this.saveLastBackwardBlock(endBlock);
             }).then((block) => {
-                return setDelay(300).then(() => {
+                return setDelay(this.backwardParsedDelay).then(() => {
                     if (block.lastBackwardBlock > 1) {
                         return this.startBackwardParsing();
                     } else {
