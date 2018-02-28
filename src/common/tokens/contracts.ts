@@ -113,5 +113,9 @@ module.exports = {
     "0xf41e5fbc2f6aac200dd8619e121ce1f05d150077": {
         name: "CrycashToken",
         symbol: "SRC"
+    },
+    "0x42901532700341c0b26854fa7c0eda1a66f1158e": {
+        name: "Geo Coins",
+        symbol: "GEO"
     }
 }
