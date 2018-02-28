@@ -47,14 +47,19 @@ export class Notification {
                 }
 
                 if (transactionType === "token_transfer") {
-                    const operations = transaction.operations[0];
-                    const decimal = operations.contract.decimals;
-                    const title = `${transactionAction} ${getValueInEth(operations.value, decimal)} ${operations.contract.symbol} from`;
-                    const tokenMessage = this.createMeassage(title, from);
+                    const operations = transaction.operations.filter((operation: any) => operation.to === wallet);
+                    return Promise.map(operations, (operation: any) => {
+                        const decimal: number = operation.contract.decimals;
+                        const symbol: string = operation.contract.symbol;
+                        const value: string = operation.value;
 
-                    return this.send(token, tokenMessage).then((notificationResult: any) => {
-                        winston.info("Notification result :", JSON.stringify(notificationResult));
-                    });
+                        const title = `${transactionAction} ${getValueInEth(value, decimal)} ${symbol} from`;
+                        const tokenMessage = this.createMeassage(title, from);
+
+                        return this.send(token, tokenMessage).then((notificationResult: any) => {
+                            winston.info("Notification result :", JSON.stringify(notificationResult));
+                        });
+                    })
                 }
             }
         });
@@ -71,7 +76,7 @@ export class Notification {
     private getTransactionType(transaction: {operations: any[]}): string {
         const operations = transaction.operations;
 
-        return operations.length >= 1 ? operations[0].type : "transfer";
+        return operations.length >= 1 ? "token_transfer" : "transfer";
     }
 
     private send(token: string, data: any) {
