@@ -117,5 +117,9 @@ module.exports = {
     "0x42901532700341c0b26854fa7c0eda1a66f1158e": {
         name: "Geo Coins",
         symbol: "GEO"
+    },
+    "0x45555629aabfea138ead1c1e5f2ac3cce2add830": {
+        name: "CandyHCoin",
+        symbol: "CANDY"
     }
 }
