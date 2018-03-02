@@ -38,7 +38,7 @@ export class AssetsController {
 
     private mergeAssets(assets: any, urls: any): any[] {
         return assets.map((asset: any, i: number) => {
-            return Object.assign(asset, {external_link: urls[i]})
+            return Object.assign(asset, {image_url: urls[i]})
         });
 
     }
