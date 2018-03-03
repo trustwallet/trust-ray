@@ -121,5 +121,10 @@ module.exports = {
     "0x45555629aabfea138ead1c1e5f2ac3cce2add830": {
         name: "CandyHCoin",
         symbol: "CANDY"
+    },
+    "0x78b039921e84e726eb72e7b1212bb35504c645ca": {
+        id: "sether",
+        symbol: "SETH",
+        name: "Sether"
     }
 }
