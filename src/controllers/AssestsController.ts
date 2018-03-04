@@ -48,7 +48,7 @@ export class AssetsController {
 
             if (categories.hasOwnProperty(assetID)) {
                 if (categories[assetID].id = assetID) {
-                    categories[assetID].items.push(asset);
+                    categories[assetID].items.push(this.deleteProperty(asset, "category"));
                 }
             } else {
                 categories[assetID] = {
@@ -56,8 +56,8 @@ export class AssetsController {
                     id: asset.contract_address,
                     items: []
                 }
-                
-                categories[assetID].items.push(asset)
+
+                categories[assetID].items.push(this.deleteProperty(asset, "category"))
             }
         })
 
@@ -70,6 +70,12 @@ export class AssetsController {
 
     getAssetName(name: string): string {
         return name.substring(0, name.indexOf(" ") + 1);
+    }
+
+    private deleteProperty(object: any, prop: string) {
+        const newState = Object.assign({}, object);
+        delete newState[prop];
+        return newState;
     }
 
     private async getAssetsByAddress(address: string) {
