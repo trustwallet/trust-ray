@@ -17,7 +17,8 @@ export class AssetsController {
             const assetsByAddress = await this.getAssetsByAddress(address);
             const assets: IAsset[] = assetsByAddress.map((asset: IAsset) => {
                 return {
-                    id: asset.asset_contract.address,
+                    token_id: asset.token_id,
+                    contract_address: asset.asset_contract.address,
                     category: asset.asset_contract.name,
                     image_url: asset.image_url,
                     name: asset.name,
@@ -43,19 +44,19 @@ export class AssetsController {
         const categories: any = {};
 
         assets.forEach((asset: any) => {
-            const assetID = asset.id;
+            const assetID = asset.contract_address;
 
             if (categories.hasOwnProperty(assetID)) {
                 if (categories[assetID].id = assetID) {
                     categories[assetID].items.push(asset);
                 }
             } else {
-                categories[asset.id] = {
+                categories[assetID] = {
                     name: asset.category,
-                    id: asset.id,
+                    id: asset.contract_address,
                     items: []
                 }
-
+                
                 categories[assetID].items.push(asset)
             }
         })
