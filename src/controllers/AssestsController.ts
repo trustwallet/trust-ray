@@ -9,7 +9,7 @@ import * as config from "config";
 const svg2png = require("svg2png");
 
 export class AssetsController {
-    private openSeaURL: string = "https://opensea-api.herokuapp.com/assets/?order_by=auction_created_date&order_direction=desc&owner=";
+    private openSeaURL: string = "https://opensea-api.herokuapp.com/assets/?order_by=auction_created_date&limit=100&order_direction=desc&owner=";
 
     getAssets = async (req: Request, res: Response) => {
         const address: string = req.query.address;
@@ -44,11 +44,12 @@ export class AssetsController {
         const categories: any = {};
 
         assets.forEach((asset: any) => {
-            const assetID = asset.contract_address;
+            const filteredAsset: any = this.removeAssetProperty(asset);
+            const assetID = filteredAsset.contract_address;
 
             if (categories.hasOwnProperty(assetID)) {
                 if (categories[assetID].id = assetID) {
-                    categories[assetID].items.push(asset);
+                    categories[assetID].items.push(filteredAsset);
                 }
             } else {
                 categories[assetID] = {
@@ -56,8 +57,8 @@ export class AssetsController {
                     id: asset.contract_address,
                     items: []
                 }
-                
-                categories[assetID].items.push(asset)
+
+                categories[assetID].items.push(filteredAsset);
             }
         })
 
@@ -68,8 +69,11 @@ export class AssetsController {
         return sortedAssets
     }
 
-    getAssetName(name: string): string {
-        return name.substring(0, name.indexOf(" ") + 1);
+    private removeAssetProperty(obj: any) {
+        const propertyToRemove: string[] = ["category"];
+        return Object.keys(obj)
+            .filter((key) => propertyToRemove.indexOf(key) < 0)
+            .reduce((newObj, key) => Object.assign(newObj, { [key]: obj[key] }), {});
     }
 
     private async getAssetsByAddress(address: string) {
