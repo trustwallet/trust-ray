@@ -25,7 +25,6 @@ export class AssetsController {
                     description: asset.description
                 }
             });
-            // console.log("assets", assets)
             const assetsURI: string[] = assets.map((asset: IAsset) => asset.image_url);
             const urlBuffers = await this.getURLBuffer(assetsURI);
             const s3URLs = await this.getS3URL(urlBuffers);
