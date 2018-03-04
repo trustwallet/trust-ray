@@ -55,6 +55,8 @@ export class AssetsController {
                     id: asset.id,
                     items: []
                 }
+
+                categories[assetID].items.push(asset)
             }
         })
 
