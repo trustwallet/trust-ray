@@ -44,11 +44,12 @@ export class AssetsController {
         const categories: any = {};
 
         assets.forEach((asset: any) => {
-            const assetID = asset.contract_address;
+            const filteredAsset: any = this.removeAssetProperty(asset);
+            const assetID = filteredAsset.contract_address;
 
             if (categories.hasOwnProperty(assetID)) {
                 if (categories[assetID].id = assetID) {
-                    categories[assetID].items.push(this.deleteProperty(asset, "category"));
+                    categories[assetID].items.push(filteredAsset);
                 }
             } else {
                 categories[assetID] = {
@@ -57,7 +58,7 @@ export class AssetsController {
                     items: []
                 }
 
-                categories[assetID].items.push(this.deleteProperty(asset, "category"))
+                categories[assetID].items.push(filteredAsset);
             }
         })
 
@@ -68,14 +69,11 @@ export class AssetsController {
         return sortedAssets
     }
 
-    getAssetName(name: string): string {
-        return name.substring(0, name.indexOf(" ") + 1);
-    }
-
-    private deleteProperty(object: any, prop: string) {
-        const newState = Object.assign({}, object);
-        delete newState[prop];
-        return newState;
+    private removeAssetProperty(obj: any) {
+        const propertyToRemove: string[] = ["category"];
+        return Object.keys(obj)
+            .filter((key) => propertyToRemove.indexOf(key) < 0)
+            .reduce((newObj, key) => Object.assign(newObj, { [key]: obj[key] }), {});
     }
 
     private async getAssetsByAddress(address: string) {
