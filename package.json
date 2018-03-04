@@ -41,6 +41,7 @@
     "@types/xss-filters": "0.0.27",
     "abi-decoder": "kolya182/abi-decoder#master",
     "async": "^2.1.2",
+    "aws-sdk": "^2.204.0",
     "axios": "^0.17.1",
     "bignumber.js": "^6.0.0",
     "bluebird": "^3.5.1",

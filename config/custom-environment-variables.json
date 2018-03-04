@@ -17,5 +17,12 @@
             "FORWARD": "PARSER_DELAY_FORWARD",
             "BACKWARD": "PARSER_DELAY_BACKWARD"
         }
+    },
+    "AWS": {
+        "S3": {
+            "ACCESSKEYID": "S3_ACCESSKEYID",
+            "SECRETACCESSKEY": "S3_SECRETACCESSKEY"
+        },
+        "BUCKET": "S3BUCKET"
     }
 }
