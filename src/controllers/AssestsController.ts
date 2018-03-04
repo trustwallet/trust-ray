@@ -5,6 +5,7 @@ import * as winston from "winston";
 import { IAsset } from "./Interfaces/IAssetsController";
 import s3 from "../common/S3";
 import * as Bluebird from "bluebird";
+import * as config from "config";
 const svg2png = require("svg2png");
 
 export class AssetsController {
@@ -14,33 +15,59 @@ export class AssetsController {
         const address: string = req.query.address;
         try {
             const assetsByAddress = await this.getAssetsByAddress(address);
-            const assets = assetsByAddress.map((asset: IAsset) => {
+            const assets: IAsset[] = assetsByAddress.map((asset: IAsset) => {
                 return {
+                    id: asset.asset_contract.address,
+                    category: asset.asset_contract.name,
                     image_url: asset.image_url,
                     name: asset.name,
                     external_link: asset.external_link,
                     description: asset.description
                 }
             });
-
+            // console.log("assets", assets)
             const assetsURI: string[] = assets.map((asset: IAsset) => asset.image_url);
             const urlBuffers = await this.getURLBuffer(assetsURI);
-            const s3URLs = await this.uploadToS3(urlBuffers);
-            const final = this.mergeAssets(assets, s3URLs);
+            const s3URLs = await this.getS3URL(urlBuffers);
+            const assetsByCategory = this.mergeAssets(assets, s3URLs);
 
         sendJSONresponse(res, 200, {
-            docs: final
+            docs: assetsByCategory
         });
         } catch (error) {
             sendJSONresponse(res, 404, "Assets can not be retrived");
         }
     }
 
-    private mergeAssets(assets: any, urls: any): any[] {
-        return assets.map((asset: any, i: number) => {
-            return Object.assign(asset, {image_url: urls[i]})
-        });
+    private mergeAssets(assets: IAsset[], urls: string[]) {
+        const sortedAssets: any = [];
+        const categories: any = {};
 
+        assets.forEach((asset: any) => {
+            const assetID = asset.id;
+
+            if (categories.hasOwnProperty(assetID)) {
+                if (categories[assetID].id = assetID) {
+                    categories[assetID].items.push(asset);
+                }
+            } else {
+                categories[asset.id] = {
+                    name: asset.category,
+                    id: asset.id,
+                    items: []
+                }
+            }
+        })
+
+        for (const id in categories) {
+            sortedAssets.push(categories[id])
+        }
+
+        return sortedAssets
+    }
+
+    getAssetName(name: string): string {
+        return name.substring(0, name.indexOf(" ") + 1);
     }
 
     private async getAssetsByAddress(address: string) {
@@ -71,41 +98,48 @@ export class AssetsController {
         })
     }
 
-    private uploadToS3(buffers: any[]) {
+    private getS3URL(buffers: any[]) {
 
         return Bluebird.map(buffers, async (buffer) => {
-            const bufferPNG = await this.convertSvg(buffer.buffer);
-            const params = {
-                ACL: "public-read",
-                Bucket: "trustwallet",
-                Key: `${this.getID(buffer.url)}.png`,
-                ContentType: "image/png",
-                Body: bufferPNG
-            }
+            const url: string = buffer.url;
+            const fileExt: string = url.split(".").pop();
+            const fileName: string = url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("."));
 
-            return s3.upload(params).promise().then((uploaded: any) => {
-                return uploaded.Location;
-            })
-            .catch((error) => {
-                winston.error(`Error uploading image ot S3`, error);
-            })
+            if (fileExt === "png") return url;
+
+            if (fileExt === "svg") {
+                const bufferPNG = await this.converSvgToPng(buffer.buffer);
+                const params = this.getS3Params(fileName, "png", bufferPNG);
+                console.log({params})
+                return s3.upload(params).promise().then((uploaded: any) => {
+                    return uploaded.Location;
+                })
+                .catch((error) => {
+                    winston.error(`Error uploading image ot S3`, error);
+                })
+            }
         })
     }
 
-    private getID(url: string): string {
-        return url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("."));
+    private getS3Params(name: string, ext: string, buffer: any) {
+        const bucket: string = config.get("AWS.BUCKET");
+        return  {
+            ACL: "public-read",
+            Bucket: bucket,
+            Key: `${name}.${ext}`,
+            ContentType: `image/${ext}`,
+            Body: buffer
+        }
     }
 
-    private convertSvg(buffer: any) {
+    private converSvgToPng(buffer: any) {
         return svg2png(buffer, {
             width: 256,
             height: 256
         }).then((pngBuffer: any) => pngBuffer)
         .catch((errr: Error) => {
-            winston.error(`Errro converting SVg`, errr)
+            winston.error(`Error converting SVG`, errr)
         })
     }
 }
-
-
 
