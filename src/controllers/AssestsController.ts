@@ -9,7 +9,7 @@ import * as config from "config";
 const svg2png = require("svg2png");
 
 export class AssetsController {
-    private openSeaURL: string = "https://opensea-api.herokuapp.com/assets/?order_by=auction_created_date&order_direction=desc&owner=";
+    private openSeaURL: string = "https://opensea-api.herokuapp.com/assets/?order_by=auction_created_date&limit=100&order_direction=desc&owner=";
 
     getAssets = async (req: Request, res: Response) => {
         const address: string = req.query.address;
