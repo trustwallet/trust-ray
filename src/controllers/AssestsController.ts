@@ -111,7 +111,7 @@ export class AssetsController {
             if (fileExt === "svg") {
                 const bufferPNG = await this.converSvgToPng(buffer.buffer);
                 const params = this.getS3Params(fileName, "png", bufferPNG);
-                console.log({params})
+
                 return s3.upload(params).promise().then((uploaded: any) => {
                     return uploaded.Location;
                 })
