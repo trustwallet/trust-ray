@@ -43,12 +43,13 @@ export class AssetsController {
         const sortedAssets: any = [];
         const categories: any = {};
 
-        assets.forEach((asset: any) => {
+        assets.forEach((asset: any, i: number) => {
             const assetID = asset.contract_address;
 
             if (categories.hasOwnProperty(assetID)) {
                 if (categories[assetID].id = assetID) {
-                    categories[assetID].items.push(asset);
+                    // categories[assetID].items.push(...asset, "image_url": urls[i]);
+                    categories[assetID].items.push({...asset, image_url: urls[i]});
                 }
             } else {
                 categories[assetID] = {
@@ -56,8 +57,8 @@ export class AssetsController {
                     id: asset.contract_address,
                     items: []
                 }
-                
-                categories[assetID].items.push(asset)
+
+                categories[assetID].items.push({...asset, image_url: urls[i]})
             }
         })
 
