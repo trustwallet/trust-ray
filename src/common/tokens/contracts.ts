@@ -126,5 +126,10 @@ module.exports = {
         id: "sether",
         symbol: "SETH",
         name: "Sether"
+    },
+    "0x226bb599a12c826476e3a771454697ea52e9e220": {
+        id: "propy",
+        symbol: "PRO",
+        name: "Propy"
     }
 }
