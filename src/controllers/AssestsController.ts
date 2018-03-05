@@ -48,7 +48,6 @@ export class AssetsController {
 
             if (categories.hasOwnProperty(assetID)) {
                 if (categories[assetID].id = assetID) {
-                    // categories[assetID].items.push(...asset, "image_url": urls[i]);
                     categories[assetID].items.push({...asset, image_url: urls[i]});
                 }
             } else {
@@ -67,10 +66,6 @@ export class AssetsController {
         }
 
         return sortedAssets
-    }
-
-    getAssetName(name: string): string {
-        return name.substring(0, name.indexOf(" ") + 1);
     }
 
     private async getAssetsByAddress(address: string) {
