@@ -5,7 +5,9 @@ import { Config } from "./Config";
 import { getTokenBalanceForAddress, loadContractABIs } from "./Utils";
 import { TransactionOperation } from "../models/TransactionOperationModel";
 import { NotParsableContracts } from "../models/NotParsableContractModel";
+import { Transaction } from "../models/TransactionModel";
 import * as BluebirdPromise from "bluebird";
+const flattenDeep = require("lodash.flattendeep");
 
 export class TokenParser {
     private abiDecoder = require("abi-decoder");
@@ -146,8 +148,9 @@ export class TokenParser {
 
 
     public async getTokenBalances(address: string) {
-        const operations = await this.getTransactionOperations(address);
-        const tokenContracts: any[] = this.extractTokenContracts(operations);
+        const addressOperations = await this.getOperationstionsByAddress(address);
+        const flattenOperations = flattenDeep(addressOperations);
+        const tokenContracts: any[] = this.extractTokenContracts(flattenOperations);
         const contractDetails: any = await this.getContractDetails(tokenContracts);
 
         return BluebirdPromise.map(contractDetails, (contract: any) => {
@@ -165,18 +168,6 @@ export class TokenParser {
         });
     }
 
-    public getTransactionOperations(address: string) {
-        return TransactionOperation.find({
-            "$or": [
-                {to: address},
-                {from: address}
-            ]
-            }).select("contract").exec().then((operations: any) => operations)
-            .catch((error: Error) => {
-                winston.error(`Error getting operations by address ${error}`)
-            })
-    }
-
     private getTokenBalance(address: string, contractAddress: string) {
         const tokenAddress: string = address.substring(2);
         const getBalanceSelector: string = Config.web3.utils.sha3("balanceOf(address)").slice(0, 10);
@@ -190,11 +181,30 @@ export class TokenParser {
         });
     }
 
+    private getOperationstionsByAddress(address: string) {
+        return Transaction.find({"addresses": {$in: [address]}})
+            .populate({
+                path: "operations",
+                model: "TransactionOperation",
+                match: {$or: [
+                                {to: {$eq: address}},
+                                {from: {$eq: address}}
+                            ]},
+                populate: {
+                    path: "contract",
+                    model: "ERC20Contract",
+                }
+            }).exec().then((transactions: any) => transactions.map((transaction: any) => transaction.operations))
+            .catch((error: Error) => {
+                winston.error(`Error getting operations by address ${error}`)
+            });
+    }
+
     private extractTokenContracts(operations: any) {
-        const tokenContracts: any = [];
+        const tokenContracts: string[] = [];
         // extract tokens
         operations.map((operation: any) => {
-            tokenContracts.push(operation.contract);
+            tokenContracts.push(operation.contract.address);
         });
         // remove duplicates
         return tokenContracts.reduce((a: any, b: any) => a.findIndex((e: any) => String(e) === String(b)) < 0
@@ -202,15 +212,19 @@ export class TokenParser {
             : a, []);
     }
 
-    private getContractDetails(contracts: any) {
+    private getContractDetails(contracts: string[]) {
         return BluebirdPromise.map(contracts, (contract: string) => {
-            return ERC20Contract.findById(contract).then((contract: any) => {
+            const contractPromise = ERC20Contract.findOne({address: contract}).exec();
+
+            return contractPromise.then((contract: any) => {
                 return {
                     address: contract.address,
                     symbol: contract.symbol,
                     decimals: contract.decimals,
                     name: contract.name,
                 }
+            }).catch((error: Error) => {
+                winston.error(`Can not find ERC20 contract by address`, error);
             });
         });
     }
