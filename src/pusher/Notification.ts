@@ -3,6 +3,7 @@ import * as winston from "winston";
 import { Promise } from "bluebird";
 import { Config } from "../common/Config";
 import { getValueInEth } from "../common/ValueConverter";
+import {  TransactionType, TransactionAction } from "./Interfaces/INotification";
 
 const PushNotifications = require("node-pushnotifications");
 const config = require("config");
@@ -34,7 +35,7 @@ export class Notification {
         const token: string = device.token;
 
         return Promise.mapSeries(device.wallets, (wallet: string) => {
-            const transactionAction = from === wallet ? "Sent" : "Received";
+            const transactionAction = from === wallet ? TransactionAction.Sent : TransactionAction.Received;
 
             if (addresses.indexOf(wallet) !== -1) {
                 if (transactionType === "transfer") {
@@ -75,8 +76,7 @@ export class Notification {
 
     private getTransactionType(transaction: {operations: any[]}): string {
         const operations = transaction.operations;
-
-        return operations.length >= 1 ? "token_transfer" : "transfer";
+        return operations.length >= 1 ? TransactionType.TokenTransfer : TransactionType.Transfer;
     }
 
     private send(token: string, data: any) {
