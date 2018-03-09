@@ -8,6 +8,7 @@ import { ISavedDevice } from "./Interfaces/IPusherController"
 export class Pusher {
     register(req: Request, res: Response) {
         const wallets: string[] = req.body.wallets.map((wallet: string) => wallet.toLowerCase());
+        const unuqieWallets = [...(new Set(wallets))];
         const inputPreferences = req.body.preferences || {};
         const preferences = {
             isAirdrop: inputPreferences.isAirdrop || false
@@ -16,7 +17,7 @@ export class Pusher {
         Device.findOneAndUpdate({
             deviceID: req.body.deviceID
         }, {
-            wallets,
+            wallets: unuqieWallets,
             token: req.body.token,
             preferences
         }, {
