@@ -15,6 +15,12 @@ describe("Register device", () => {
         });
     });
 
+    afterEach((done) => {
+        Device.remove({}, (err) => {
+            done();
+        });
+    });
+
     const deviceID = "B14BD907-324A-4A40-98A1-A255CC6D2BE5";
     const token = "451adb42d54498d9554b4b11a749cac665558707fb488a2cf06cc259336c7db2";
     const address = "0xc344e083393ec50bf36be81b8995b0f2aa2c5716";
