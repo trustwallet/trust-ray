@@ -7,7 +7,7 @@ import { PriceController } from "../controllers/PriceController";
 import { TokenPriceController } from "../controllers/TokenPriceController";
 import { AssetsController } from "../controllers/AssestsController";
 
-const router = express["Router"]();
+const router = express.Router();
 
 const transactionController = new TransactionController();
 const tokenController = new TokenController();
