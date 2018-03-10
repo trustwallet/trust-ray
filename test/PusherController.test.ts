@@ -10,13 +10,13 @@ const app = new App().app;
 
 describe("Register device", () => {
     beforeEach((done) => {
-        Device.remove({}, (err) => {
+        Device.remove({}, err => {
             done();
         });
     });
 
     afterEach((done) => {
-        Device.remove({}, (err) => {
+        Device.remove({}, err => {
             done();
         });
     });
@@ -25,7 +25,7 @@ describe("Register device", () => {
     const token = "451adb42d54498d9554b4b11a749cac665558707fb488a2cf06cc259336c7db2";
     const address = "0xc344e083393ec50bf36be81b8995b0f2aa2c5716";
 
-    it("Should register device", (done) => {
+    it("Should register device", done => {
         const device = {
             deviceID,
             token,
@@ -51,11 +51,11 @@ describe("Register device", () => {
                 response.should.have.property("createdAt").to.be.a("string");
                 response.should.have.property("createdAt").to.be.a("string");
                 response.should.have.property("token").eql(token);
-                done()
-            })
+                done();
+            });
     })
 
-    it("Should register only one wallet if dublicates present", (done) => {
+    it("Should register only one wallet if dublicates present", done => {
         const device = {
             deviceID,
             token,
@@ -68,7 +68,7 @@ describe("Register device", () => {
             .end((err, res) => {
                 const response = res.body.response;
                 response.should.have.property("wallets").eql([address]);
-                done()
-            })
+                done();
+            });
     })
 })
