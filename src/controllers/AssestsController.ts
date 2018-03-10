@@ -6,12 +6,23 @@ import { IAsset } from "./Interfaces/IAssetsController";
 import s3 from "../common/S3";
 import * as Bluebird from "bluebird";
 import * as config from "config";
+import { Config } from "../common/Config"
 const svg2png = require("svg2png");
 
 export class AssetsController {
+    private networkID: number;
     private openSeaURL: string = "https://opensea-api.herokuapp.com/assets/?order_by=auction_created_date&order_direction=desc&owner=";
 
     getAssets = async (req: Request, res: Response) => {
+        if (!this.networkID) {
+            this.networkID = await Config.web3.eth.net.getId().then((id: number) => id);
+        }
+
+        if (this.networkID !== 1) {
+            return sendJSONresponse(res, 200, {
+                docs: []
+            });
+        }
         const address: string = req.query.address;
         try {
             const assetsByAddress = await this.getAssetsByAddress(address);
