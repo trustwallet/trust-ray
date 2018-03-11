@@ -27,7 +27,9 @@ export class TokenController {
 
         new TokenParser().getTokenBalances(query.address).then((balances: any) => {
             if (balances) {
-                sendJSONresponse(res, 200, balances);
+                sendJSONresponse(res, 200, {
+                    docs: balances
+                });
             } else {
                 sendJSONresponse(res, 404, "Balances for tokens could not be found.");
             }
