@@ -28,7 +28,7 @@ export class BlockchainParser {
 
     public start() {
         this.startForwardParsing();
-        this.startBackwardParsing();
+        this.scheduleBackwardParsing();
     }
 
     public startForwardParsing() {
