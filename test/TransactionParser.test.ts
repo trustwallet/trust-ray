@@ -22,7 +22,7 @@ describe("Test TransactionParser", () => {
             transaction.should.to.have.property("gasPrice").to.be.a("string");
             transaction.should.to.have.property("gasUsed").to.be.a("string");
             transaction.should.to.have.property("input").to.be.a("string");
-            transaction.should.to.have.property("addresses").to.be.a("array");
+            transaction.should.to.have.property("addresses").to.be.a("array").to.have.lengthOf(2);
         })
 
         it("Should extract contract creation transaction correctly", () => {
