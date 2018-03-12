@@ -8,4 +8,4 @@ const pusher = new PusherScanner();
 const app = new App();
 
 parser.start();
-// pusher.start();
+pusher.start();
