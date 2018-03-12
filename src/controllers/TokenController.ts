@@ -45,6 +45,7 @@ export class TokenController {
             }
             let tokens = res.data.tokens.map((value: any) =>{
                 return {
+                    balance: "0",
                     contract: {
                         address: value.tokenInfo.address,
                         name: value.tokenInfo.name,
@@ -57,14 +58,20 @@ export class TokenController {
         }).then((value) => {
             return new TokenParser().getTokenBalances(address).then((balances: any) => {
                 let tokens = balances.map((value: any) =>{
-                    return { contract: value.contract }
+                    return { 
+                        balance: "0",
+                        contract: value.contract 
+                    }
                 })
                 return Promise.resolve(tokens.concat(value));
             }); 
         }).catch((err) => {
             return new TokenParser().getTokenBalances(address).then((balances: any) => {
                 let tokens = balances.map((value: any) =>{
-                    return { contract: value.contract }
+                    return { 
+                        balance: "0",
+                        contract: value.contract 
+                    }
                 })
                 return Promise.resolve(tokens);
             });
