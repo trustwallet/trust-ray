@@ -62,7 +62,12 @@ export class TokenController {
                 return Promise.resolve(tokens.concat(value));
             }); 
         }).catch((err) => {
-            return Promise.resolve([]);
+            return new TokenParser().getTokenBalances(address).then((balances: any) => {
+                let tokens = balances.map((value: any) =>{
+                    return { contract: value.contract }
+                })
+                return Promise.resolve(tokens);
+            });
         })
     }
 
