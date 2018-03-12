@@ -40,7 +40,7 @@ export class TokenController {
         let url = `https://api.ethplorer.io/getAddressInfo/${address}?apiKey=freekey`
         return axios.get(url).then((res: any) => {
             // easier this way
-            if (config.get("RPC_SERVER") === "http://gasprice.poa.network:8545") {
+            if (config.get("RPC_SERVER") !== "http://gasprice.poa.network:8545") {
                 return Promise.resolve([]);
             }
             let tokens = res.data.tokens.map((value: any) =>{
