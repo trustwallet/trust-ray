@@ -4,8 +4,7 @@ import { TransactionOperation } from "../models/TransactionOperationModel";
 import { removeScientificNotationFromNumbString } from "./Utils";
 import { Config } from "./Config";
 import { Promise } from "bluebird";
-import { IDecodedLog, IContract, ITransaction } from "./CommonInterfaces";
-
+import { IDecodedLog, IContract, ITransaction, IBlock, IExtractedTransaction, ISavedTransaction } from "./CommonInterfaces";
 const erc20abi = require("./contracts/Erc20Abi");
 const erc20ABIDecoder = require("abi-decoder");
 erc20ABIDecoder.addABI(erc20abi);
@@ -23,14 +22,14 @@ export class TransactionParser {
                 return new Transaction(this.extractTransactionData(block, tx));
             });
         });
-        const txIDs = extractedTransactions.map((tx: ITransaction) => tx._id);
+        const txIDs = extractedTransactions.map((tx: IExtractedTransaction) => tx._id);
 
         return this.fetchTransactionReceipts(txIDs).then((receipts: any) => {
             return this.mergeTransactionsAndReceipts(extractedTransactions, receipts);
         }).then((transactions: any) => {
             const bulkTransactions = Transaction.collection.initializeUnorderedBulkOp();
 
-            transactions.forEach((transaction: ITransaction) =>
+            transactions.forEach((transaction: IExtractedTransaction) =>
                 bulkTransactions.find({_id: transaction._id}).upsert().replaceOne(transaction)
             );
 
@@ -68,9 +67,10 @@ export class TransactionParser {
         return newTransaction;
     }
 
-    private extractTransactionData(block: any, transaction: any) {
+    extractTransactionData(block: IBlock, transaction: ITransaction) {
         const from = String(transaction.from).toLowerCase();
-        const to = String(transaction.to).toLowerCase();
+        const to: string = transaction.to === null ? "" : String(transaction.to).toLowerCase();
+        const addresses: string[] = to ? [from, to] : [from];
 
         return {
             _id: String(transaction.hash),
@@ -84,13 +84,13 @@ export class TransactionParser {
             gasPrice: String(transaction.gasPrice),
             gasUsed: String(0),
             input: String(transaction.input),
-            addresses: [from, to]
+            addresses
         };
     }
 
     // ========================== OPERATION PARSING ========================== //
 
-    public parseTransactionOperations(transactions: ITransaction[], contracts: IContract[]) {
+    public parseTransactionOperations(transactions: ISavedTransaction[], contracts: IContract[]) {
         if (!transactions || !contracts) return Promise.resolve();
 
         return Promise.map(transactions, (transaction) => {

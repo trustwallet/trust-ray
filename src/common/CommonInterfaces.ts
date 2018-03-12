@@ -32,7 +32,7 @@ export interface ITransactionReceipt {
     logs: any[] // TODO add log interface
 }
 
-export interface ITransaction {
+export interface ISavedTransaction {
     _id: string,
     addresses: string[],
     blockNumber: number,
@@ -58,7 +58,7 @@ export interface ITransaction {
         blockHash: string | null,
         blockNumber: number,
         from: string,
-        gas: string,
+        gas: number,
         gasPrice: string,
         hash: string,
         input: string,
@@ -69,6 +69,10 @@ export interface ITransaction {
         v?: string,
         r?: string,
         s?: string
+}
+
+export interface IExtractedTransaction extends ITransaction {
+    _id: string
 }
 
 export interface IBlock {
