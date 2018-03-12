@@ -3,7 +3,8 @@ import { sendJSONresponse } from "../common/Utils";
 import { Token } from "../models/TokenModel";
 import * as xss from "xss-filters";
 import { TokenParser } from "../common/TokenParser";
-
+import axios from "axios";
+const config = require("config");
 
 export class TokenController {
 
@@ -19,21 +20,55 @@ export class TokenController {
         // extract query parameters
         const queryParams = TokenController.extractQueryParameters(req);
 
-        // build up query
         const query: any = {};
         if (queryParams.address !== "undefined") {
             query.address = queryParams.address.toLowerCase();
         }
-
-        new TokenParser().getTokenBalances(query.address).then((balances: any) => {
-            if (balances) {
+    
+        TokenController.getRemoteTokens(queryParams.address).then((tokens: any) => { 
+            if (tokens) {
                 sendJSONresponse(res, 200, {
-                    docs: balances
+                    docs: tokens
                 });
             } else {
                 sendJSONresponse(res, 404, "Balances for tokens could not be found.");
             }
-        });
+        });                  
+    }
+
+    public static getRemoteTokens(address: string): any {
+        let url = `https://api.ethplorer.io/getAddressInfo/${address}?apiKey=freekey`
+        return axios.get(url).then((res: any) => {
+            // easier this way
+            if (config.get("RPC_SERVER") === "http://gasprice.poa.network:8545") {
+                return Promise.resolve([]);
+            }
+            let tokens = res.data.tokens.map((value: any) =>{
+                return {
+                    contract: {
+                        address: value.tokenInfo.address,
+                        name: value.tokenInfo.name,
+                        decimals: parseInt(value.tokenInfo.decimals),
+                        symbol: value.tokenInfo.symbol
+                    }
+                }
+            })
+            return Promise.resolve(tokens);
+        }).then((value) => {
+            return new TokenParser().getTokenBalances(address).then((balances: any) => {
+                let tokens = balances.map((value: any) =>{
+                    return { contract: value.contract }
+                })
+                return Promise.resolve(tokens.concat(value));
+            }); 
+        }).catch((err) => {
+            return new TokenParser().getTokenBalances(address).then((balances: any) => {
+                let tokens = balances.map((value: any) =>{
+                    return { contract: value.contract }
+                })
+                return Promise.resolve(tokens);
+            });
+        })
     }
 
     public readOneToken(req: Request, res: Response) {
