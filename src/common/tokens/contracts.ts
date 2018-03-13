@@ -1067,4 +1067,70 @@ export const contracts = {
     "0x93ec72cee6f98b43117d4c009a59d9d9c468feec": {
         id: "carvertical"
     },
+    "0x63b992e6246d88f07fc35a056d2c365e6d441a3d": {
+        id: "soma"
+    },
+    "0xd5527579226e4ebc8864906e49d05d4458ccf47f": {
+        id: "kubera-coin"
+    },
+    "0x7d5edcd23daa3fb94317d32ae253ee1af08ba14d": {
+        id: "ethbet"
+    },
+    "0x9214ec02cb71cba0ada6896b8da260736a67ab10": {
+        id: "real"
+    },
+    "0x5d21ef5f25a985380b65c8e943a0082feda0db84": {
+        id: "ethereumcash"
+    },
+    "0x27f610bf36eca0939093343ac28b1534a721dbb4": {
+        id: "wandx"
+    },
+    "0x662abcad0b7f345ab7ffb1b1fbb9df7894f18e66": {
+        id: "cartaxi-token"
+    },
+    "0x1a95b271b0535d15fa49932daba31ba612b52946": {
+        id: "minereum"
+    },
+    "0x8727c112c712c4a03371ac87a74dd6ab104af768": {
+        id: "jetcoin"
+    },
+    "0x06147110022b768ba8f99a8f385df11a151a9cc8": {
+        id: "ace"
+    },
+    "0xcb5a05bef3257613e984c17dbcf039952b6d883f": {
+        id: "sugar-exchange"
+    },
+    "0x859a9c0b44cb7066d956a958b0b82e54c9e44b4b": {
+        id: "iethereum"
+    },
+    "0xeee2d00eb7deb8dd6924187f5aa3496b7d06e62a": {
+        id: "tigereum"
+    },
+    "0x6ccb56947ea1d6efdc81acfbacd8263ddfa9b202": {
+        id: "royal-kingdom-coin"
+    },
+    "0x49aec0752e68d0282db544c677f6ba407ba17ed7": {
+        id: "billionaire-token"
+    },
+    "0x6aac8cb9861e42bf8259f5abdc6ae3ae89909e11": {
+        id: "bitcoin-red"
+    },
+    "0x814964b1bceaf24e26296d031eadf134a2ca4105": {
+        id: "newbium"
+    },
+    "0xb45a50545beeab73f38f31e5973768c421805e5e": {
+        id: "trackr"
+    },
+    "0x9e77d5a1251b6f7d456722a6eac6d2d5980bd891": {
+        id: "brat"
+    },
+    "0x8a99ed8a1b204903ee46e733f2c1286f6d20b177": {
+        id: "fujinto"
+    },
+    "0x73b534fb6f07381a29a60b01eed5ae57d4ee24d7": {
+        id: "senderon"
+    },
+    "0xaec98a708810414878c3bcdf46aad31ded4a4557": {
+        id: "300-token"
+    }
 }
