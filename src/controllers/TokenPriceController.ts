@@ -37,7 +37,7 @@ export class TokenPriceController {
     private filterTokenPrices(prices: any[], tokens: IToken[], currency: string): any {
         const altContract = "0x0000000000000000000000000000000000000000"; // ETH, EHC, POA
         const pricesCoinmarket = prices[0];
-        const result: IPrice[] = pricesCoinmarket.reduce((map: any, obj: any) => {
+        const pricesMap: IPrice[] = pricesCoinmarket.reduce((map: any, obj: any) => {
             map[obj.id] = obj;
             return map;
         }, {});
@@ -54,7 +54,7 @@ export class TokenPriceController {
 
             if (contract === altContract && altValues.hasOwnProperty(symbol)) {
                 const id = altValues[token.symbol];
-                const tokenPrice: IPrice = result[id];
+                const tokenPrice: IPrice = pricesMap[id];
                 return {
                     id: "",
                     name: "",
@@ -66,7 +66,7 @@ export class TokenPriceController {
                 }
             } else if (contracts.hasOwnProperty(contract)) {
                 const id = contracts[token.contract].id;
-                const tokenPrice: IPrice = result[id];
+                const tokenPrice: IPrice = pricesMap[id];
 
                 return {
                     id: tokenPrice.id,
