@@ -50,22 +50,23 @@ export class TokenPriceController {
 
         const result1 = tokens.map((token: IToken) => {
             const contract: string = token.contract;
+            const contractLowerCase: string = token.contract.toLowerCase();
             const symbol: string = token.symbol;
 
             if (contract === altContract && altValues.hasOwnProperty(symbol)) {
                 const id = altValues[token.symbol];
                 const tokenPrice: IPrice = pricesMap[id];
                 return {
-                    id: "",
-                    name: "",
+                    id: tokenPrice.id,
+                    name: tokenPrice.name,
                     symbol: token.symbol,
                     price: tokenPrice.price_usd,
-                    percent_change_24h: "",
-                    contract: token.contract,
+                    percent_change_24h: tokenPrice.percent_change_24h,
+                    contract: contract,
                     image: this.getImageUrl(token.contract),
                 }
-            } else if (contracts.hasOwnProperty(contract)) {
-                const id = contracts[token.contract].id;
+            } else if (contracts.hasOwnProperty(contractLowerCase)) {
+                const id = contracts[contractLowerCase].id;
                 const tokenPrice: IPrice = pricesMap[id];
 
                 return {
@@ -74,8 +75,8 @@ export class TokenPriceController {
                     symbol: token.symbol,
                     price: tokenPrice.price_usd,
                     percent_change_24h: tokenPrice.percent_change_24h,
-                    contract: token.contract,
-                    image: this.getImageUrl(token.contract),
+                    contract,
+                    image: this.getImageUrl(contract),
                 }
             } else {
                 return {
@@ -84,8 +85,8 @@ export class TokenPriceController {
                     symbol: token.symbol,
                     price: "0",
                     percent_change_24h: "",
-                    contract: token.contract,
-                    image: this.getImageUrl(token.contract),
+                    contract,
+                    image: this.getImageUrl(contract),
                 }
              }
         })
