@@ -14,10 +14,8 @@ export class TokenPriceController {
     private refreshLimit = 600;
     private lastUpdated: any = {};
     private latestPrices: any = {};
-    private latestAlternativePrices: any = {};
     private isUpdating: any = {};
     private githubImageURL: string = "https://raw.githubusercontent.com/TrustWallet/tokens/master/images/";
-    private privateAPIURL: string = "https://script.googleusercontent.com/macros/echo?user_content_key=yLmyy_8aJ0fr1-ZwaEocEMwY6ONXZAmb8wBklpBolPXEjphIQzVF7msRQCOExuLzK3Cg1rcvFApc2btMF4MledH3NNXTJ0DPOJmA1Yb3SEsKFZqtv3DaNYcMrmhZHmUMWojr9NvTBuBLhyHCd5hHa1ZsYSbt7G4nMhEEDL32U4DxjO7V7yvmJPXJTBuCiTGh3rUPjpYM_V0PJJG7TIaKpz0N633sUmm0c4i8l6NExquAqcslHnMzWh_ptf1Lg73-03UfxvOKFRhO8HM20klqPcKiW3k6MDkf31SIMZH6H4k&lib=MbpKbbfePtAVndrs259dhPT7ROjQYJ8yx";
 
     getTokenPrices = (req: Request, res: Response) => {
         const currency = req.body.currency || "USD";
@@ -38,45 +36,14 @@ export class TokenPriceController {
 
     private filterTokenPrices(prices: any[], tokens: IToken[], currency: string): any {
         const pricesCoinmarket = prices[0];
-        const pricesAlternative = prices[1];
 
         const result = pricesCoinmarket.reduce(function(map: any, obj: any) {
             map[obj.id] = obj;
             return map;
         }, {});
 
-        const alternativeResult = pricesAlternative.reduce(function(map: any, obj: any) {
-            map[obj.contract] = obj;
-            return map;
-        }, {});
-
         const foundValues: any[] = [];
         const foundSymbols = new Set<string>();
-
-        tokens.forEach((token: any) => {
-            const contract = token.contract.toLowerCase();
-            const existedToken = listOfTokens[contract];
-
-            if (existedToken) {
-                const altToken = alternativeResult[contract];
-
-                if (altToken) {
-                    const tokenSymbol = existedToken.symbol;
-                    const priceChange24 = altToken["24_hours_change_%"].toString();
-                    foundSymbols.add(tokenSymbol.toLowerCase());
-
-                    foundValues.push({
-                        id: existedToken.id,
-                        name:  existedToken.name,
-                        symbol: tokenSymbol,
-                        price: altToken.current_price.toString(),
-                        percent_change_24h: priceChange24.substr(0, priceChange24.indexOf(".") + 2),
-                        contract: Config.web3.utils.toChecksumAddress(altToken.contract),
-                        image: this.getImageUrl(altToken.contract)
-                    })
-                }
-            }
-        });
 
         tokens.forEach((token: IToken) => {
             const existedToken = listOfTokens[token.contract.toLowerCase()]
@@ -133,15 +100,13 @@ export class TokenPriceController {
 
                 try {
                     const p1 = this.getCoinMarketCapPrices(currency).timeout(5000);
-                    const p2 = this.getAlternativePrices(currency).timeout(5000);
 
-                    const [prices, altPrices] = await Promise.all([p1, p2]);
+                    const [prices] = await Promise.all([p1]);
 
                     this.lastUpdated[currency] = now;
                     this.latestPrices[currency] = prices;
                     this.isUpdating[currency] = false;
-                    this.latestAlternativePrices[currency] = altPrices;
-                    return [this.latestPrices[currency], this.latestAlternativePrices[currency]];
+                    return [this.latestPrices[currency]];
 
                 } catch (error) {
                     winston.error("getRemotePrices ", error);
@@ -154,34 +119,9 @@ export class TokenPriceController {
                 }
             } else {
                 return new BluebirbPromise(resolve => {
-                    resolve(([this.latestPrices[currency], this.latestAlternativePrices[currency]]))
+                    resolve(([this.latestPrices[currency]]))
                 })
             }
-    }
-
-    private getAlternativePrices(currency: string) {
-        const url: string = this.privateAPIURL;
-        return new BluebirbPromise((resolve, reject) => {
-            axios.get(url).then((res: any) => res).then((prices: any) => {
-                    const filtered: any = this.filterAlternativePricesByCurrency(currency, prices.data.Sheet1);
-                    resolve(filtered);
-                }).catch((error: Error) => {
-                    reject(error);
-                });
-        })
-    }
-
-    private filterAlternativePricesByCurrency(currency: string, prices: any) {
-        const sortedPrices: any[] = [];
-        if (prices.length > 0) {
-            prices.forEach((price: any) => {
-                if (price.currency === currency) {
-                    sortedPrices.push(price);
-                }
-            });
-        }
-
-        return sortedPrices;
     }
 
     private getCoinMarketCapPrices(currency: string) {
