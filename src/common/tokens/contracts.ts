@@ -1049,4 +1049,7 @@ export const contracts = {
     "0xab95e915c123fded5bdfb6325e35ef5515f1ea69": {
         id: "xenon"
     },
+    "0x809826cceab68c387726af962713b64cb5cb3cca": {
+        id: "nucleus-vision"
+    },
 }
