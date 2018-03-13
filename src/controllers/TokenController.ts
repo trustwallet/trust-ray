@@ -3,8 +3,6 @@ import { sendJSONresponse } from "../common/Utils";
 import { Token } from "../models/TokenModel";
 import * as xss from "xss-filters";
 import { TokenParser } from "../common/TokenParser";
-import axios from "axios";
-const config = require("config");
 
 export class TokenController {
 
@@ -20,62 +18,26 @@ export class TokenController {
         // extract query parameters
         const queryParams = TokenController.extractQueryParameters(req);
 
+        // build up query
         const query: any = {};
         if (queryParams.address !== "undefined") {
             query.address = queryParams.address.toLowerCase();
         }
-    
-        TokenController.getRemoteTokens(queryParams.address).then((tokens: any) => { 
-            if (tokens) {
+        // showBalance = "true"
+        if (queryParams.showBalance) {
+            const showBalance: boolean = queryParams.showBalance === "true";
+            query.showBalance = showBalance
+        }
+
+        new TokenParser().getTokenBalances(query.address, query.showBalance).then((balances: any) => {
+            if (balances) {
                 sendJSONresponse(res, 200, {
-                    docs: tokens
+                    docs: balances
                 });
             } else {
                 sendJSONresponse(res, 404, "Balances for tokens could not be found.");
             }
-        });                  
-    }
-
-    public static getRemoteTokens(address: string): any {
-        let url = `https://api.ethplorer.io/getAddressInfo/${address}?apiKey=freekey`
-        return axios.get(url).then((res: any) => {
-            // easier this way
-            if (config.get("RPC_SERVER") !== "http://gasprice.poa.network:8545") {
-                return Promise.resolve([]);
-            }
-            let tokens = res.data.tokens.map((value: any) =>{
-                return {
-                    balance: "0",
-                    contract: {
-                        address: value.tokenInfo.address,
-                        name: value.tokenInfo.name,
-                        decimals: parseInt(value.tokenInfo.decimals),
-                        symbol: value.tokenInfo.symbol
-                    }
-                }
-            })
-            return Promise.resolve(tokens);
-        }).then((value) => {
-            return new TokenParser().getTokenBalances(address).then((balances: any) => {
-                let tokens = balances.map((value: any) =>{
-                    return { 
-                        balance: "0",
-                        contract: value.contract 
-                    }
-                })
-                return Promise.resolve(tokens.concat(value));
-            }); 
-        }).catch((err) => {
-            return new TokenParser().getTokenBalances(address).then((balances: any) => {
-                let tokens = balances.map((value: any) =>{
-                    return { 
-                        balance: "0",
-                        contract: value.contract 
-                    }
-                })
-                return Promise.resolve(tokens);
-            });
-        })
+        });
     }
 
     public readOneToken(req: Request, res: Response) {
@@ -109,6 +71,7 @@ export class TokenController {
         req.checkQuery("page", "Page needs to be a number").optional().isNumeric();
         req.checkQuery("limit", "limit needs to be a number").optional().isNumeric();
         req.checkQuery("address", "address needs to be alphanumeric").isAlphanumeric();
+        req.checkQuery("showBalance", "showBalance needs to be a boolean").isBoolean();
 
         return req.validationErrors();
     }
@@ -131,12 +94,14 @@ export class TokenController {
         }
 
         // address parameter
-        const address = xss.inHTMLData(req.query.address);
+        const address: string = xss.inHTMLData(req.query.address);
+        const showBalance: string = req.query.showBalance
 
         return {
-            address: address,
-            page: page,
-            limit: limit
+            address,
+            page,
+            limit,
+            showBalance,
         };
     }
 

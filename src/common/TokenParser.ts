@@ -7,6 +7,7 @@ import { TransactionOperation } from "../models/TransactionOperationModel";
 import { NotParsableContracts } from "../models/NotParsableContractModel";
 import { Transaction } from "../models/TransactionModel";
 import * as BluebirdPromise from "bluebird";
+import { IContract } from "./CommonInterfaces"
 const flattenDeep = require("lodash.flattendeep");
 
 export class TokenParser {
@@ -147,24 +148,20 @@ export class TokenParser {
     }
 
 
-    public async getTokenBalances(address: string) {
+    public async getTokenBalances(address: string, showBalance: boolean) {
         const addressOperations = await this.getOperationstionsByAddress(address);
         const flattenOperations = flattenDeep(addressOperations);
         const tokenContracts: any[] = this.extractTokenContracts(flattenOperations);
         const contractDetails: any = await this.getContractDetails(tokenContracts);
 
-        return BluebirdPromise.map(contractDetails, (contract: any) => {
-            return this.getTokenBalance(address, contract.address).then((balance: string) => {
-                return {
-                    balance,
-                    contract: {
-                        address: contract.address,
-                        name: contract.name,
-                        symbol: contract.symbol,
-                        decimals: contract.decimals,
-                    }
-                }
-            });
+        return BluebirdPromise.map(contractDetails, (contract: IContract) => {
+            if (showBalance) {
+                return this.getTokenBalance(address, contract.address).then((balance: string) => {
+                    return {balance, contract}
+                });
+            } else {
+                return contract;
+            }
         });
     }
 
