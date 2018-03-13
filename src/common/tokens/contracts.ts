@@ -1052,4 +1052,7 @@ export const contracts = {
     "0x809826cceab68c387726af962713b64cb5cb3cca": {
         id: "nucleus-vision"
     },
+    "0xafc39788c51f0c1ff7b55317f3e70299e521fff6": {
+        id: "ebitcoin-cash"
+    },
 }
