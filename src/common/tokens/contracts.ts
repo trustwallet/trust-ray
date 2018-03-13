@@ -1055,4 +1055,7 @@ export const contracts = {
     "0xafc39788c51f0c1ff7b55317f3e70299e521fff6": {
         id: "ebitcoin-cash"
     },
+    "0x28c8d01ff633ea9cd8fc6a451d7457889e698de6": {
+        id: "ethereum-gold"
+    },
 }
