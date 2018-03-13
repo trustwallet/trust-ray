@@ -56,11 +56,11 @@ export class TokenPriceController {
                 const id = altValues[token.symbol];
                 const tokenPrice: IPrice = pricesMap[id];
                 return {
-                    id: "",
-                    name: "",
+                    id: tokenPrice.id,
+                    name: tokenPrice.name,
                     symbol: token.symbol,
                     price: tokenPrice.price_usd,
-                    percent_change_24h: "",
+                    percent_change_24h: tokenPrice.percent_change_24h,
                     contract: token.contract,
                     image: this.getImageUrl(token.contract),
                 }
