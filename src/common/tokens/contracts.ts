@@ -1132,5 +1132,14 @@ export const contracts = {
     },
     "0x5102791ca02fc3595398400bfe0e33d7b6c82267": {
         id: "leadcoin"
-    }
+    },
+    "0x4d8fc1453a0f359e99c9675954e656d80d996fbf": {
+        id: "bee-token"
+    },
+    "0xc7579bb99af590ec71c316e1ac4436c535039594": {
+        id: "titanium-blockchain"
+    },
+    "0x9a005c9a89bd72a4bd27721e7a09a3c11d2b03c4": {
+        id: "startercoin"
+    },
 }
