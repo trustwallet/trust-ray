@@ -4,9 +4,9 @@ import * as winston from "winston";
 const axios = require("axios");
 import * as BluebirbPromise from "bluebird";
 import { Config } from "../common/Config";
-import { IToken } from "./Interfaces/ITokenPriceController";
+import { IToken, IPrice } from "./Interfaces/ITokenPriceController";
+import { contracts } from "../common/tokens/contracts";
 
-const listOfTokens = require("../common/tokens/contracts");
 const CoinMarketCap = require("coinmarketcap-api");
 
 export class TokenPriceController {
@@ -19,12 +19,12 @@ export class TokenPriceController {
 
     getTokenPrices = (req: Request, res: Response) => {
         const currency = req.body.currency || "USD";
-        const symbols = req.body.tokens.map((item: IToken) => item.symbol);
+        const tokens = req.body.tokens;
 
         this.getRemotePrices(currency).then((prices: any) => {
             sendJSONresponse(res, 200, {
                 status: true,
-                response: this.filterTokenPrices(prices, req.body.tokens, currency),
+                response: this.filterTokenPrices(prices, tokens, currency),
             })
         }).catch((error: Error) => {
             sendJSONresponse(res, 500, {
@@ -35,54 +35,62 @@ export class TokenPriceController {
     }
 
     private filterTokenPrices(prices: any[], tokens: IToken[], currency: string): any {
+        const altContract = "0x0000000000000000000000000000000000000000"; // ETH, EHC, POA
         const pricesCoinmarket = prices[0];
-
-        const result = pricesCoinmarket.reduce(function(map: any, obj: any) {
+        const pricesMap: IPrice[] = pricesCoinmarket.reduce((map: any, obj: any) => {
             map[obj.id] = obj;
             return map;
         }, {});
 
-        const foundValues: any[] = [];
-        const foundSymbols = new Set<string>();
+        const altValues = {
+            "ETH": "ethereum",
+            "ETC": "ethereum-classic",
+            "POA": "poa-network",
+        }
 
-        tokens.forEach((token: IToken) => {
-            const existedToken = listOfTokens[token.contract.toLowerCase()]
+        const result1 = tokens.map((token: IToken) => {
+            const contract: string = token.contract;
+            const symbol: string = token.symbol;
 
-            if (existedToken && !foundSymbols.has(existedToken.symbol.toLowerCase())) {
-                const price = result[existedToken.id];
-                foundValues.push({...price, ...token});
-            } else {
-                const tokenSymbol = token.symbol.toLowerCase()
-                pricesCoinmarket.forEach((price: any) => {
-                    const priceSymbol = price.symbol.toLowerCase()
-                    if (priceSymbol === tokenSymbol && !foundSymbols.has(tokenSymbol)) {
-                        foundSymbols.add(tokenSymbol);
-                        foundValues.push({...price, ...token});
-                    }
-                });
-
-                if (!foundSymbols.has(tokenSymbol)) {
-                    foundSymbols.add(tokenSymbol);
-                    foundValues.push({
-                            symbol: token.symbol,
-                            contract: token.contract,
-                            image: this.getImageUrl(token.contract),
-                    });
+            if (contract === altContract && altValues.hasOwnProperty(symbol)) {
+                const id = altValues[token.symbol];
+                const tokenPrice: IPrice = pricesMap[id];
+                return {
+                    id: "",
+                    name: "",
+                    symbol: token.symbol,
+                    price: tokenPrice.price_usd,
+                    percent_change_24h: "",
+                    contract: token.contract,
+                    image: this.getImageUrl(token.contract),
                 }
-            }
+            } else if (contracts.hasOwnProperty(contract)) {
+                const id = contracts[token.contract].id;
+                const tokenPrice: IPrice = pricesMap[id];
+
+                return {
+                    id: tokenPrice.id,
+                    name: tokenPrice.name,
+                    symbol: token.symbol,
+                    price: tokenPrice.price_usd,
+                    percent_change_24h: tokenPrice.percent_change_24h,
+                    contract: token.contract,
+                    image: this.getImageUrl(token.contract),
+                }
+            } else {
+                return {
+                    id: "",
+                    name: "",
+                    symbol: token.symbol,
+                    price: "0",
+                    percent_change_24h: "",
+                    contract: token.contract,
+                    image: this.getImageUrl(token.contract),
+                }
+             }
         })
 
-        return foundValues.map((obj) => {
-            return {
-                id: obj.id || "0",
-                name: obj.name || "",
-                symbol: obj.symbol || "",
-                price: obj.price || obj["price_" + currency.toLowerCase()] || "0",
-                percent_change_24h: obj.percent_change_24h || "",
-                contract: obj.contract || "",
-                image: obj.image || this.getImageUrl(obj.contract),
-            }
-        })
+        return result1;
     }
 
     private getImageUrl(contract: string): string {
@@ -99,9 +107,7 @@ export class TokenPriceController {
                 this.isUpdating[currency] = true;
 
                 try {
-                    const p1 = this.getCoinMarketCapPrices(currency).timeout(5000);
-
-                    const [prices] = await Promise.all([p1]);
+                    const prices = await this.getCoinMarketCapPrices(currency).timeout(5000);
 
                     this.lastUpdated[currency] = now;
                     this.latestPrices[currency] = prices;
@@ -119,7 +125,7 @@ export class TokenPriceController {
                 }
             } else {
                 return new BluebirbPromise(resolve => {
-                    resolve(([this.latestPrices[currency]]))
+                    resolve([this.latestPrices[currency]])
                 })
             }
     }
