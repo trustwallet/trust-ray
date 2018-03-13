@@ -1058,4 +1058,7 @@ export const contracts = {
     "0x28c8d01ff633ea9cd8fc6a451d7457889e698de6": {
         id: "ethereum-gold"
     },
+    "0x9a0242b7a33dacbe40edb927834f96eb39f8fbcb": {
+        id: "babb"
+    }
 }
