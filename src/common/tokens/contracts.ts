@@ -1063,5 +1063,8 @@ export const contracts = {
     },
     "0xe25bcec5d3801ce3a794079bf94adf1b8ccd802d": {
         id: "matrix-ai-network"
-    }
+    },
+    "0x93ec72cee6f98b43117d4c009a59d9d9c468feec": {
+        id: "carvertical"
+    },
 }
