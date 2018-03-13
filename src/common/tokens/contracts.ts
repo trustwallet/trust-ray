@@ -131,5 +131,13 @@ module.exports = {
         id: "propy",
         symbol: "PRO",
         name: "Propy"
+    },
+    "0x0235fe624e044a05eed7a43e16e3083bc8a4287a": {
+        name: "Original Crypto Coin",
+        symbol: "OCC"
+    },
+    "0x92413fd4370c2112284bf27cee993d6631fec4d4": {
+        name: "Original Crypto Coin",
+        symbol: "OCC"
     }
 }
