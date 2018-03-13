@@ -49,7 +49,8 @@ export class TokenPriceController {
         }
 
         const result1 = tokens.map((token: IToken) => {
-            const contract: string = token.contract.toLowerCase();
+            const contract: string = token.contract;
+            const contractLowerCase: string = token.contract.toLowerCase();
             const symbol: string = token.symbol;
 
             if (contract === altContract && altValues.hasOwnProperty(symbol)) {
@@ -64,8 +65,8 @@ export class TokenPriceController {
                     contract: contract,
                     image: this.getImageUrl(token.contract),
                 }
-            } else if (contracts.hasOwnProperty(contract)) {
-                const id = contracts[contract].id;
+            } else if (contracts.hasOwnProperty(contractLowerCase)) {
+                const id = contracts[contractLowerCase].id;
                 const tokenPrice: IPrice = pricesMap[id];
 
                 return {
