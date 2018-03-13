@@ -704,9 +704,6 @@ export const contracts = {
     "0x9af2c6b1a28d3d6bc084bd267f70e90d49741d5b": {
         id: "axpire"
     },
-    "0x8377ee6d3545bc6ff1425ee3015dc648b149c7b2": {
-        id: "prochain"
-    },
     "0x881ef48211982d01e2cb7092c915e647cd40d85c": {
         id: "open-trading-network"
     },
@@ -1132,5 +1129,8 @@ export const contracts = {
     },
     "0xaec98a708810414878c3bcdf46aad31ded4a4557": {
         id: "300-token"
+    },
+    "0x5102791ca02fc3595398400bfe0e33d7b6c82267": {
+        id: "leadcoin"
     }
 }
