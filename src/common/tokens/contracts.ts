@@ -1060,5 +1060,8 @@ export const contracts = {
     },
     "0x9a0242b7a33dacbe40edb927834f96eb39f8fbcb": {
         id: "babb"
+    },
+    "0xe25bcec5d3801ce3a794079bf94adf1b8ccd802d": {
+        id: "matrix-ai-network"
     }
 }
