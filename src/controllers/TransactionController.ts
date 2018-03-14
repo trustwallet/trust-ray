@@ -37,6 +37,7 @@ export class TransactionController {
             page: queryParams.page,
             limit: queryParams.limit,
             sort: {timeStamp: -1},
+            select: "-addresses",
             populate: {
                 path: "operations",
                 match: {$or: [
