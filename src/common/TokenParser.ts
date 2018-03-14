@@ -16,6 +16,8 @@ export class TokenParser {
         Transfer: "Transfer",
     }
 
+    private cachedContracts = {}
+
     constructor() {
         for (const abi of this.abiList) {
             this.abiDecoder.addABI(abi);
@@ -50,11 +52,15 @@ export class TokenParser {
             });
     }
 
-    private findOrCreateERC20Contract(contractAddress: String): Promise<void> {
+    private findOrCreateERC20Contract(contractAddress: string): Promise<void> {
+        if (this.cachedContracts.hasOwnProperty(contractAddress)) {
+            return Promise.resolve(this.cachedContracts[contractAddress]);
+        }
         return ERC20Contract.findOne({address: contractAddress}).exec().then((erc20contract: any) => {
             if (!erc20contract) {
                 return this.getContract(contractAddress);
             } else {
+                this.cachedContracts[contractAddress] = erc20contract
                 return Promise.resolve(erc20contract);
             }
         }).catch((err: Error) => {
