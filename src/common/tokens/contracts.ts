@@ -1156,5 +1156,8 @@ export const contracts = {
     },
     "0xca29db4221c111888a7e80b12eac8a266da3ee0d": {
         id: "bolenum"
-    }
+    },
+    "0xd0929d411954c47438dc1d871dd6081f5c5e149c": {
+        id: "refereum"
+    },
 }
