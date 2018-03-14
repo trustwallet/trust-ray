@@ -28,7 +28,7 @@ export class BlockchainParser {
 
     public start() {
         this.startForwardParsing();
-        this.scheduleBackwardParsing();
+        // this.scheduleBackwardParsing();
     }
 
     public startForwardParsing() {
@@ -123,7 +123,7 @@ export class BlockchainParser {
     getNumberBlocks(startBlock: number, lastBlock: number, ascending: boolean, rebalanceOffsets: number[]): number[] {
         const blocksToProcess = this.getBlocksToParse(startBlock, lastBlock, this.maxConcurrentBlocks);
         const startBlockRange: number = ascending ? startBlock : Math.max(startBlock - blocksToProcess + 1, 0);
-        const endBlockRange: number = ascending ? startBlockRange + blocksToProcess - 1 : startBlockRange + blocksToProcess - 1;
+        const endBlockRange: number = startBlockRange + blocksToProcess - 1;
         const numberBlocks: number[] = this.getBlocksRange(startBlockRange, endBlockRange);
 
         if (lastBlock - startBlock < Math.min(...this.rebalanceOffsets) && ascending) {

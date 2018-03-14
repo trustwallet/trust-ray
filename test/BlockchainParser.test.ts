@@ -49,7 +49,8 @@ describe("Test BlockchainParser", () => {
     describe("Test getNumberBlocks() in forward mode", () => {
         let blockchainParser;
         const maxConcurrentBlocks = 1;
-        const rebalanceOffsets = [10];
+        const rebalanceOffsets = [30];
+        const minRebalanceBlock = Math.min(...rebalanceOffsets);
         const ascending = true;
 
         beforeEach(() => {
@@ -59,22 +60,22 @@ describe("Test BlockchainParser", () => {
             blockchainParser.ascending = ascending;
         });
 
-        it("Should return only one block if difference between lastBlock and startBlock > 10 when ascending", () => {
+        it(`Should return two blocks if difference between block > then min rebalance offset = ${minRebalanceBlock} when ascending`, () => {
             const startBlock = 100;
             const lastBlock = 112;
             const range = blockchainParser.getNumberBlocks(startBlock, lastBlock, ascending, rebalanceOffsets);
 
             expect(range).to.be.an("array");
-            expect(range).to.be.include.ordered.members([100]).to.have.lengthOf(1);
+            expect(range).to.be.include.ordered.members([70, 100]).to.have.lengthOf(2);
         });
 
-        it("Should return only two block if difference between lastBlock and startBlock < 10 when ascending", () => {
+        it(`Should return two blocks if difference between block < then min rebalance offset = ${minRebalanceBlock} when ascending`, () => {
             const startBlock = 100;
             const lastBlock = 105
             const range = blockchainParser.getNumberBlocks(startBlock, lastBlock, ascending, rebalanceOffsets);
 
             expect(range).to.be.an("array");
-            expect(range).to.be.include.ordered.members([90, 100]).to.have.lengthOf(2);
+            expect(range).to.be.include.ordered.members([70, 100]).to.have.lengthOf(2);
         });
     });
 
