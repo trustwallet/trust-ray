@@ -1160,4 +1160,31 @@ export const contracts = {
     "0xd0929d411954c47438dc1d871dd6081f5c5e149c": {
         id: "refereum"
     },
+    "0x039b5649a59967e3e936d7471f9c3700100ee1ab": {
+        id: "kucoin-shares"
+    },
+    "0xa74476443119A942dE498590Fe1f2454d7D4aC0d": {
+        id: "golem-network-tokens"
+    },
+    "0x5d65D971895Edc438f465c17DB6992698a52318D": {
+        id: "nebulas-token"
+    },
+    "0xB70835D7822eBB9426B56543E391846C107bd32C": {
+        id: "game"
+    },
+    "0x106aa49295b525fcf959aa75ec3f7dcbf5352f1c": {
+        id: "rock"
+    },
+    "0x9B11EFcAAA1890f6eE52C6bB7CF8153aC5d74139": {
+        id: "attention-token-of-media"
+    },
+    "0xeda8b016efa8b1161208cf041cd86972eee0f31e": {
+        id: "iht-real-estate-protocol"
+    },
+    "0xf3db7560e820834658b590c96234c333cd3d5e5e": {
+        id: "coinpoker"
+    },
+    "0xffe8196bc259e8dedc544d935786aa4709ec3e64": {
+        id: "hedge"
+    },
 }
