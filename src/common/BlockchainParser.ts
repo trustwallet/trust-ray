@@ -16,7 +16,7 @@ export class BlockchainParser {
 
     private transactionParser: TransactionParser;
     private tokenParser: TokenParser;
-    private concurrentBlocks: number = 1;
+    private maxConcurrentBlocks: number = 5;
     private rebalanceOffsets: number[] = [30];
     private forwardParsedDelay: number = parseInt(config.get("PARSER.DELAYS.FORWARD")) || 100;
     private backwardParsedDelay: number = parseInt(config.get("PARSER.DELAYS.BACKWARD")) || 300;
@@ -45,7 +45,7 @@ export class BlockchainParser {
                 winston.info("Start parsing block", nextBlock);
 
                 const lastBlock = blockInChain
-                this.parse(nextBlock, blockInChain).then((endBlock: number) => {
+                this.parse(nextBlock, blockInChain, true).then((endBlock: number) => {
                     return this.saveLastParsedBlock(endBlock);
                 }).then((saved: {lastBlock: number}) => {
                     this.scheduleForwardParsing(this.forwardParsedDelay);
@@ -68,7 +68,7 @@ export class BlockchainParser {
             const startBlock = !blockInDb ? blockInChain : (((blockInDb.lastBackwardBlock == undefined) ? blockInChain : blockInDb.lastBackwardBlock));
 
             winston.info(`Backward parsing: startBlock ${startBlock}, blockInChain: ${blockInChain}`);
-            const nextBlock = startBlock - 1;
+            const nextBlock: number = startBlock - 1;
             if (nextBlock < 1) {
                 winston.info(`Backward already finished`);
                 return;
@@ -120,16 +120,21 @@ export class BlockchainParser {
         return Array.from(Array(end - start + 1).keys()).map((i: number) => i + start);
     }
 
-    getBlocksToParse(startBlock: number, lastBlock: number, concurrentBlocks: number) {
-        return Math.min(concurrentBlocks, Math.min(lastBlock - startBlock + 1), 1);
+    getBlocksToParse(startBlock: number, endBlock: number, concurrentBlocks: number): number {
+        const blocksDiff: number = 1 + endBlock - startBlock;
+        return endBlock - startBlock <= 0 ? 0 : blocksDiff > concurrentBlocks ? concurrentBlocks : blocksDiff;
     }
 
     getNumberBlocks(startBlock: number, lastBlock: number, ascending: boolean, rebalanceOffsets: number[]): number[] {
-        const blocksToProcess = this.getBlocksToParse(startBlock, lastBlock, this.concurrentBlocks);
-        const sBlock: number = ascending ? startBlock : Math.max(startBlock - blocksToProcess + 1, 0);
-        const numberBlocks: number[] = this.getBlocksRange(sBlock, startBlock + blocksToProcess - 1);
+        const blocksToProcess = this.getBlocksToParse(startBlock, lastBlock, this.maxConcurrentBlocks);
+        console.log("blocksToProcess", blocksToProcess)
+        const startBlockRange: number = ascending ? startBlock : Math.max(startBlock - blocksToProcess + 1, 0);
+        console.log("startBlockRange", startBlockRange)
+        const endBlockRange: number = ascending ? startBlockRange + blocksToProcess - 1 : startBlockRange + blocksToProcess - 1;
+        const numberBlocks: number[] = this.getBlocksRange(startBlockRange, endBlockRange);
+        // console.log("numberBlocks", numberBlocks)
 
-        if (lastBlock - startBlock < 10 && ascending) {
+        if (lastBlock - startBlock < Math.min(...this.rebalanceOffsets) && ascending) {
             rebalanceOffsets.forEach((rebalanceOffset: number) => {
                 const rebalanceBlock: number = startBlock - rebalanceOffset;
                 if (rebalanceBlock > 0) {
@@ -138,17 +143,13 @@ export class BlockchainParser {
             });
         }
 
-
         return numberBlocks;
     }
     private parse(startBlock: number, lastBlock: number, ascending: boolean = true): Promise<number> {
-        // indicate process
         if (startBlock % 20 === 0) {
             winston.info("Currently processing block: " + startBlock + ", lastBlock: " + lastBlock + ",  ascending: " + ascending);
         }
-
         const numberBlocks = this.getNumberBlocks(startBlock, lastBlock, ascending, this.rebalanceOffsets);
-        // parse blocks
         const promises = numberBlocks.map((number) => {
             return Config.web3.eth.getBlock(number, true);
         });
@@ -163,7 +164,7 @@ export class BlockchainParser {
         }).then(([transactions, contracts]: any) => {
             return this.transactionParser.parseTransactionOperations(transactions, contracts);
         }).then(() => {
-            const endBlock = numberBlocks[numberBlocks.length - 1];
+            const endBlock = ascending ? numberBlocks[numberBlocks.length - 1] : numberBlocks[0];
             if (endBlock) {
                 return Promise.resolve(endBlock);
             } else {
