@@ -122,7 +122,7 @@ export class BlockchainParser {
 
     getBlocksToParse(startBlock: number, endBlock: number, concurrentBlocks: number): number {
         const blocksDiff: number = 1 + endBlock - startBlock;
-        return endBlock - startBlock <= 0 ? 0 : blocksDiff > concurrentBlocks ? concurrentBlocks : blocksDiff;
+        return endBlock - startBlock <= 0 ? 1 : blocksDiff > concurrentBlocks ? concurrentBlocks : blocksDiff;
     }
 
     getNumberBlocks(startBlock: number, lastBlock: number, ascending: boolean, rebalanceOffsets: number[]): number[] {
@@ -162,11 +162,7 @@ export class BlockchainParser {
             return this.transactionParser.parseTransactionOperations(transactions, contracts);
         }).then(() => {
             const endBlock = ascending ? numberBlocks[numberBlocks.length - 1] : numberBlocks[0];
-            if (endBlock) {
-                return Promise.resolve(endBlock);
-            } else {
-                return Promise.reject(endBlock);
-            }
+            return endBlock ? Promise.resolve(endBlock) : Promise.reject(endBlock);
         });
     }
 

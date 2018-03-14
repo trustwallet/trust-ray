@@ -27,7 +27,7 @@ describe("Test BlockchainParser", () => {
         const getBlocksToParse = new BlockchainParser().getBlocksToParse;
 
         const tests = [
-            {startBlock: 2, endBlock: 1, maxConcurrentBlocks: 1, expected: 0},
+            {startBlock: 2, endBlock: 2, maxConcurrentBlocks: 1, expected: 1},
             {startBlock: 1, endBlock: 2, maxConcurrentBlocks: 1, expected: 1},
             {startBlock: 1, endBlock: 2, maxConcurrentBlocks: 2, expected: 2},
             {startBlock: 1, endBlock: 2, maxConcurrentBlocks: 10, expected: 2},
