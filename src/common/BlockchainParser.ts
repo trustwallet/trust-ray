@@ -16,7 +16,7 @@ export class BlockchainParser {
 
     private transactionParser: TransactionParser;
     private tokenParser: TokenParser;
-    private maxConcurrentBlocks: number = 2;
+    private maxConcurrentBlocks: number = parseInt(config.get("PARSER.MAX_CONCURRENT_BLOCKS")) || 10;
     private rebalanceOffsets: number[] = [30];
     private forwardParsedDelay: number = parseInt(config.get("PARSER.DELAYS.FORWARD")) || 100;
     private backwardParsedDelay: number = parseInt(config.get("PARSER.DELAYS.BACKWARD")) || 300;
@@ -28,7 +28,7 @@ export class BlockchainParser {
 
     public start() {
         this.startForwardParsing();
-        // this.scheduleBackwardParsing();
+        this.scheduleBackwardParsing();
     }
 
     public startForwardParsing() {

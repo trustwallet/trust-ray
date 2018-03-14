@@ -16,7 +16,8 @@
         "DELAYS": {
             "FORWARD": "",
             "BACKWARD": ""
-        }
+        },
+        "MAX_CONCURRENT_BLOCKS": "MAX_CONCURRENT_BLOCKS"
     },
     "AWS": {
         "S3": {
