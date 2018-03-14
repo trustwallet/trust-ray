@@ -75,7 +75,7 @@ export class TransactionController {
 
         Transaction.findOne({
             _id: transactionId
-        }, "-addresses").populate({
+        }).populate({
             path: "operations",
             populate: {
                 path: "contract",
