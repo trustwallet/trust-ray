@@ -1160,4 +1160,91 @@ export const contracts = {
     "0xd0929d411954c47438dc1d871dd6081f5c5e149c": {
         id: "refereum"
     },
+    "0x039b5649a59967e3e936d7471f9c3700100ee1ab": {
+        id: "kucoin-shares"
+    },
+    "0xa74476443119A942dE498590Fe1f2454d7D4aC0d": {
+        id: "golem-network-tokens"
+    },
+    "0x5d65D971895Edc438f465c17DB6992698a52318D": {
+        id: "nebulas-token"
+    },
+    "0x9992ec3cf6a55b00978cddf2b27bc6882d88d1ec": {
+        id: "polymath-network"
+    },
+    "0xf0ee6b27b759c9893ce4f094b49ad28fd15a23e4": {
+        id: "enigma-project"
+    },
+    "0x6810e776880c02933d47db1b9fc05908e5386b96": {
+        id: "gnosis-gno"
+    },
+    "0x7c5a0ce9267ed19b22f8cae653f198e3e8daf098": {
+        id: "santiment"
+    },
+    "0x0e0989b1f9b8a38983c2ba8053269ca62ec9b195": {
+        id: "poet"
+    },
+    "0x6ec8a24cabdc339a06a172f8223ea557055adaa5": {
+        id: "genaro-network"
+    },
+    "0x26e75307fc0c021472feb8f727839531f112f317": {
+        id: "c20"
+    },
+    "0x1c4481750daa5ff521a2a7490d9981ed46465dbd": {
+        id: "blockmason"
+    },
+    "0x286BDA1413a2Df81731D4930ce2F862a35A609fE": {
+        id: "wabi"
+    },
+    "0x27695e09149adc738a978e9a678f99e4c39e9eb9": {
+        id: "kickico"
+    },
+    "0xB70835D7822eBB9426B56543E391846C107bd32C": {
+        id: "game"
+    },
+    "0x106aa49295b525fcf959aa75ec3f7dcbf5352f1c": {
+        id: "rock"
+    },
+    "0x9B11EFcAAA1890f6eE52C6bB7CF8153aC5d74139": {
+        id: "attention-token-of-media"
+    },
+    "0x12fef5e57bf45873cd9b62e9dbd7bfb99e32d73e": {
+        id: "cofound-it"
+    },
+    "0x92e52a1a235d9a103d970901066ce910aacefd37": {
+        id: "ucash"
+    },
+    "0x9e88613418cf03dca54d6a2cf6ad934a78c7a17a": {
+        id: "swarm-fund"
+    },
+    "0x107c4504cd79c5d2696ea0030a8dd4e92601b82e": {
+        id: "bloomtoken"
+    },
+    "0x12b19d3e2ccc14da04fae33e63652ce469b3f2fd": {
+        id: "grid"
+    },
+    "0xeda8b016efa8b1161208cf041cd86972eee0f31e": {
+        id: "iht-real-estate-protocol"
+    },
+    "0xf3db7560e820834658b590c96234c333cd3d5e5e": {
+        id: "coinpoker"
+    },
+    "0xffe8196bc259e8dedc544d935786aa4709ec3e64": {
+        id: "hedge"
+    },
+    "0x671abbe5ce652491985342e85428eb1b07bc6c64": {
+        id: "quantum"
+    },
+    "0x2e071D2966Aa7D8dECB1005885bA1977D6038A65": {
+        id: "etheroll"
+    },
+    "0xeb7c20027172e5d143fb030d50f91cece2d1485d": {
+        id: "ebtcnew"
+    },
+    "0x0af44e2784637218dd1d32a322d44e603a8f0c6a": {
+        id: "matryx"
+    },
+    "0x539efe69bcdd21a83efd9122571a64cc25e0282b": {
+        id: "ethereum-blue"
+    }
 }
