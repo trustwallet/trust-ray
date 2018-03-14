@@ -1136,4 +1136,22 @@ export const contracts = {
     "0x9a005c9a89bd72a4bd27721e7a09a3c11d2b03c4": {
         id: "startercoin"
     },
+    "0x2956356cd2a2bf3202f771f50d3d14a367b48070": {
+        id: "weth"
+    },
+    "0x14839bf22810f09fb163af69bd21bd5476f445cd": {
+        id: "confido"
+    },
+    "0x679badc551626e01b23ceecefbc9b877ea18fc46": {
+        id: "ccore"
+    },
+    "0xee609fe292128cad03b786dbb9bc2634ccdbe7fc": {
+        id: "postoken"
+    },
+    "0x2233799ee2683d75dfefacbcd2a26c78d34b470d": {
+        id: "network-token"
+    },
+    "0xca29db4221c111888a7e80b12eac8a266da3ee0d": {
+        id: "bolenum"
+    }
 }
