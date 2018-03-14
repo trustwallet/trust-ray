@@ -16,7 +16,7 @@ export class BlockchainParser {
 
     private transactionParser: TransactionParser;
     private tokenParser: TokenParser;
-    private maxConcurrentBlocks: number = 5;
+    private maxConcurrentBlocks: number = 2;
     private rebalanceOffsets: number[] = [30];
     private forwardParsedDelay: number = parseInt(config.get("PARSER.DELAYS.FORWARD")) || 100;
     private backwardParsedDelay: number = parseInt(config.get("PARSER.DELAYS.BACKWARD")) || 300;
@@ -32,17 +32,12 @@ export class BlockchainParser {
     }
 
     public startForwardParsing() {
-        // winston.info("Starting blockchain parse");
         return this.getBlockState().then(([blockInChain, blockInDb]) => {
-            // determine where to start parsing
             const startBlock = blockInDb ? blockInDb.lastBlock : blockInChain - 1;
-            // determine if we should start parsing now
-            // or schedule a restart in 10 seconds
-            winston.info(`Last parsed block in DB ${startBlock}, current block in chain: ${blockInChain}. Difference ${blockInChain - startBlock}`);
-
             const nextBlock: number = startBlock + 1;
+
             if (nextBlock <= blockInChain) {
-                winston.info("Start parsing block", nextBlock);
+                winston.info(`Forward ==> parsing blocks range ${nextBlock} - ${blockInChain}. Difference ${blockInChain - startBlock}`);
 
                 const lastBlock = blockInChain
                 this.parse(nextBlock, blockInChain, true).then((endBlock: number) => {
@@ -67,7 +62,6 @@ export class BlockchainParser {
         return this.getBlockState().then(([blockInChain, blockInDb]) => {
             const startBlock = !blockInDb ? blockInChain : (((blockInDb.lastBackwardBlock == undefined) ? blockInChain : blockInDb.lastBackwardBlock));
 
-            winston.info(`Backward parsing: startBlock ${startBlock}, blockInChain: ${blockInChain}`);
             const nextBlock: number = startBlock - 1;
             if (nextBlock < 1) {
                 winston.info(`Backward already finished`);
@@ -77,6 +71,7 @@ export class BlockchainParser {
             if (nextBlock >= blockInChain) {
                 return this.scheduleBackwardParsing();
             }
+            winston.info(`<== Backward parsing blocks range ${nextBlock} - ${blockInChain}. Difference ${blockInChain - startBlock}`);
 
             this.parse(nextBlock, blockInChain, false).then((endBlock: number) => {
                 return this.saveLastBackwardBlock(endBlock);
@@ -144,10 +139,11 @@ export class BlockchainParser {
     }
     private parse(startBlock: number, lastBlock: number, ascending: boolean = true): Promise<number> {
         if (startBlock % 20 === 0) {
-            winston.info("Currently processing block: " + startBlock + ", lastBlock: " + lastBlock + ",  ascending: " + ascending);
+            winston.info(`Currently processing blocks range ${startBlock} - ${lastBlock} in ascending ${ascending} mode`);
         }
         const numberBlocks = this.getNumberBlocks(startBlock, lastBlock, ascending, this.rebalanceOffsets);
         const promises = numberBlocks.map((number) => {
+            winston.info(`${ascending ? `Forward` : `Backward`} processing block`, number);
             return Config.web3.eth.getBlock(number, true);
         });
         return Promise.all(promises).then((blocks: any) => {
