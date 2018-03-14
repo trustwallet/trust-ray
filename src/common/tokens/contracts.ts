@@ -1139,6 +1139,9 @@ export const contracts = {
     "0x2956356cd2a2bf3202f771f50d3d14a367b48070": {
         id: "weth"
     },
+    "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2": {
+        id: "weth"
+    },
     "0x14839bf22810f09fb163af69bd21bd5476f445cd": {
         id: "confido"
     },
