@@ -61,22 +61,22 @@ export class TokenPriceController {
                 return {
                     id: tokenPrice.id,
                     name: tokenPrice.name,
-                    symbol: token.symbol,
-                    price: price,
+                    symbol,
+                    price,
                     percent_change_24h: tokenPrice.percent_change_24h,
                     contract: contract,
                     image: this.getImageUrl(token.contract),
                 }
             } else if (contracts.hasOwnProperty(contractLowerCase)) {
                 const id = contracts[contractLowerCase].id;
-                const tokenPrice: IPrice = pricesMap[id];
-                const price = tokenPrice["price_" + currencyLowerCase]
+                const tokenPrice: any = pricesMap[id] || {};
+                const price = tokenPrice["price_" + currencyLowerCase];
 
                 return {
-                    id: tokenPrice.id,
-                    name: tokenPrice.name,
-                    symbol: token.symbol,
-                    price: price,
+                    id: tokenPrice.id || "",
+                    name: tokenPrice.name || "",
+                    symbol: token.symbol || "",
+                    price: price || "",
                     percent_change_24h: tokenPrice.percent_change_24h,
                     contract,
                     image: this.getImageUrl(contract),
@@ -85,7 +85,7 @@ export class TokenPriceController {
                 return {
                     id: "",
                     name: "",
-                    symbol: token.symbol,
+                    symbol,
                     price: "0",
                     percent_change_24h: "",
                     contract,
