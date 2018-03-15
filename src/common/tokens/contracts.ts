@@ -1187,4 +1187,7 @@ export const contracts = {
     "0xffe8196bc259e8dedc544d935786aa4709ec3e64": {
         id: "hedge"
     },
+    "0x2ccbff3a042c68716ed2a2cb0c544a9f1d1935e1": {
+        id: "dmarket"
+    },
 }
