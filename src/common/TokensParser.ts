@@ -18,7 +18,7 @@ export class TokensParser {
         })
     }
 
-    startParsingNextBlock(block: string) {
+    startParsingNextBlock(block: number) {
         this.parseBlock(block).then(() => {
             setDelay(10).then(value => {
                 this.startParsingNextBlock(block + 1)
@@ -29,8 +29,8 @@ export class TokensParser {
         })
     }
 
-    parseBlock(block: string): Promise<any> {
-        return TransactionParser.getTransactions(5258483).then(transactions => {
+    parseBlock(block: number): Promise<any> {
+        return TransactionParser.getTransactions(block).then(transactions => {
             let operations: any = []
             transactions.forEach(transaction => {
                 transaction.operations.forEach((operation: any) => {
@@ -46,7 +46,7 @@ export class TokensParser {
         })
     }
 
-    scheduleParsing(block: string): void {
+    scheduleParsing(block: number): void {
         setDelay(5000).then(value => {
             this.start()
         })
