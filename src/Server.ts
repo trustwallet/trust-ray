@@ -1,11 +1,7 @@
 import { App } from "./App";
-import { BlockchainParser } from "./common/BlockchainParser";
-import { PusherScanner } from "./pusher/PusherScanner";
-
-const parser = new BlockchainParser();
-const pusher = new PusherScanner();
+import { ParseStarter } from "./common/ParseStarter";
 
 const app = new App();
 
-parser.start();
-pusher.start();
+const starter = new ParseStarter();
+starter.start();
