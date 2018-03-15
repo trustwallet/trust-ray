@@ -121,7 +121,7 @@ export class TokenController {
 
         const address = xss.inHTMLData(req.params.tokenAddress);
 
-        ERC20Contract.find({address}).then((erc20: any) => {
+        ERC20Contract.findOne({address}).then((erc20: any) => {
             sendJSONresponse(res, 200, erc20);
         }).catch((error: Error) => {
             sendJSONresponse(res, 404, error);
