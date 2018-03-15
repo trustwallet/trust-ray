@@ -24,8 +24,8 @@ export class TokenController {
         if (queryParams.address !== "undefined") {
             query.address = queryParams.address.toLowerCase();
         }
-    
-        TokenController.getRemoteTokens(queryParams.address).then((tokens: any) => { 
+
+        TokenController.getRemoteTokens(queryParams.address).then((tokens: any) => {
             if (tokens) {
                 sendJSONresponse(res, 200, {
                     docs: tokens
@@ -33,17 +33,17 @@ export class TokenController {
             } else {
                 sendJSONresponse(res, 404, "Balances for tokens could not be found.");
             }
-        });                  
+        });
     }
 
     public static getRemoteTokens(address: string): any {
-        let url = `https://api.ethplorer.io/getAddressInfo/${address}?apiKey=freekey`
+        const url = `https://api.ethplorer.io/getAddressInfo/${address}?apiKey=freekey`;
         return axios.get(url).then((res: any) => {
             // easier this way
             if (config.get("RPC_SERVER") !== "http://gasprice.poa.network:8545") {
                 return Promise.resolve([]);
             }
-            let tokens = res.data.tokens.map((value: any) =>{
+            const tokens = res.data.tokens.map((value: any) => {
                 return {
                     balance: "0",
                     contract: {
@@ -57,20 +57,20 @@ export class TokenController {
             return Promise.resolve(tokens);
         }).then((value) => {
             return new TokenParser().getTokenBalances(address).then((balances: any) => {
-                let tokens = balances.map((value: any) =>{
-                    return { 
+                const tokens = balances.map((value: any) => {
+                    return {
                         balance: "0",
-                        contract: value.contract 
+                        contract: value.contract
                     }
                 })
                 return Promise.resolve(tokens.concat(value));
-            }); 
+            });
         }).catch((err) => {
             return new TokenParser().getTokenBalances(address).then((balances: any) => {
-                let tokens = balances.map((value: any) =>{
-                    return { 
+                const tokens = balances.map((value: any) => {
+                    return {
                         balance: "0",
-                        contract: value.contract 
+                        contract: value.contract
                     }
                 })
                 return Promise.resolve(tokens);
@@ -93,13 +93,12 @@ export class TokenController {
         }
 
         const address = xss.inHTMLData(req.params.address);
-        
-        Token.find({address: address}).populate('tokens').then((token: any) => {
+
+        Token.find({address: address}).populate("tokens").then((token: any) => {
             if (!token) {
                 sendJSONresponse(res, 404, {"message": "wallet address not found"});
                 return;
             }
-            
             sendJSONresponse(res, 200, token);
         }).catch((err: Error) => {
             sendJSONresponse(res, 404, err);

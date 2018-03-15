@@ -6,11 +6,9 @@ import { TransactionParser } from "../common/TransactionParser";
 import { setDelay } from "./Utils";
 import { BlockchainState } from "./BlockchainState";
 
-const config = require("config");
-
 export class TokensParser {
 
-    start(): void {        
+    start(): void {
         BlockchainState.getBlockState().then(([blockInChain, blockInDb]) => {
             const lastBlock = 1266374 // temp solution until blockchain parsed from the begining. Use blockInDb.lastBlock instead
             if (blockInDb.lastTokensBlock < lastBlock) {
@@ -22,7 +20,7 @@ export class TokensParser {
     startParsingNextBlock(block: number, lastBlock: number) {
         this.parseBlock(block).then(() => {
             if (block < lastBlock) {
-                this.startParsingNextBlock(block + 1, lastBlock)
+                return this.startParsingNextBlock(block + 1, lastBlock)
             } else {
                 this.scheduleParsing(block)
             }
@@ -34,7 +32,7 @@ export class TokensParser {
 
     parseBlock(block: number): Promise<any> {
         return TransactionParser.getTransactions(block).then(transactions => {
-            let operations: any = []
+            const operations: any = [];
             transactions.forEach(transaction => {
                 transaction.operations.forEach((operation: any) => {
                     operations.push({address: operation.to, contract: operation.contract._id})
@@ -45,7 +43,7 @@ export class TokensParser {
                 this.createBulk(operations)
             )
         }).then(() => {
-            return LastParsedBlock.findOneAndUpdate({}, {$inc : {'lastTokensBlock' : 1}}).exec()
+            return LastParsedBlock.findOneAndUpdate({}, {$inc : {"lastTokensBlock" : 1}}).exec()
         })
     }
 
