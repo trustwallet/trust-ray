@@ -1,15 +1,29 @@
 {
     "MONGO": {
-        "URI": "FILL_ME_IN"
+        "URI": "MONGODB_URI"
     },
-    "RPC_SERVER": "FILL_ME_IN",
-    "NETWORK_SYMBOL": "FILL_ME_IN",
+    "RPC_SERVER": "RPC_SERVER",
+    "NETWORK_SYMBOL": "NETWORK_SYMBOL",
     "PUSHER": {
         "APN": {
-            "KEY": "FILL_ME_IN",
-            "KEYID": "FILL_ME_IN",
-            "TEAMID": "FILL_ME_IN",
-            "BUNDLE": "FILL_ME_IN"
+            "KEY": "APN_KEY",
+            "KEYID": "APN_KEYID",
+            "TEAMID": "APN_TEAMID",
+            "BUNDLE": "APN_BUNDLEID"
         }
+    },
+    "PARSER": {
+        "DELAYS": {
+            "FORWARD": "PARSER_DELAY_FORWARD",
+            "BACKWARD": "PARSER_DELAY_BACKWARD"
+        },
+        "MAX_CONCURRENT_BLOCKS": "MAX_CONCURRENT_BLOCKS"
+    },
+    "AWS": {
+        "S3": {
+            "ACCESSKEYID": "S3_ACCESSKEYID",
+            "SECRETACCESSKEY": "S3_SECRETACCESSKEY"
+        },
+        "BUCKET": "S3BUCKET"
     }
 }

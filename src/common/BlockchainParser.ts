@@ -16,7 +16,7 @@ export class BlockchainParser {
 
     private transactionParser: TransactionParser;
     private tokenParser: TokenParser;
-    private concurrentBlocks: number = 1;
+    private maxConcurrentBlocks: number = parseInt(config.get("PARSER.MAX_CONCURRENT_BLOCKS")) || 2;
     private rebalanceOffsets: number[] = [30];
     private forwardParsedDelay: number = parseInt(config.get("PARSER.DELAYS.FORWARD")) || 100;
     private backwardParsedDelay: number = parseInt(config.get("PARSER.DELAYS.BACKWARD")) || 300;
@@ -32,20 +32,15 @@ export class BlockchainParser {
     }
 
     public startForwardParsing() {
-        // winston.info("Starting blockchain parse");
         return this.getBlockState().then(([blockInChain, blockInDb]) => {
-            // determine where to start parsing
             const startBlock = blockInDb ? blockInDb.lastBlock : blockInChain - 1;
-            // determine if we should start parsing now
-            // or schedule a restart in 10 seconds
-            winston.info(`Last parsed block in DB ${startBlock}, current block in chain: ${blockInChain}. Difference ${blockInChain - startBlock}`);
-
             const nextBlock: number = startBlock + 1;
+
             if (nextBlock <= blockInChain) {
-                winston.info("Start parsing block", nextBlock);
+                winston.info(`Forward ==> parsing blocks range ${nextBlock} - ${blockInChain}. Difference ${blockInChain - startBlock}`);
 
                 const lastBlock = blockInChain
-                this.parse(nextBlock, blockInChain).then((endBlock: number) => {
+                this.parse(nextBlock, blockInChain, true).then((endBlock: number) => {
                     return this.saveLastParsedBlock(endBlock);
                 }).then((saved: {lastBlock: number}) => {
                     this.scheduleForwardParsing(this.forwardParsedDelay);
@@ -67,8 +62,7 @@ export class BlockchainParser {
         return this.getBlockState().then(([blockInChain, blockInDb]) => {
             const startBlock = !blockInDb ? blockInChain : (((blockInDb.lastBackwardBlock == undefined) ? blockInChain : blockInDb.lastBackwardBlock));
 
-            winston.info(`Backward parsing: startBlock ${startBlock}, blockInChain: ${blockInChain}`);
-            const nextBlock = startBlock - 1;
+            const nextBlock: number = startBlock - 1;
             if (nextBlock < 1) {
                 winston.info(`Backward already finished`);
                 return;
@@ -77,6 +71,7 @@ export class BlockchainParser {
             if (nextBlock >= blockInChain) {
                 return this.scheduleBackwardParsing();
             }
+            winston.info(`<== Backward parsing blocks range ${nextBlock} - ${blockInChain}. Difference ${blockInChain - startBlock}`);
 
             this.parse(nextBlock, blockInChain, false).then((endBlock: number) => {
                 return this.saveLastBackwardBlock(endBlock);
@@ -120,16 +115,18 @@ export class BlockchainParser {
         return Array.from(Array(end - start + 1).keys()).map((i: number) => i + start);
     }
 
-    getBlocksToParse(startBlock: number, lastBlock: number, concurrentBlocks: number) {
-        return Math.min(concurrentBlocks, Math.min(lastBlock - startBlock + 1), 1);
+    getBlocksToParse(startBlock: number, endBlock: number, concurrentBlocks: number): number {
+        const blocksDiff: number = 1 + endBlock - startBlock;
+        return endBlock - startBlock <= 0 ? 1 : blocksDiff > concurrentBlocks ? concurrentBlocks : blocksDiff;
     }
 
     getNumberBlocks(startBlock: number, lastBlock: number, ascending: boolean, rebalanceOffsets: number[]): number[] {
-        const blocksToProcess = this.getBlocksToParse(startBlock, lastBlock, this.concurrentBlocks);
-        const sBlock: number = ascending ? startBlock : Math.max(startBlock - blocksToProcess + 1, 0);
-        const numberBlocks: number[] = this.getBlocksRange(sBlock, startBlock + blocksToProcess - 1);
+        const blocksToProcess = this.getBlocksToParse(startBlock, lastBlock, this.maxConcurrentBlocks);
+        const startBlockRange: number = ascending ? startBlock : Math.max(startBlock - blocksToProcess + 1, 0);
+        const endBlockRange: number = startBlockRange + blocksToProcess - 1;
+        const numberBlocks: number[] = this.getBlocksRange(startBlockRange, endBlockRange);
 
-        if (lastBlock - startBlock < 10 && ascending) {
+        if (lastBlock - startBlock < Math.min(...this.rebalanceOffsets) && ascending) {
             rebalanceOffsets.forEach((rebalanceOffset: number) => {
                 const rebalanceBlock: number = startBlock - rebalanceOffset;
                 if (rebalanceBlock > 0) {
@@ -138,18 +135,15 @@ export class BlockchainParser {
             });
         }
 
-
         return numberBlocks;
     }
     private parse(startBlock: number, lastBlock: number, ascending: boolean = true): Promise<number> {
-        // indicate process
         if (startBlock % 20 === 0) {
-            winston.info("Currently processing block: " + startBlock + ", lastBlock: " + lastBlock + ",  ascending: " + ascending);
+            winston.info(`Currently processing blocks range ${startBlock} - ${lastBlock} in ascending ${ascending} mode`);
         }
-
         const numberBlocks = this.getNumberBlocks(startBlock, lastBlock, ascending, this.rebalanceOffsets);
-        // parse blocks
-        const promises = numberBlocks.map((number) => {
+        const promises = numberBlocks.map((number, i) => {
+            winston.info(`${ascending ? `Forward` : `Backward`} processing block ${ascending ? number : numberBlocks[i]}`);
             return Config.web3.eth.getBlock(number, true);
         });
         return Promise.all(promises).then((blocks: any) => {
@@ -163,12 +157,8 @@ export class BlockchainParser {
         }).then(([transactions, contracts]: any) => {
             return this.transactionParser.parseTransactionOperations(transactions, contracts);
         }).then(() => {
-            const endBlock = numberBlocks[numberBlocks.length - 1];
-            if (endBlock) {
-                return Promise.resolve(endBlock);
-            } else {
-                return Promise.reject(endBlock);
-            }
+            const endBlock = ascending ? numberBlocks[numberBlocks.length - 1] : numberBlocks[0];
+            return endBlock ? Promise.resolve(endBlock) : Promise.reject(endBlock);
         });
     }
 
