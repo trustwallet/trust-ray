@@ -128,15 +128,15 @@ export class TokenController {
 
     public listTokens(req: Request, res: Response) {
 
-        let term = req.query.query;
+        const term = req.query.query;
         if (!term) {
             sendJSONresponse(res, 404, {"message": "need query"})
             return;
         }
-        let re = new RegExp(term, 'i');
+        const re = new RegExp(term, "i");
         ERC20Contract.find().or([
-            { 'name': { $regex: re }},
-            { 'symbol': { $regex: re }}
+            { "name": { $regex: re }},
+            { "symbol": { $regex: re }}
         ]).exec()
         .then((contracts: any) => {
             sendJSONresponse(res, 200, contracts);
