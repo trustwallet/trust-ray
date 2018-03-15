@@ -93,12 +93,13 @@ export class TokenController {
         }
 
         const address = xss.inHTMLData(req.params.address);
-
-        Token.find({address: address}).exec().then((token: any) => {
+        
+        Token.find({address: address}).populate('tokens').then((token: any) => {
             if (!token) {
                 sendJSONresponse(res, 404, {"message": "wallet address not found"});
                 return;
             }
+            
             sendJSONresponse(res, 200, token);
         }).catch((err: Error) => {
             sendJSONresponse(res, 404, err);

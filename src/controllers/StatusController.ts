@@ -3,6 +3,7 @@ import { sendJSONresponse } from "../common/Utils";
 import { Transaction } from "../models/TransactionModel";
 import { TransactionOperation } from "../models/TransactionOperationModel";
 import { ERC20Contract } from "../models/Erc20ContractModel";
+import { Token } from "../models/TokenModel";
 import { LastParsedBlock } from "../models/LastParsedBlockModel";
 import { Config } from "../common/Config";
 import * as winston from "winston";
@@ -17,10 +18,11 @@ export class StatusController {
             Transaction.count(),
             TransactionOperation.count(),
             ERC20Contract.count(),
+            Token.count(),
             LastParsedBlock.findOne(),
             Config.web3.eth.getBlockNumber(),
             Config.web3.eth.net.getId()
-        ]).then(([transactionsCount, operationsCount, erc20contractsCount, lastParsedBlock, latestBlockNumberInBC, networkId]) => {
+        ]).then(([transactionsCount, operationsCount, erc20contractsCount, tokensCount, lastParsedBlock, latestBlockNumberInBC, networkId]) => {
             const latestBlockNumberInDB = lastParsedBlock.lastBlock;
             const blocksToSync = latestBlockNumberInBC - latestBlockNumberInDB;
 
@@ -32,12 +34,14 @@ export class StatusController {
                     transactions: parseInt(transactionsCount).toLocaleString(),
                     transaction_operations: parseInt(operationsCount).toLocaleString(),
                     erc20contracts: parseInt(erc20contractsCount).toLocaleString(),
+                    tokens: parseInt(tokensCount).toLocaleString(),
                 },
                 parsing: {
                     latestBlockNumberInBC,
                     latestBlockNumberInDB,
                     latestBackwordBlockNumberInDB,
-                    lastPusherBlock: lastParsedBlock.lastPusherBlock
+                    lastPusherBlock: lastParsedBlock.lastPusherBlock,
+                    lastTokensBlock: lastParsedBlock.lastTokensBlock
                 },
                 sync: {
                     blocksToSync,

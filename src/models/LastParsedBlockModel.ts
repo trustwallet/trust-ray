@@ -11,6 +11,9 @@ const lastParsedBlockSchema = new Schema({
     },
     lastPusherBlock: {
         type: Number
+    },
+    lastTokensBlock: {
+        type: Number
     }
 }, {
     versionKey: false,

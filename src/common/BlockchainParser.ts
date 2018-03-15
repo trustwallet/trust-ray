@@ -1,5 +1,6 @@
 import * as winston from "winston";
 import { TransactionParser } from "./TransactionParser";
+import { BlockchainState } from "./BlockchainState";
 import { TokenParser } from "./TokenParser";
 import { Config } from "./Config";
 import { LastParsedBlock } from "../models/LastParsedBlockModel";
@@ -32,7 +33,7 @@ export class BlockchainParser {
     }
 
     public startForwardParsing() {
-        return this.getBlockState().then(([blockInChain, blockInDb]) => {
+        return BlockchainState.getBlockState().then(([blockInChain, blockInDb]) => {
             const startBlock = blockInDb ? blockInDb.lastBlock : blockInChain - 1;
             const nextBlock: number = startBlock + 1;
 

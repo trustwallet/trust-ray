@@ -181,4 +181,15 @@ export class TransactionParser {
           }
         });
     }
+
+    static getTransactions(blockNumber: number): Promise<any[]> {
+        return Transaction.find({blockNumber: {$eq: blockNumber}})
+            .populate({
+                path: "operations",
+                populate: {
+                    path: "contract",
+                    model: "ERC20Contract"
+                }
+            });
+    }
 }

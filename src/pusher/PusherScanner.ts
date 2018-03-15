@@ -1,6 +1,7 @@
 import { Error } from "mongoose";
 import { LastParsedBlock } from "../models/LastParsedBlockModel";
 import { Transaction } from "../models/TransactionModel";
+import { TransactionParser } from "../common/TransactionParser";
 import { Device } from "../models/DeviceModel";
 import * as winston from "winston";
 import { Config } from "../common/Config";
@@ -15,7 +16,7 @@ export class PusherScanner {
         this.getNextPusherBlock().then((block: number) => {
             winston.info("Pusher processing block ", block);
 
-            return this.getBlockTransactions(block).then((transactions: any[]) => {
+            return TransactionParser.getTransactions(block).then((transactions: any[]) => {
                 winston.info(`Found ${transactions.length} transactions in block ${block}`);
 
                  return Promise.mapSeries(transactions, (transaction) => {
@@ -81,16 +82,5 @@ export class PusherScanner {
                 return resolve(lastBlock);
             });
         });
-    }
-
-    private getBlockTransactions(blockNumber: number): Promise<any[]> {
-        return Transaction.find({blockNumber: {$eq: blockNumber}})
-            .populate({
-                path: "operations",
-                populate: {
-                    path: "contract",
-                    model: "ERC20Contract"
-                }
-            });
     }
 }

@@ -6,7 +6,7 @@ const config = require("config");
 
 export class BlockchainState {
     getState(): Promise<any> {        
-        return this.getBlockState().then(([blockInChain, blockInDb]) => {
+        return BlockchainState.getBlockState().then(([blockInChain, blockInDb]) => {
             if (!blockInDb) {
                 return new LastParsedBlock({
                     lastBlock: blockInChain,
@@ -26,11 +26,16 @@ export class BlockchainState {
             if (!blockInDb.lastPusherBlock) {
                 blockInDb.lastPusherBlock = blockInChain
             }
+
+            if (!blockInDb.lastTokensBlock) {
+                blockInDb.lastTokensBlock = 1
+            }
+
             return blockInDb.save()
         })
     }
 
-    private getBlockState(): Promise<any[]> {
+    static getBlockState(): Promise<any[]> {
         const latestBlockOnChain = Config.web3.eth.getBlockNumber();
         const latestBlockInDB = LastParsedBlock.findOne();
         return Promise.all([latestBlockOnChain, latestBlockInDB]);
