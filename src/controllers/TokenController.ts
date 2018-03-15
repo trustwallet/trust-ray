@@ -80,19 +80,19 @@ export class TokenController {
     }
 
     public readOneToken(req: Request, res: Response) {
-        if (!req.params || !req.params.tokenWalletAddress) {
+        if (!req.params || !req.params.address) {
             sendJSONresponse(res, 404, { "message": "No address in request" });
             return;
         }
         // validate wallet address
-        req.checkParams("tokenWalletAddress", "wallet address must be alphanumeric").isAlphanumeric();
+        req.checkParams("address", "wallet address must be alphanumeric").isAlphanumeric();
         const validationErrors = req.validationErrors();
         if (validationErrors) {
             sendJSONresponse(res, 400, validationErrors);
             return;
         }
 
-        const address = xss.inHTMLData(req.params.tokenWalletAddress);
+        const address = xss.inHTMLData(req.params.address);
 
         Token.find({address: address}).populate("tokens").then((token: any) => {
             if (!token) {
