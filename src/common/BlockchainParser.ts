@@ -16,7 +16,7 @@ export class BlockchainParser {
 
     private transactionParser: TransactionParser;
     private tokenParser: TokenParser;
-    private maxConcurrentBlocks: number = parseInt(config.get("PARSER.MAX_CONCURRENT_BLOCKS")) || 10;
+    private maxConcurrentBlocks: number = parseInt(config.get("PARSER.MAX_CONCURRENT_BLOCKS")) || 5;
     private rebalanceOffsets: number[] = [30];
     private forwardParsedDelay: number = parseInt(config.get("PARSER.DELAYS.FORWARD")) || 100;
     private backwardParsedDelay: number = parseInt(config.get("PARSER.DELAYS.BACKWARD")) || 300;
@@ -142,8 +142,8 @@ export class BlockchainParser {
             winston.info(`Currently processing blocks range ${startBlock} - ${lastBlock} in ascending ${ascending} mode`);
         }
         const numberBlocks = this.getNumberBlocks(startBlock, lastBlock, ascending, this.rebalanceOffsets);
-        const promises = numberBlocks.map((number) => {
-            winston.info(`${ascending ? `Forward` : `Backward`} processing block`, number);
+        const promises = numberBlocks.map((number, i) => {
+            winston.info(`${ascending ? `Forward` : `Backward`} processing block ${ascending ? number : numberBlocks[i]}`);
             return Config.web3.eth.getBlock(number, true);
         });
         return Promise.all(promises).then((blocks: any) => {
