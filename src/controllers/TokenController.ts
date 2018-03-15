@@ -80,20 +80,19 @@ export class TokenController {
     }
 
     public readOneToken(req: Request, res: Response) {
-        if (!req.params || !req.params.address) {
+        if (!req.params || !req.params.tokenWalletAddress) {
             sendJSONresponse(res, 404, { "message": "No address in request" });
             return;
         }
-
         // validate wallet address
-        req.checkParams("address", "wallet address must be alphanumeric").isAlphanumeric();
+        req.checkParams("tokenWalletAddress", "wallet address must be alphanumeric").isAlphanumeric();
         const validationErrors = req.validationErrors();
         if (validationErrors) {
             sendJSONresponse(res, 400, validationErrors);
             return;
         }
 
-        const address = xss.inHTMLData(req.params.address);
+        const address = xss.inHTMLData(req.params.tokenWalletAddress);
 
         Token.find({address: address}).populate("tokens").then((token: any) => {
             if (!token) {
@@ -127,6 +126,23 @@ export class TokenController {
             sendJSONresponse(res, 404, error);
         })
 
+    public listTokens(req: Request, res: Response) {
+
+        let term = req.query.query;
+        if (!term) {
+            sendJSONresponse(res, 404, {"message": "need query"})
+            return;
+        }
+        let re = new RegExp(term, 'i');
+        ERC20Contract.find().or([
+            { 'name': { $regex: re }},
+            { 'symbol': { $regex: re }}
+        ]).exec()
+        .then((contracts: any) => {
+            sendJSONresponse(res, 200, contracts);
+        }).catch((err: Error) => {
+            sendJSONresponse(res, 404, err);
+        });
     }
 
     private static validateQueryParameters(req: Request) {
