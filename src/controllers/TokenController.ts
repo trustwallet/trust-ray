@@ -127,7 +127,6 @@ export class TokenController {
         })
 
     public listTokens(req: Request, res: Response) {
-
         const term = req.query.query;
         if (!term) {
             sendJSONresponse(res, 404, {"message": "need query"})
@@ -179,5 +178,4 @@ export class TokenController {
             limit: limit
         };
     }
-
 }

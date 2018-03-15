@@ -69,7 +69,7 @@ export const contracts = {
         id: "tron"
     },
     "0xdac17f958d2ee523a2206206994597c13d831ec7": {
-        id: "tether"   
+        id: "tether"
     },
     "0xd850942ef8811f2a866692a623011bde52a462c1": {
         id: "vechain"
@@ -139,7 +139,7 @@ export const contracts = {
     },
     "0x5d65d971895edc438f465c17db6992698a52318d": {
         id: "nebulas-token"
-    }, 
+    },
     "0x419d0d8bdd9af5e606ae2232ed285aff190e711b": {
         id: "funfair"
     },
