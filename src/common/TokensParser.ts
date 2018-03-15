@@ -13,16 +13,18 @@ export class TokensParser {
     start(): void {        
         BlockchainState.getBlockState().then(([blockInChain, blockInDb]) => {
             if (blockInDb.lastTokensBlock < blockInDb.lastBlock) {
-                this.startParsingNextBlock(blockInDb.lastTokensBlock)
+                this.startParsingNextBlock(blockInDb.lastTokensBlock, blockInDb.lastBlock)
             }
         })
     }
 
-    startParsingNextBlock(block: number) {
+    startParsingNextBlock(block: number, lastBlock: number) {
         this.parseBlock(block).then(() => {
-            setDelay(10).then(value => {
-                this.startParsingNextBlock(block + 1)
-            })
+            if (block < lastBlock) {
+                this.startParsingNextBlock(block + 1, lastBlock)
+            } else {
+                this.scheduleParsing(block)
+            }
         }).catch(err => {
             winston.error(`startParsingNextBlock: ${err}`)
             this.scheduleParsing(block)
