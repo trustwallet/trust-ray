@@ -25,6 +25,7 @@ router.get("/transactions/:transactionId", transactionController.readOneTransact
 // URLs for tokens
 router.get("/tokens", tokenController.readAllTokens);
 router.get("/tokens/:tokenWalletAddress", tokenController.readOneToken);
+router.get("/tokenInfo/:tokenAddress", tokenController.readTokenInfo);
 
 // URLs for push notifications
 router.post("/push/register", pusherController.register);

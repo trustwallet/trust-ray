@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { sendJSONresponse } from "../common/Utils";
 import { Token } from "../models/TokenModel";
+import { ERC20Contract } from "../models/Erc20ContractModel";
 import * as xss from "xss-filters";
 import { TokenParser } from "../common/TokenParser";
 import axios from "axios";
@@ -103,6 +104,29 @@ export class TokenController {
         }).catch((err: Error) => {
             sendJSONresponse(res, 404, err);
         });
+    }
+
+    readTokenInfo(req: Request, res: Response) {
+        if (!req.params || !req.params.tokenAddress) {
+            sendJSONresponse(res, 404, { "message": "No token address in request" });
+            return;
+        }
+
+        req.checkParams("tokenAddress", "wallet address must be alphanumeric").isAlphanumeric();
+        const validationErrors = req.validationErrors();
+        if (validationErrors) {
+            sendJSONresponse(res, 400, validationErrors);
+            return;
+        }
+
+        const address = xss.inHTMLData(req.params.tokenAddress);
+
+        ERC20Contract.findOne({address}).then((erc20: any) => {
+            sendJSONresponse(res, 200, erc20);
+        }).catch((error: Error) => {
+            sendJSONresponse(res, 404, error);
+        })
+
     }
 
     private static validateQueryParameters(req: Request) {
