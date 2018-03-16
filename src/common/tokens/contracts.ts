@@ -1204,6 +1204,9 @@ export const contracts = {
     },
     "0xa4e8c3ec456107ea67d3075bf9e3df3a75823db0": {
         id: "loom-network"
+    },
+    "0xf244176246168f24e3187f7288edbca29267739b": {
+        id: "havven"
     }
 }
 
