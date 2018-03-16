@@ -3,10 +3,9 @@ const mongoosePaginate = require("mongoose-paginate");
 const Schema = mongoose.Schema;
 
 const tokenSchema = new Schema({
-    address: {
+    _id: {
         type: String,
         required: true,
-        index: true
     },
     tokens: [{
         type: mongoose.Schema.Types.ObjectId,
