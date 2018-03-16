@@ -1201,6 +1201,9 @@ export const contracts = {
     },
     "0x07a58629aaf3e1a0d07d8f43114b76bd5eee3b91": {
         id: "guaranteed-ethurance-token-extra"
+    },
+    "0xa4e8c3ec456107ea67d3075bf9e3df3a75823db0": {
+        id: "loom-network"
     }
 }
 
