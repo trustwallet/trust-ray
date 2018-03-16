@@ -1252,6 +1252,9 @@ export const contracts = {
      },
      "0xc72fe8e3dd5bef0f9f31f259399f301272ef2a2d": {
          id: "insights-network"
+     },
+     "0x57ad67acf9bf015e4820fbd66ea1a21bed8852ec": {
+        id: "lympo"
      }
 }
 
