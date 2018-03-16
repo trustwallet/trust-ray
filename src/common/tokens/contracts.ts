@@ -1210,6 +1210,8 @@ export const contracts = {
     },
     "0x1122b6a0e00dce0563082b6e2953f3a943855c1f": {
         id: "centrality"
+    }, "0x151202c9c18e495656f372281f493eb7698961d5": {
+        id: "debitum-network"
     } 
 }
 
