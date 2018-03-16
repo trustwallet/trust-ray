@@ -27,9 +27,9 @@ export class BlockchainState {
                 blockInDb.lastPusherBlock = blockInChain
             }
 
-            // if (!blockInDb.lastTokensBlock) {
+            if (!blockInDb.lastTokensBlock) {
                 blockInDb.lastTokensBlock = 1
-            // }
+            }
 
             return blockInDb.save()
         })
