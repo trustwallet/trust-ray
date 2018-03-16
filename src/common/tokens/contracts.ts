@@ -1228,6 +1228,9 @@ export const contracts = {
      },
      "0xdd16ec0f66e54d453e6756713e533355989040e4": {
          id: "tokenomy"
+     },
+     "0xa9ec9f5c1547bd5b0247cf6ae3aab666d10948be": {
+         id: "spherepay"
      }
 
 }
