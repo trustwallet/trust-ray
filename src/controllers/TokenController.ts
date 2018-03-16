@@ -105,7 +105,7 @@ export class TokenController {
         });
     }
 
-    readTokenInfo(req: Request, res: Response) {
+    public readTokenInfo(req: Request, res: Response) {
         if (!req.params || !req.params.tokenAddress) {
             sendJSONresponse(res, 404, { "message": "No token address in request" });
             return;
@@ -125,6 +125,7 @@ export class TokenController {
         }).catch((error: Error) => {
             sendJSONresponse(res, 404, error);
         })
+    }
 
     public listTokens(req: Request, res: Response) {
         const term = req.query.query;
