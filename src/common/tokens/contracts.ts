@@ -1234,7 +1234,11 @@ export const contracts = {
      },
      "0xd49ff13661451313ca1553fd6954bd1d9b6e02b9": {
          id: "electrifyasia"
+     },
+     "0x8b353021189375591723e7384262f45709a3c3dc": {
+         id: "tomochain"
      }
+
 
 }
 
