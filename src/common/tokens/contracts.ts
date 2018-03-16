@@ -1207,6 +1207,9 @@ export const contracts = {
     },
     "0xf244176246168f24e3187f7288edbca29267739b": {
         id: "havven"
-    }
+    },
+    "0x1122b6a0e00dce0563082b6e2953f3a943855c1f": {
+        id: "centrality"
+    } 
 }
 
