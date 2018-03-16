@@ -1222,6 +1222,9 @@ export const contracts = {
     },
     "0xe25b0bba01dc5630312b6a21927e578061a13f55": {
         id: "shipchain"
-    } 
+    },
+     "0xe5f166c0d8872b68790061317bb6cca04582c912": {
+         id: "te-food"
+     }
 }
 
