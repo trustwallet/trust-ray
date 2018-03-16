@@ -1249,9 +1249,9 @@ export const contracts = {
      },
      "0x622dFfCc4e83C64ba959530A5a5580687a57581b": {
          id: "cube"
+     },
+     "0xc72fe8e3dd5bef0f9f31f259399f301272ef2a2d": {
+         id: "insights-network"
      }
-     
-
-
 }
 
