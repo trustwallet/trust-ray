@@ -80,8 +80,8 @@ export class TokenController {
     }
 
     public readOneToken(req: Request, res: Response) {
-        if (!req.params || !req.params.address) {
-            sendJSONresponse(res, 404, { "message": "No address in request" });
+        if (!req.params || !req.params.tokenWalletAddress) {
+            sendJSONresponse(res, 404, { "message": "No tokenWalletAddress in request" });
             return;
         }
 
@@ -93,9 +93,9 @@ export class TokenController {
             return;
         }
 
-        const address = xss.inHTMLData(req.params.address);
+        const address = xss.inHTMLData(req.params.tokenWalletAddress);
 
-        Token.find({address: address}).populate("tokens").then((token: any) => {
+        Token.find({_id: address}).populate("tokens").then((token: any) => {
             if (!token) {
                 sendJSONresponse(res, 404, {"message": "wallet address not found"});
                 return;
