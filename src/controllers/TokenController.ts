@@ -99,7 +99,10 @@ export class TokenController {
                 sendJSONresponse(res, 404, {"message": "wallet address not found"});
                 return;
             }
-            sendJSONresponse(res, 200, token);
+            sendJSONresponse(res, 200, {
+                address: token[0]._id,
+                tokens: token[0].tokens
+            });
         }).catch((err: Error) => {
             sendJSONresponse(res, 404, err);
         });
