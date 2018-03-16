@@ -1190,4 +1190,7 @@ export const contracts = {
     "0x2ccbff3a042c68716ed2a2cb0c544a9f1d1935e1": {
         id: "dmarket"
     },
+    "0x336f646f87d9f6bc6ed42dd46e8b3fd9dbd15c22": {
+        id: "crystal-clear"
+    },
 }
