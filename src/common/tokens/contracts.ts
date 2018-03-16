@@ -1240,6 +1240,9 @@ export const contracts = {
      },
      "0xabbbb6447b68ffd6141da77c18c7b5876ed6c5ab": {
          id: "datx"
+     },
+     "0x1b957dc4aefeed3b4a2351a6a6d5cbfbba0cecfa": {
+         id: "hoqu"
      }
 
 
