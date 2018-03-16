@@ -86,7 +86,7 @@ export class TokenController {
         }
 
         // validate wallet address
-        req.checkParams("address", "wallet address must be alphanumeric").isAlphanumeric();
+        req.checkParams("tokenWalletAddress", "wallet address must be alphanumeric").isAlphanumeric();
         const validationErrors = req.validationErrors();
         if (validationErrors) {
             sendJSONresponse(res, 400, validationErrors);
