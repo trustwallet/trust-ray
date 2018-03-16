@@ -84,7 +84,6 @@ export class TokenController {
             sendJSONresponse(res, 404, { "message": "No address in request" });
             return;
         }
-
         // validate wallet address
         req.checkParams("address", "wallet address must be alphanumeric").isAlphanumeric();
         const validationErrors = req.validationErrors();
@@ -106,7 +105,7 @@ export class TokenController {
         });
     }
 
-    readTokenInfo(req: Request, res: Response) {
+    public readTokenInfo(req: Request, res: Response) {
         if (!req.params || !req.params.tokenAddress) {
             sendJSONresponse(res, 404, { "message": "No token address in request" });
             return;
@@ -126,7 +125,24 @@ export class TokenController {
         }).catch((error: Error) => {
             sendJSONresponse(res, 404, error);
         })
+    }
 
+    public listTokens(req: Request, res: Response) {
+        const term = req.query.query;
+        if (!term) {
+            sendJSONresponse(res, 404, {"message": "need query"})
+            return;
+        }
+        const re = new RegExp(term, "i");
+        ERC20Contract.find().or([
+            { "name": { $regex: re }},
+            { "symbol": { $regex: re }}
+        ]).exec()
+        .then((contracts: any) => {
+            sendJSONresponse(res, 200, contracts);
+        }).catch((err: Error) => {
+            sendJSONresponse(res, 404, err);
+        });
     }
 
     private static validateQueryParameters(req: Request) {
@@ -163,5 +179,4 @@ export class TokenController {
             limit: limit
         };
     }
-
 }
