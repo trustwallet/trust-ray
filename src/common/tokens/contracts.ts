@@ -1193,4 +1193,7 @@ export const contracts = {
     "0x336f646f87d9f6bc6ed42dd46e8b3fd9dbd15c22": {
         id: "crystal-clear"
     },
+    "0x5c3a228510d246b78a3765c20221cbf3082b44a4": {
+        id: "storiqa"
+    }
 }
