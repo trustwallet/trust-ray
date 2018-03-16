@@ -1214,6 +1214,8 @@ export const contracts = {
         id: "debitum-network"
     }, "0xfd107b473ab90e8fbd89872144a3dc92c40fa8c9": {
         id: "lala-world"
+    }, "0xef2463099360a085f1f10b076ed72ef625497a06": {
+        id: "sharpe-platform-token"
     }
 }
 
