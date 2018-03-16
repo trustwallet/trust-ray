@@ -1237,6 +1237,9 @@ export const contracts = {
      },
      "0x8b353021189375591723e7384262f45709a3c3dc": {
          id: "tomochain"
+     },
+     "0xabbbb6447b68ffd6141da77c18c7b5876ed6c5ab": {
+         id: "datx"
      }
 
 
