@@ -1243,7 +1243,11 @@ export const contracts = {
      },
      "0x1b957dc4aefeed3b4a2351a6a6d5cbfbba0cecfa": {
          id: "hoqu"
+     },
+     "0x5b26c5d0772e5bbac8b3182ae9a13f9bb2d03765": {
+         id: "education-ecosystem"
      }
+     
 
 
 }
