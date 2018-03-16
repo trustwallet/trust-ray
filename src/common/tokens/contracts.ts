@@ -1225,6 +1225,10 @@ export const contracts = {
     },
      "0xe5f166c0d8872b68790061317bb6cca04582c912": {
          id: "te-food"
+     },
+     "0xdd16ec0f66e54d453e6756713e533355989040e4": {
+         id: "tokenomy"
      }
+
 }
 
