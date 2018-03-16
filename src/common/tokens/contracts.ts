@@ -1195,5 +1195,10 @@ export const contracts = {
     },
     "0x5c3a228510d246b78a3765c20221cbf3082b44a4": {
         id: "storiqa"
-    }
+    },
+    "0x954b5de09a55e59755acbda29e1eb74a45d30175": {
+        id: "fluz-fluz"
+    },
+        
 }
+
