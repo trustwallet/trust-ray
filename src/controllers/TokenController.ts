@@ -38,7 +38,7 @@ export class TokenController {
         });
     }
 
-     static async getRemoteTokens(address: string) {
+     static getRemoteTokens(address: string) {
         const url = `https://api.ethplorer.io/getAddressInfo/${address}?apiKey=freekey`;
         return axios.get(url).then((res: any) => {
             // easier this way
