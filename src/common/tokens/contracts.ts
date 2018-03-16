@@ -1246,6 +1246,9 @@ export const contracts = {
      },
      "0x5b26c5d0772e5bbac8b3182ae9a13f9bb2d03765": {
          id: "education-ecosystem"
+     },
+     "0x622dFfCc4e83C64ba959530A5a5580687a57581b": {
+         id: "cube"
      }
      
 
