@@ -1231,6 +1231,9 @@ export const contracts = {
      },
      "0xa9ec9f5c1547bd5b0247cf6ae3aab666d10948be": {
          id: "spherepay"
+     },
+     "0xd49ff13661451313ca1553fd6954bd1d9b6e02b9": {
+         id: "electrifyasia"
      }
 
 }
