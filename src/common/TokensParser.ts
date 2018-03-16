@@ -20,7 +20,9 @@ export class TokensParser {
     startParsingNextBlock(block: number, lastBlock: number) {
         this.parseBlock(block).then(() => {
             if (block < lastBlock) {
-                return this.startParsingNextBlock(block + 1, lastBlock)
+                setDelay(10).then(value => {
+                    this.startParsingNextBlock(block + 1, lastBlock)
+                })
             } else {
                 this.scheduleParsing(block)
             }
