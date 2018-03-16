@@ -70,16 +70,16 @@ export class TokensParser {
             const address = operation.address
 
             bulk.find({
-                address: address
+                _id: address
             }).upsert().updateOne({
                 "$setOnInsert": {
-                    address: address,
+                    _id: address,
                     tokens: []
                 }
             });
 
             bulk.find({
-                address: address,
+                _id: address,
                 tokens: {
                     "$not": {
                         "$elemMatch": {
