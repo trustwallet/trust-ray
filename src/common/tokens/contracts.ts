@@ -1195,5 +1195,69 @@ export const contracts = {
     },
     "0x5c3a228510d246b78a3765c20221cbf3082b44a4": {
         id: "storiqa"
-    }
+    },
+    "0x954b5de09a55e59755acbda29e1eb74a45d30175": {
+        id: "fluz-fluz"
+    },
+    "0x07a58629aaf3e1a0d07d8f43114b76bd5eee3b91": {
+        id: "guaranteed-ethurance-token-extra"
+    },
+    "0xa4e8c3ec456107ea67d3075bf9e3df3a75823db0": {
+        id: "loom-network"
+    },
+    "0xf244176246168f24e3187f7288edbca29267739b": {
+        id: "havven"
+    },
+    "0x1122b6a0e00dce0563082b6e2953f3a943855c1f": {
+        id: "centrality"
+    }, 
+    "0x151202c9c18e495656f372281f493eb7698961d5": {
+        id: "debitum-network"
+    }, 
+    "0xfd107b473ab90e8fbd89872144a3dc92c40fa8c9": {
+        id: "lala-world"
+    }, 
+    "0xef2463099360a085f1f10b076ed72ef625497a06": {
+        id: "sharpe-platform-token"
+    },
+    "0xe25b0bba01dc5630312b6a21927e578061a13f55": {
+        id: "shipchain"
+    },
+     "0xe5f166c0d8872b68790061317bb6cca04582c912": {
+         id: "te-food"
+     },
+     "0xdd16ec0f66e54d453e6756713e533355989040e4": {
+         id: "tokenomy"
+     },
+     "0xa9ec9f5c1547bd5b0247cf6ae3aab666d10948be": {
+         id: "spherepay"
+     },
+     "0xd49ff13661451313ca1553fd6954bd1d9b6e02b9": {
+         id: "electrifyasia"
+     },
+     "0x8b353021189375591723e7384262f45709a3c3dc": {
+         id: "tomochain"
+     },
+     "0xabbbb6447b68ffd6141da77c18c7b5876ed6c5ab": {
+         id: "datx"
+     },
+     "0x1b957dc4aefeed3b4a2351a6a6d5cbfbba0cecfa": {
+         id: "hoqu"
+     },
+     "0x5b26c5d0772e5bbac8b3182ae9a13f9bb2d03765": {
+         id: "education-ecosystem"
+     },
+     "0x622dFfCc4e83C64ba959530A5a5580687a57581b": {
+         id: "cube"
+     },
+     "0xc72fe8e3dd5bef0f9f31f259399f301272ef2a2d": {
+         id: "insights-network"
+     },
+     "0x57ad67acf9bf015e4820fbd66ea1a21bed8852ec": {
+        id: "lympo"
+     },
+     "0x5c743a35e903f6c584514ec617acee0611cf44f3": {
+         id: "experty"
+     }
 }
+
