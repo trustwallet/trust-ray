@@ -1199,6 +1199,8 @@ export const contracts = {
     "0x954b5de09a55e59755acbda29e1eb74a45d30175": {
         id: "fluz-fluz"
     },
-        
+    "0x07a58629aaf3e1a0d07d8f43114b76bd5eee3b91": {
+        id: "guaranteed-ethurance-token-extra"
+    }
 }
 
