@@ -6,6 +6,7 @@ import * as xss from "xss-filters";
 import { TokenParser } from "../common/TokenParser";
 import axios from "axios";
 const config = require("config");
+const _uniqBy = require("lodash.uniqby");
 
 export class TokenController {
 
@@ -37,7 +38,7 @@ export class TokenController {
         });
     }
 
-    public static getRemoteTokens(address: string): any {
+     static getRemoteTokens(address: string) {
         const url = `https://api.ethplorer.io/getAddressInfo/${address}?apiKey=freekey`;
         return axios.get(url).then((res: any) => {
             // easier this way
@@ -55,8 +56,8 @@ export class TokenController {
                     }
                 }
             })
-            return Promise.resolve(tokens);
-        }).then((value) => {
+            return tokens;
+        }).then((ethplorerTokens) => {
             return new TokenParser().getTokenBalances(address).then((balances: any) => {
                 const tokens = balances.map((value: any) => {
                     return {
@@ -64,7 +65,9 @@ export class TokenController {
                         contract: value.contract
                     }
                 })
-                return Promise.resolve(tokens.concat(value));
+                const allTokens = tokens.concat(ethplorerTokens);
+                const uniqTokens = _uniqBy(allTokens, "contract.address");
+                return uniqTokens;
             });
         }).catch((err) => {
             return new TokenParser().getTokenBalances(address).then((balances: any) => {
