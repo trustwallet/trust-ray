@@ -1163,20 +1163,8 @@ export const contracts = {
     "0x039b5649a59967e3e936d7471f9c3700100ee1ab": {
         id: "kucoin-shares"
     },
-    "0xa74476443119A942dE498590Fe1f2454d7D4aC0d": {
-        id: "golem-network-tokens"
-    },
-    "0x5d65D971895Edc438f465c17DB6992698a52318D": {
-        id: "nebulas-token"
-    },
-    "0xB70835D7822eBB9426B56543E391846C107bd32C": {
-        id: "game"
-    },
     "0x106aa49295b525fcf959aa75ec3f7dcbf5352f1c": {
         id: "rock"
-    },
-    "0x9B11EFcAAA1890f6eE52C6bB7CF8153aC5d74139": {
-        id: "attention-token-of-media"
     },
     "0xeda8b016efa8b1161208cf041cd86972eee0f31e": {
         id: "iht-real-estate-protocol"
@@ -1210,13 +1198,13 @@ export const contracts = {
     },
     "0x1122b6a0e00dce0563082b6e2953f3a943855c1f": {
         id: "centrality"
-    }, 
+    },
     "0x151202c9c18e495656f372281f493eb7698961d5": {
         id: "debitum-network"
-    }, 
+    },
     "0xfd107b473ab90e8fbd89872144a3dc92c40fa8c9": {
         id: "lala-world"
-    }, 
+    },
     "0xef2463099360a085f1f10b076ed72ef625497a06": {
         id: "sharpe-platform-token"
     },
@@ -1247,7 +1235,7 @@ export const contracts = {
      "0x5b26c5d0772e5bbac8b3182ae9a13f9bb2d03765": {
          id: "education-ecosystem"
      },
-     "0x622dFfCc4e83C64ba959530A5a5580687a57581b": {
+     "0x622dffcc4e83c64ba959530a5a5580687a57581b": {
          id: "cube"
      },
      "0xc72fe8e3dd5bef0f9f31f259399f301272ef2a2d": {
