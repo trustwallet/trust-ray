@@ -21,17 +21,21 @@ export class TransactionController {
 
         // extract query parameters
         const queryParams = this.extractQueryParameters(req);
+        const address: string = queryParams.address.toLowerCase();
 
         // build up query
         const query: any = {};
-        if (queryParams.address !== "undefined") {
-            const address = queryParams.address.toLowerCase();
+        if (address !== undefined) {
             query.addresses = { "$in": [address] };
             Wallets.register(address);
         }
         query.blockNumber = { "$gte": queryParams.startBlock, "$lte": queryParams.endBlock};
 
-        const address: string = queryParams.address;
+        const contract: string = queryParams.contract;
+        if (contract) {
+            query.to = {$eq: contract}
+        }
+
 
         Transaction.paginate(query, {
             page: queryParams.page,
@@ -98,6 +102,7 @@ export class TransactionController {
         req.checkQuery("endBlock", "endBlock needs to be a number").optional().isNumeric();
         req.checkQuery("limit", "limit needs to be a number").optional().isNumeric();
         req.checkQuery("address", "address needs to be alphanumeric").optional().isAlphanumeric();
+        req.checkQuery("contract", "contract symbol needs to be in uppercase").optional().isLowercase();
 
         return req.validationErrors();
     }
@@ -134,12 +139,15 @@ export class TransactionController {
             endBlock = 9999999999;
         }
 
+        const contract = req.query.contract;
+
         return {
             address: address,
             startBlock: startBlock,
             endBlock: endBlock,
             page: page,
-            limit: limit
+            limit,
+            contract
         };
     }
 
