@@ -1246,9 +1246,6 @@ export const contracts = {
      },
      "0x5c743a35e903f6c584514ec617acee0611cf44f3": {
          id: "experty"
-     },
-     "0xf244176246168f24e3187f7288edbca29267739b": {
-         id: "havven"
      }
 }
 
