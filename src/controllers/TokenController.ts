@@ -21,13 +21,12 @@ export class TokenController {
 
         // extract query parameters
         const queryParams = TokenController.extractQueryParameters(req);
+        const address = queryParams.address.toLowerCase();
+        const query: any = {
+            address: address
+        };
 
-        const query: any = {};
-        if (queryParams.address !== "undefined") {
-            query.address = queryParams.address.toLowerCase();
-        }
-
-        TokenController.getRemoteTokens(queryParams.address).then((tokens: any) => {
+        TokenController.getRemoteTokens(address).then((tokens: any) => {
             if (tokens) {
                 sendJSONresponse(res, 200, {
                     docs: tokens
