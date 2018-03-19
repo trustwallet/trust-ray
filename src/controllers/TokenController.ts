@@ -49,6 +49,7 @@ export class TokenController {
                 return {
                     balance: "0",
                     contract: {
+                        contract: value.tokenInfo.address,
                         address: value.tokenInfo.address,
                         name: value.tokenInfo.name,
                         decimals: parseInt(value.tokenInfo.decimals),
@@ -62,7 +63,7 @@ export class TokenController {
                 const tokens = balances.map((value: any) => {
                     return {
                         balance: "0",
-                        contract: value.contract
+                        contract: TokenController.toERC20Format(value)
                     }
                 })
                 const allTokens = tokens.concat(ethplorerTokens);
@@ -74,12 +75,22 @@ export class TokenController {
                 const tokens = balances.map((value: any) => {
                     return {
                         balance: "0",
-                        contract: value.contract
+                        contract: TokenController.toERC20Format(value)
                     }
                 })
                 return Promise.resolve(tokens);
             });
         })
+    }
+
+    static toERC20Format(value: any) {
+        return {
+            contract: value.address,
+            address: value.address,
+            name: value.name,
+            decimals: value.decimals,
+            symbol: value.symbol
+        }
     }
 
     public readOneToken(req: Request, res: Response) {
