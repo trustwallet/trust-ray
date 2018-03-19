@@ -21,12 +21,11 @@ export class TransactionController {
 
         // extract query parameters
         const queryParams = this.extractQueryParameters(req);
-        const address: string = queryParams.address;
+        const address: string = queryParams.address.toLowerCase();
 
         // build up query
         const query: any = {};
-        if (queryParams.address !== "undefined") {
-            const address = queryParams.address.toLowerCase();
+        if (address !== undefined) {
             query.addresses = { "$in": [address] };
             Wallets.register(address);
         }
