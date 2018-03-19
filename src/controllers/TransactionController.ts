@@ -31,7 +31,7 @@ export class TransactionController {
         }
         query.blockNumber = { "$gte": queryParams.startBlock, "$lte": queryParams.endBlock};
 
-        const contract: string = queryParams.contract;
+        const contract: string = queryParams.contract.toLowerCase();
         if (contract) {
             query.to = {$eq: contract}
         }
