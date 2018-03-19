@@ -21,18 +21,18 @@ export class TransactionController {
 
         // extract query parameters
         const queryParams = this.extractQueryParameters(req);
-        const address: string = queryParams.address.toLowerCase();
-
         // build up query
         const query: any = {};
-        if (address !== undefined) {
+        if (queryParams.address !== undefined) {
+            const address: string = queryParams.address.toLowerCase();
             query.addresses = { "$in": [address] };
             Wallets.register(address);
         }
         query.blockNumber = { "$gte": queryParams.startBlock, "$lte": queryParams.endBlock};
+        const address: string = queryParams.address.toLowerCase();
 
-        const contract: string = queryParams.contract.toLowerCase();
-        if (contract) {
+        if (queryParams.contract) {
+            const contract: string = queryParams.contract.toLowerCase();
             query.to = {$eq: contract}
         }
 
@@ -101,8 +101,8 @@ export class TransactionController {
         req.checkQuery("startBlock", "startBlock needs to be a number").optional().isNumeric();
         req.checkQuery("endBlock", "endBlock needs to be a number").optional().isNumeric();
         req.checkQuery("limit", "limit needs to be a number").optional().isNumeric();
-        req.checkQuery("address", "address needs to be alphanumeric").optional().isAlphanumeric();
-        req.checkQuery("contract", "contract symbol needs to be in uppercase").optional().isLowercase();
+        req.checkQuery("address", "address needs to be alphanumeric").isAlphanumeric();
+        req.checkQuery("contract", "contract symbol needs to be in uppercase").optional();
 
         return req.validationErrors();
     }
