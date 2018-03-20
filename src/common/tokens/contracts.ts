@@ -1252,9 +1252,6 @@ export const contracts = {
      },
      "0x1e797ce986c3cff4472f7d38d5c4aba55dfefe40": {
          id: "blockcdn"
-     },
-     "0x05f4a42e251f2d52b8ed15e9fedaacfcef1fad27": {
-         id: "zilliqa"
      }
 }
 
