@@ -4,26 +4,23 @@ import { Promise } from "bluebird";
 import { Config } from "../common/Config";
 import { getValueInEth } from "../common/ValueConverter";
 import {  TransactionType, TransactionAction } from "./Interfaces/INotification";
-
-const PushNotifications = require("node-pushnotifications");
+import * as apn from "apn";
 const config = require("config");
 
 export class Notification {
     private push: any;
     private networkSymbol = config.get("NETWORK_SYMBOL") || "ETH";
     private settings = {
-        apn: {
             token: {
                 key: Buffer.from(config.get("PUSHER.APN.KEY"), "base64").toString(),
                 keyId: config.get("PUSHER.APN.KEYID"),
                 teamId: config.get("PUSHER.APN.TEAMID"),
             },
             production: true
-        }
     }
 
     constructor() {
-         this.push = new PushNotifications(this.settings);
+         this.push = new apn.Provider(this.settings);
     }
 
     process(transaction: any, device: any) {
@@ -66,12 +63,14 @@ export class Notification {
         });
     };
 
-    private createMeassage(title: string, from: string): {title: string, body: string, topic: string} {
-        return {
-            title,
+    private createMeassage(title: string, from: string) {
+        const notification = new apn.Notification();
+        notification.topic = config.get("PUSHER.APN.BUNDLE");
+        notification.alert = {
             body: from,
-            topic: config.get("PUSHER.APN.BUNDLE"),
+            title
         }
+        return notification;
     }
 
     private getTransactionType(transaction: {operations: any[]}): string {
@@ -80,7 +79,7 @@ export class Notification {
     }
 
     private send(token: string, data: any) {
-        return this.push.send(token, data).then((results: any) => {
+        return this.push.send(data, token).then((results: any) => {
                 return results;
             }).catch((error: Error) => {
                 winston.info("Error sending notification: ", error);
