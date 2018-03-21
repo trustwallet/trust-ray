@@ -10,7 +10,7 @@ export class TokensParser {
 
     start(): void {
         BlockchainState.getBlockState().then(([blockInChain, blockInDb]) => {
-            const lastBlock = 2673139 // temp solution until blockchain parsed from the begining. Use blockInDb.lastBlock instead
+            const lastBlock = 2837114 // temp solution until blockchain parsed from the begining. Use blockInDb.lastBlock instead
             if (blockInDb.lastTokensBlock < lastBlock) {
                 this.startParsingNextBlock(blockInDb.lastTokensBlock, lastBlock)
             }
