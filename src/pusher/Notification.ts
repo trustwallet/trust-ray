@@ -5,7 +5,7 @@ import { Config } from "../common/Config";
 import { getValueInEth } from "../common/ValueConverter";
 import {  TransactionType, TransactionAction } from "./Interfaces/INotification";
 
-const PushNotifications = require("node-pushnotifications");
+const PushNotifications = require("@shackpank/node-pushnotifications");
 const config = require("config");
 
 export class Notification {
