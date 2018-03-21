@@ -39,6 +39,7 @@
     "@types/request": "2.47.0",
     "@types/winston": "^2.3.7",
     "@types/xss-filters": "0.0.27",
+    "@vikmeup/node-pushnotifications": "vikmeup/node-pushnotifications#1.0.19",
     "abi-decoder": "kolya182/abi-decoder#master",
     "async": "^2.1.2",
     "aws-sdk": "^2.204.0",
