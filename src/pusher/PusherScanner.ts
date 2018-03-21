@@ -12,6 +12,8 @@ import { Promise, reject } from "bluebird";
 export class PusherScanner {
     private onErrordelay: number = 5000;
     private onRestartDelay: number = 150;
+    private notification = new Notification();
+
     public start() {
         this.getNextPusherBlock().then((block: number) => {
             winston.info("Pusher processing block ", block);
@@ -23,8 +25,7 @@ export class PusherScanner {
                     return this.findDevicesByAddresses(transaction.addresses).then((devices: any[]) => {
                         if (devices.length > 0) {
                             return Promise.mapSeries(devices, (device: any) => {
-                                const notification = new Notification();
-                                return notification.process(transaction, device);
+                                return this.notification.process(transaction, device);
                             });
                         }
                     }).catch((error: Error) => {
