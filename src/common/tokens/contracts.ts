@@ -1255,6 +1255,9 @@ export const contracts = {
      },
      "0x71d01db8d6a2fbea7f8d434599c237980c234e4c": {
          id: "gladius-token"
+     },
+     "0xe469c4473af82217b30cf17b10bcdb6c8c796e75": {
+         id: "exrnchain"
      }
 }
 
