@@ -71,7 +71,7 @@ export class TokenController {
         req.checkQuery("page", "Page needs to be a number").optional().isNumeric();
         req.checkQuery("limit", "limit needs to be a number").optional().isNumeric();
         req.checkQuery("address", "address needs to be alphanumeric").isAlphanumeric();
-        req.checkQuery("showBalance", "showBalance needs to be a boolean").isBoolean();
+        req.checkQuery("showBalance", "showBalance needs to be a boolean").optional().isBoolean();
 
         return req.validationErrors();
     }
