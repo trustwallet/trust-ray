@@ -101,8 +101,8 @@ export class TransactionController {
         req.checkQuery("startBlock", "startBlock needs to be a number").optional().isNumeric();
         req.checkQuery("endBlock", "endBlock needs to be a number").optional().isNumeric();
         req.checkQuery("limit", "limit needs to be a number").optional().isNumeric();
-        req.checkQuery("address", "address needs to be alphanumeric").isAlphanumeric();
-        req.checkQuery("contract", "contract symbol needs to be in uppercase").optional();
+        req.checkQuery("address", "address needs to be alphanumeric and have a length 42").isAlphanumeric().isLength({min: 42, max: 42});
+        req.checkQuery("contract", "contract symbol needs to be alphanumeric and have a length 42").optional().isAlphanumeric().isLength({min: 42, max: 42});
 
         return req.validationErrors();
     }
