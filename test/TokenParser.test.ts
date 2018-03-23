@@ -10,7 +10,7 @@ describe("Test TokenParser", () => {
             const expected = isContractVerified(contract)
             assert(true === expected);
         })
-        it("Should return true when supply verified contract", () => {
+        it("Should return true when supply not verified contract", () => {
             const contract = "0x5f3789907b35dce5605b00c0be0a7ecdbfrandom"
             const expected = isContractVerified(contract)
             assert(false === expected);
