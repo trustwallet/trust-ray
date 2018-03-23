@@ -1261,9 +1261,6 @@ export const contracts = {
      },
      "0x36905fc93280f52362a1cbab151f25dc46742fb5": {
          id: "bottos"
-     },
-     "0x05f4a42e251f2d52b8ed15e9fedaacfcef1fad27": {
-         id: "zilliqa"
      }
 }
 
