@@ -1258,6 +1258,9 @@ export const contracts = {
      },
      "0xe469c4473af82217b30cf17b10bcdb6c8c796e75": {
          id: "exrnchain"
+     },
+     "0x36905fc93280f52362a1cbab151f25dc46742fb5": {
+         id: "bottos"
      }
 }
 
