@@ -6,6 +6,7 @@ import { TransactionOperation } from "../models/TransactionOperationModel";
 import { NotParsableContracts } from "../models/NotParsableContractModel";
 import { Transaction } from "../models/TransactionModel";
 import * as BluebirdPromise from "bluebird";
+import { contracts } from "./tokens/contracts";
 const flattenDeep = require("lodash.flattendeep");
 
 export class TokenParser {
@@ -75,7 +76,7 @@ export class TokenParser {
      * @param {String} contract
      * @returns {Promise<void>}
      */
-    private getContract(contract: String): Promise<void> {
+    private getContract(contract: string): Promise<void> {
         return NotParsableContracts.findOne({address: contract}).exec().then((notParsableToken: any) => {
             if (notParsableToken) return Promise.resolve(undefined);
             const promises = [];
@@ -98,12 +99,14 @@ export class TokenParser {
 
             return Promise.all(promises).then((contracts: any[]) => {
                 const contractObj = contracts.filter((ele: any) => ele !== undefined )[0];
+                const isContractVerified: boolean = this.isContractVerified(contract);
 
                 return this.updateERC20Token(contract, {
                     name: contractObj[0],
                     totalSupply: contractObj[1],
                     decimals: contractObj[2],
-                    symbol: contractObj[3]
+                    symbol: contractObj[3],
+                    verified: isContractVerified
                 });
             }).catch((error: Error) => {
                 winston.error(`Could not parse input for contract ${contract} with error ${error}`);
@@ -120,6 +123,8 @@ export class TokenParser {
         });
     }
 
+    public isContractVerified = (address: string): boolean => contracts[address] ? true : false;
+
     private convertSymbol(symbol: string): string {
         if (symbol.startsWith("0x")) {
             return Config.web3.utils.hexToAscii(symbol).replace(/\u0000*$/, "");
@@ -134,6 +139,7 @@ export class TokenParser {
             totalSupply: obj.totalSupply,
             decimals: obj.decimals,
             symbol: obj.symbol,
+            verified: obj.verified
         }, {upsert: true, new: true}).then((savedToken: any) => savedToken);
     }
 
