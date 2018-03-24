@@ -152,7 +152,8 @@ export class TokenController {
         const re = new RegExp(term, "i");
         ERC20Contract.find().or([
             { "name": { $regex: re }},
-            { "symbol": { $regex: re }}
+            { "symbol": { $regex: re }},
+            { "address": { $regex: re }}
         ]).exec()
         .then((contracts: any) => {
             sendJSONresponse(res, 200, contracts);
