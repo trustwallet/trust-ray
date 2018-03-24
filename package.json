@@ -8,7 +8,7 @@
     "start": "cross-env NODE_ENV=development npm run watch-ts && npm run tslint",
     "build": "tsc",
     "watch-ts": "tsc-watch --onSuccess \"nodemon dist/Server.js\"",
-    "test": "cross-env NODE_ENV=test mocha --require ts-node/register test/**/*.test.ts --exit",
+    "test": "cross-env NODE_ENV=test mocha --recursive --require ts-node/register 'test/**/*.test.ts' --exit",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
     "tslint-fix": "tslint -c tslint.json -p tsconfig.json --fix",
     "debug": "npm run build && npm run watch-debug",
