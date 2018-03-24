@@ -56,7 +56,9 @@ export class TokenParser {
         if (this.cachedContracts.hasOwnProperty(contractAddress)) {
             return Promise.resolve(this.cachedContracts[contractAddress]);
         }
-        return ERC20Contract.findOne({address: contractAddress}).exec().then((erc20contract: any) => {
+        const isContractVerified: boolean = this.isContractVerified(contractAddress);
+        const options = {new: true};
+        return ERC20Contract.findOneAndUpdate({address: contractAddress}, {$set: {verified: isContractVerified}}, options).exec().then((erc20contract: any) => {
             if (!erc20contract) {
                 return this.getContract(contractAddress);
             } else {
