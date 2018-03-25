@@ -1261,6 +1261,9 @@ export const contracts = {
      },
      "0x36905fc93280f52362a1cbab151f25dc46742fb5": {
          id: "bottos"
+     },
+     "0x408e41876cccdc0f92210600ef50372656052a38": {
+         id: "republic-protocol"
      }
 }
 
