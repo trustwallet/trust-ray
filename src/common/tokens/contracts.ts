@@ -1264,6 +1264,9 @@ export const contracts = {
      },
      "0x408e41876cccdc0f92210600ef50372656052a38": {
          id: "republic-protocol"
+     },
+     "0x998b3b82bc9dba173990be7afb772788b5acb8bd": {
+         id: "banca"
      }
 }
 
