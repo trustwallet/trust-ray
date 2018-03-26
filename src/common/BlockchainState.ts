@@ -5,7 +5,7 @@ import { setDelay } from "./Utils";
 const config = require("config");
 
 export class BlockchainState {
-    getState(): Promise<any> {        
+    getState(): Promise<any> {
         return BlockchainState.getBlockState().then(([blockInChain, blockInDb]) => {
             if (!blockInDb) {
                 return new LastParsedBlock({

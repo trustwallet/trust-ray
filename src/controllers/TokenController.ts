@@ -149,13 +149,17 @@ export class TokenController {
             sendJSONresponse(res, 404, {"message": "need query"})
             return;
         }
+        const queryParams = TokenController.extractQueryParameters(req);
         const re = new RegExp(term, "i");
-        ERC20Contract.find().or([
+        const query = ERC20Contract.find().or([
             { "name": { $regex: re }},
             { "symbol": { $regex: re }},
             { "address": { $regex: re }}
-        ]).exec()
-        .then((contracts: any) => {
+        ])
+        ERC20Contract.paginate(query, {
+            page: queryParams.page,
+            limit: queryParams.limit,
+        }).then((contracts: any) => {
             sendJSONresponse(res, 200, contracts);
         }).catch((err: Error) => {
             sendJSONresponse(res, 404, err);

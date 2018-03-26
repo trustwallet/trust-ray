@@ -13,6 +13,7 @@ notes
 
 # Ignore local logs
 *.log
+*~
 
 dist
 
@@ -21,3 +22,4 @@ docker/data/
 # Ignore config enviroment
 config/test.json
 config/development.json
+.env
