@@ -10,19 +10,25 @@ import { Config } from "../common/Config"
 const svg2png = require("svg2png");
 
 export class AssetsController {
+    private supportedNetworksIDs = [1, 4]
     private networkID: number;
-    private openSeaURL: string = "https://opensea-api.herokuapp.com/assets/?order_by=auction_created_date&order_direction=desc&owner=";
+    private openSeaURL: string;
+    private mainnetOpenSeaURL: string = "https://opensea-api.herokuapp.com/assets/?order_by=auction_created_date&order_direction=desc&owner=";
+    private rinkebyOpenSeaURL: string = "https://etherbay-api-1.herokuapp.com/assets/?order_by=auction_created_date&order_direction=desc&owner=";
 
     getAssets = async (req: Request, res: Response) => {
         if (!this.networkID) {
             this.networkID = await Config.web3.eth.net.getId().then((id: number) => id);
         }
 
-        if (this.networkID !== 1) {
+        if (this.supportedNetworksIDs.indexOf(this.networkID) === -1) {
             return sendJSONresponse(res, 200, {
                 docs: []
             });
         }
+
+        this.setUrl(this.networkID);
+
         const address: string = req.query.address;
         try {
             const assetsByAddress = await this.getAssetsByAddress(address);
@@ -47,6 +53,15 @@ export class AssetsController {
         });
         } catch (error) {
             sendJSONresponse(res, 404, "Assets can not be retrived");
+        }
+    }
+
+    private setUrl(networkID: number) {
+        if (networkID === 1) {
+            this.openSeaURL = this.mainnetOpenSeaURL
+        }
+        if (networkID === 4) {
+            this.openSeaURL = this.rinkebyOpenSeaURL;
         }
     }
 
