@@ -1267,9 +1267,6 @@ export const contracts = {
      },
      "0x998b3b82bc9dba173990be7afb772788b5acb8bd": {
          id: "banca"
-     },
-     "0xebbdf302c940c6bfd49c6b165f457fdb324649bc": {
-         id: "hydro-protocol"
      }
 }
 
