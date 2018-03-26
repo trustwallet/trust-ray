@@ -149,6 +149,24 @@ export class TokenController {
             sendJSONresponse(res, 404, {"message": "need query"})
             return;
         }
+        const re = new RegExp(term, "i");
+        ERC20Contract.find().limit(20).or([
+            { "name": { $regex: re }},
+            { "symbol": { $regex: re }},
+            { "address": { $regex: re }}
+        ]).exec().then((contracts: any) => {
+            sendJSONresponse(res, 200, contracts);
+        }).catch((err: Error) => {
+            sendJSONresponse(res, 404, err);
+        });
+    }
+
+    public listTokensNew(req: Request, res: Response) {
+        const term = req.query.query;
+        if (!term) {
+            sendJSONresponse(res, 404, {"message": "need query"})
+            return;
+        }
         const queryParams = TokenController.extractQueryParameters(req);
         const re = new RegExp(term, "i");
         const query = ERC20Contract.find().or([

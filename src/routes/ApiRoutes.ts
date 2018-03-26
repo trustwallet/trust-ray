@@ -25,6 +25,7 @@ router.get("/transactions/:transactionId", transactionController.readOneTransact
 // URLs for tokens
 router.get("/tokens", tokenController.readAllTokens);
 router.get("/tokens/list", tokenController.listTokens);
+router.get("/tokens/list/new", tokenController.listTokensNew);
 router.get("/tokens/:address", tokenController.readOneToken);
 router.get("/tokenInfo/:tokenAddress", tokenController.readTokenInfo);
 
