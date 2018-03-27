@@ -1267,6 +1267,9 @@ export const contracts = {
      },
      "0x998b3b82bc9dba173990be7afb772788b5acb8bd": {
          id: "banca"
+     },
+     "0xee8bd1502c3e9f6c543781467c01592ac51cfbb8": {
+         id: "titanium-bar"
      }
 }
 
