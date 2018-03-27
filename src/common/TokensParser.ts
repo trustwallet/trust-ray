@@ -8,27 +8,27 @@ import { BlockchainState } from "./BlockchainState";
 
 export class TokensParser {
 
-    start(): void {
+    start() {
         BlockchainState.getBlockState().then(([blockInChain, blockInDb]) => {
-            const lastBlock = blockInDb.lastBlock // temp solution until blockchain parsed from the begining. Use blockInDb.lastBlock instead
-            if (blockInDb.lastTokensBlock < lastBlock) {
-                this.startParsingNextBlock(blockInDb.lastTokensBlock, lastBlock)
+            const lastBlock: number = blockInDb.lastBlock // temp solution until blockchain parsed from the begining. Use blockInDb.lastBlock instead
+            const lastTokensBlock: number = blockInDb.lastTokensBlock
+            if (lastTokensBlock < lastBlock) {
+                this.startParsingNextBlock(lastTokensBlock, lastBlock)
             }
         })
     }
 
     startParsingNextBlock(block: number, lastBlock: number) {
-        this.parseBlock(block).then(() => {
-            if (block < lastBlock) {
-                setDelay(10).then(value => {
-                    this.startParsingNextBlock(block + 1, lastBlock)
-                })
+        this.parseBlock(block).then((lastTokensBlock) => {
+            const nextBlock: number = lastTokensBlock  + 1
+            if (nextBlock < lastBlock) {
+                setDelay(10).then(() => { this.startParsingNextBlock(nextBlock, lastBlock)} )
             } else {
-                this.scheduleParsing(block)
+                this.scheduleParsing()
             }
         }).catch(err => {
             winston.error(`startParsingNextBlock: ${err}`)
-            this.scheduleParsing(block)
+            this.scheduleParsing()
         })
     }
 
@@ -41,16 +41,16 @@ export class TokensParser {
                     operations.push({address: operation.from, contract: operation.contract._id})
                 })
             })
-            return this.completeBulk(
-                this.createBulk(operations)
-            )
+            return this.completeBulk(this.createBulk(operations))
         }).then(() => {
-            return LastParsedBlock.findOneAndUpdate({}, {$inc : {"lastTokensBlock" : 1}}).exec()
+            return LastParsedBlock.findOneAndUpdate({}, {lastTokensBlock: block}, {new: true}).exec().then((res: any) => res.lastTokensBlock)
+        }).catch((error: Error) => {
+            winston.error(`Error parsing block ${block}`, error)
         })
     }
 
-    scheduleParsing(block: number): void {
-        setDelay(5000).then(value => {
+    scheduleParsing() {
+        setDelay(5000).then(() => {
             this.start()
         })
     }
