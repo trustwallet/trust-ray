@@ -63,7 +63,7 @@ export class TokenPriceController {
                     name: tokenPrice.name,
                     symbol,
                     price,
-                    percent_change_24h: tokenPrice.percent_change_24h,
+                    percent_change_24h: tokenPrice.percent_change_24h || "0",
                     contract: contract,
                     image: this.getImageUrl(token.contract),
                 }
@@ -77,7 +77,7 @@ export class TokenPriceController {
                     name: tokenPrice.name || "",
                     symbol: token.symbol || "",
                     price: price || "",
-                    percent_change_24h: tokenPrice.percent_change_24h,
+                    percent_change_24h: tokenPrice.percent_change_24h || "0",
                     contract,
                     image: this.getImageUrl(contract),
                 }
@@ -87,7 +87,7 @@ export class TokenPriceController {
                     name: "",
                     symbol,
                     price: "0",
-                    percent_change_24h: "",
+                    percent_change_24h: "0",
                     contract,
                     image: this.getImageUrl(contract),
                 }
