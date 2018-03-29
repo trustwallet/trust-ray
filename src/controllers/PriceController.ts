@@ -70,7 +70,7 @@ export class PriceController {
             const isUpdating = this.isUpdating[currency] || false;
             if ((this.lastUpdated === 0 || difference >= this.refreshLimit) && !isUpdating) {
                 this.isUpdating[currency] = true;
-                this.getCoinMarketCapPrices(currency).timeout(3000).then((prices: any) => {
+                this.getCoinMarketCapPrices(currency).timeout(6000).then((prices: any) => {
                     this.lastUpdated[currency] = now;
                     this.latestPrices[currency] = prices;
                     this.isUpdating[currency] = false

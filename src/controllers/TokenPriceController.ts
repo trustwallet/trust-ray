@@ -111,7 +111,7 @@ export class TokenPriceController {
                 this.isUpdating[currency] = true;
 
                 try {
-                    const prices = await this.getCoinMarketCapPrices(currency).timeout(5000);
+                    const prices = await this.getCoinMarketCapPrices(currency).timeout(6000);
 
                     this.lastUpdated[currency] = now;
                     this.latestPrices[currency] = prices;
