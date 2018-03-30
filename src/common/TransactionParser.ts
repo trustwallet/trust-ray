@@ -192,4 +192,15 @@ export class TransactionParser {
                 }
             });
     }
+
+    static getTransactionsForAddress(address: string): Promise<any[]> {
+        return Transaction.find({addresses: { "$in": [address] }})
+            .populate({
+                path: "operations",
+                populate: {
+                    path: "contract",
+                    model: "ERC20Contract"
+                }
+            });
+    }
 }

@@ -43,6 +43,18 @@ export class TokensParser {
         })
     }
 
+    parseAddress(address: string) {
+        winston.error(`start ${address}`)
+        return TransactionParser.getTransactionsForAddress(address).then(transactions => {
+            const operations = this.createOperations(transactions)
+            return this.completeBulk(this.createBulk(operations))
+        }).then(() => {
+            winston.error(`done`)
+        }).catch((error: Error) => {
+            winston.error(`Error parsing block ${address}`, error)
+        })
+    }
+
     createOperations(transactions: any[]) {
         const operations: any = [];
         transactions.forEach(transaction => {
