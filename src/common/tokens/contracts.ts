@@ -1282,6 +1282,9 @@ export const contracts = {
      },
      "0x63e634330a20150dbb61b15648bc73855d6ccf07": {
          id: "blocklancer"
+     },
+     "0x28dee01d53fed0edf5f6e310bf8ef9311513ae40": {
+         id: "blitzpredict"
      }
 }
 
