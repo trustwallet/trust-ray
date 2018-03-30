@@ -4,9 +4,7 @@ import { Token } from "../models/TokenModel";
 import { ERC20Contract } from "../models/Erc20ContractModel";
 import * as xss from "xss-filters";
 import { TokenParser } from "../common/TokenParser";
-import axios from "axios";
 const config = require("config");
-const _uniqBy = require("lodash.uniqby");
 
 export class TokenController {
 
@@ -45,61 +43,6 @@ export class TokenController {
                 }
             }
         })
-    }
-
-     static getRemoteTokens(address: string) {
-        const url = `https://api.ethplorer.io/getAddressInfo/${address}?apiKey=freekey`;
-        return axios.get(url).then((res: any) => {
-            // easier this way
-            if (config.get("RPC_SERVER") !== "http://gasprice.poa.network:8545") {
-                return Promise.resolve([]);
-            }
-            const tokens = res.data.tokens.map((value: any) => {
-                return {
-                    balance: "0",
-                    contract: {
-                        contract: value.tokenInfo.address,
-                        address: value.tokenInfo.address,
-                        name: value.tokenInfo.name,
-                        decimals: parseInt(value.tokenInfo.decimals),
-                        symbol: value.tokenInfo.symbol
-                    }
-                }
-            })
-            return tokens;
-        }).then((ethplorerTokens) => {
-            return new TokenParser().getTokenBalances(address).then((balances: any) => {
-                const tokens = balances.map((value: any) => {
-                    return {
-                        balance: "0",
-                        contract: TokenController.toERC20Format(value.contract)
-                    }
-                })
-                const allTokens = tokens.concat(ethplorerTokens);
-                const uniqTokens = _uniqBy(allTokens, "contract.address");
-                return uniqTokens;
-            });
-        }).catch((err) => {
-            return new TokenParser().getTokenBalances(address).then((balances: any) => {
-                const tokens = balances.map((value: any) => {
-                    return {
-                        balance: "0",
-                        contract: TokenController.toERC20Format(value.contract)
-                    }
-                })
-                return Promise.resolve(tokens);
-            });
-        })
-    }
-
-    static toERC20Format(contract: any): any {
-        return {
-            contract: contract.address,
-            address: contract.address,
-            name: contract.name,
-            decimals: contract.decimals,
-            symbol: contract.symbol
-        }
     }
 
     public readOneToken(req: Request, res: Response) {
