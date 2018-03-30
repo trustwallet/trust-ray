@@ -28,21 +28,29 @@ export class TokenController {
     }
 
     private async getTokensByAddress(address: string) {
-        const tokens = await Token.findOne({_id: address}).populate({path: "tokens"}).then((tokens: any) => tokens);
+        const tokens = await Token.findOne({_id: address}).populate({path: "tokens"}).then((tokens: any) => {
+            console.log({tokens})
+            return tokens
+        });
 
-        return tokens.tokens.map((token: any) => {
-            const address = token.address;
-            return {
-                balance: "0",
-                contract: {
-                    contract: address,
-                    address,
-                    name: token.name,
-                    decimals: token.decimals,
-                    symbol: token.symbol
+        if (tokens) {
+            return tokens.tokens.map((token: any) => {
+                const address = token.address;
+                return {
+                    balance: "0",
+                    contract: {
+                        contract: address,
+                        address,
+                        name: token.name,
+                        decimals: token.decimals,
+                        symbol: token.symbol
+                    }
                 }
-            }
-        })
+            })
+        } else {
+            return []
+        }
+
     }
 
     public readOneToken(req: Request, res: Response) {
