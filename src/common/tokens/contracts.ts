@@ -1276,6 +1276,9 @@ export const contracts = {
      },
      "0x2f8472dd7ecf7ca760c8f6b45db20ca7cf52f8d7": {
          id: "bitstation"
+     },
+     "0x001f0aa5da15585e5b2305dbab2bac425ea71007": {
+         id: "ip-exchange"
      }
 }
 
