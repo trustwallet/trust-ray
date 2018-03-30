@@ -1273,6 +1273,9 @@ export const contracts = {
      },
      "0x355a458d555151d3b27f94227960ade1504e526a": {
          id: "token"
+     },
+     "0x2f8472dd7ecf7ca760c8f6b45db20ca7cf52f8d7": {
+         id: "bitstation"
      }
 }
 
