@@ -28,10 +28,7 @@ export class TokenController {
     }
 
     private async getTokensByAddress(address: string) {
-        const tokens = await Token.findOne({_id: address}).populate({path: "tokens"}).then((tokens: any) => {
-            console.log({tokens})
-            return tokens
-        });
+        const tokens = await Token.findOne({_id: address}).populate({path: "tokens"}).then((tokens: any) => tokens);
 
         if (tokens) {
             return tokens.tokens.map((token: any) => {
