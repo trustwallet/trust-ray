@@ -34,19 +34,24 @@ export class TokensParser {
 
     parseBlock(block: number): Promise<any> {
         return TransactionParser.getTransactions(block).then(transactions => {
-            const operations: any = [];
-            transactions.forEach(transaction => {
-                transaction.operations.forEach((operation: any) => {
-                    operations.push({address: operation.to, contract: operation.contract._id})
-                    operations.push({address: operation.from, contract: operation.contract._id})
-                })
-            })
+            const operations = this.createOperations(transactions)
             return this.completeBulk(this.createBulk(operations))
         }).then(() => {
             return LastParsedBlock.findOneAndUpdate({}, {lastTokensBlock: block}, {new: true}).exec().then((res: any) => res.lastTokensBlock)
         }).catch((error: Error) => {
             winston.error(`Error parsing block ${block}`, error)
         })
+    }
+
+    createOperations(transactions: any[]) {
+        const operations: any = [];
+        transactions.forEach(transaction => {
+            transaction.operations.forEach((operation: any) => {
+                operations.push({address: operation.to, contract: operation.contract._id})
+                operations.push({address: operation.from, contract: operation.contract._id})
+            })
+        })
+        return operations
     }
 
     scheduleParsing() {
