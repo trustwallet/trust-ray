@@ -1270,6 +1270,9 @@ export const contracts = {
      },
      "0xee8bd1502c3e9f6c543781467c01592ac51cfbb8": {
          id: "titanium-bar"
+     },
+     "0x355a458d555151d3b27f94227960ade1504e526a": {
+         id: "token"
      }
 }
 
