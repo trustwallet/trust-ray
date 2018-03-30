@@ -1279,6 +1279,9 @@ export const contracts = {
      },
      "0x001f0aa5da15585e5b2305dbab2bac425ea71007": {
          id: "ip-exchange"
+     },
+     "0x63e634330a20150dbb61b15648bc73855d6ccf07": {
+         id: "blocklancer"
      }
 }
 
