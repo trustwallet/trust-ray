@@ -10,23 +10,15 @@ const _uniqBy = require("lodash.uniqby");
 
 export class TokenController {
 
-    public readAllTokens(req: Request, res: Response) {
+    public readAllTokens = (req: Request, res: Response) => {
+        const validationErrors: any = TokenController.validateQueryParameters(req)
 
-        // validate query input
-        const validationErrors: any = TokenController.validateQueryParameters(req);
-        if (validationErrors) {
-            sendJSONresponse(res, 400, validationErrors);
-            return;
-        }
+        if (validationErrors) return sendJSONresponse(res, 400, validationErrors)
 
-        // extract query parameters
-        const queryParams = TokenController.extractQueryParameters(req);
-        const address = queryParams.address.toLowerCase();
-        const query: any = {
-            address: address
-        };
+        const queryParams = this.extractQueryParameters(req)
+        const address = queryParams.address.toLowerCase()
 
-        TokenController.getRemoteTokens(address).then((tokens: any) => {
+        this.getTokensByAddress(address).then((tokens: any) => {
             if (tokens) {
                 sendJSONresponse(res, 200, {
                     docs: tokens
@@ -35,6 +27,24 @@ export class TokenController {
                 sendJSONresponse(res, 404, "Balances for tokens could not be found.");
             }
         });
+    }
+
+    private async getTokensByAddress(address: string) {
+        const tokens = await Token.findOne({_id: address}).populate({path: "tokens"}).then((tokens: any) => tokens);
+
+        return tokens.tokens.map((token: any) => {
+            const address = token.address;
+            return {
+                balance: "0",
+                contract: {
+                    contract: address,
+                    address,
+                    name: token.name,
+                    decimals: token.decimals,
+                    symbol: token.symbol
+                }
+            }
+        })
     }
 
      static getRemoteTokens(address: string) {
@@ -161,13 +171,13 @@ export class TokenController {
         });
     }
 
-    public listTokensNew(req: Request, res: Response) {
+    public listTokensNew = (req: Request, res: Response) => {
         const term = req.query.query;
         if (!term) {
             sendJSONresponse(res, 404, {"message": "need query"})
             return;
         }
-        const queryParams = TokenController.extractQueryParameters(req);
+        const queryParams = this.extractQueryParameters(req);
         const re = new RegExp(term, "i");
         const query = ERC20Contract.find().or([
             { "name": { $regex: re }},
@@ -187,12 +197,12 @@ export class TokenController {
     private static validateQueryParameters(req: Request) {
         req.checkQuery("page", "Page needs to be a number").optional().isNumeric();
         req.checkQuery("limit", "limit needs to be a number").optional().isNumeric();
-        req.checkQuery("address", "address needs to be alphanumeric").isAlphanumeric();
+        req.checkQuery("address", "address needs to be alphanumeric").isAlphanumeric().isLength({min: 42, max: 42});
 
         return req.validationErrors();
     }
 
-    private static extractQueryParameters(req: Request) {
+    private extractQueryParameters(req: Request) {
         // page parameter
         let page = parseInt(xss.inHTMLData(req.query.page));
         if (isNaN(page) || page < 1) {
