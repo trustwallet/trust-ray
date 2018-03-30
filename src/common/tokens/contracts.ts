@@ -774,7 +774,7 @@ export const contracts = {
         id: "oneroot-network"
     },
     "0x5f53f7a8075614b699baad0bc2c899f4bad8fbbf": {
-        id: "rebellious"
+        id: "rebl"
     },
     "0x8a854288a5976036a725879164ca3e91d30c6a1b": {
         id: "get-protocol"
