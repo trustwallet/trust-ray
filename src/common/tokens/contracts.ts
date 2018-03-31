@@ -1285,6 +1285,9 @@ export const contracts = {
      },
      "0x28dee01d53fed0edf5f6e310bf8ef9311513ae40": {
          id: "blitzpredict"
+     },
+     "0x6f259637dcd74c767781e37bc6133cd6a68aa161": {
+         id: "huobi-token"
      }
 }
 
