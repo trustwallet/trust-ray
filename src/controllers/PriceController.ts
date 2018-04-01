@@ -54,7 +54,7 @@ export class PriceController {
                 id: price.id,
                 name: price.name,
                 symbol: price.symbol,
-                price: price[priceKey],
+                price: price[priceKey] || "0",
                 percent_change_24h: price.percent_change_24h || "0",
                 image: this.imageForPrice(price),
             }
