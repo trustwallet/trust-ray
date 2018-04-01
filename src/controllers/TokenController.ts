@@ -7,47 +7,57 @@ import { TokenParser } from "../common/TokenParser";
 const config = require("config");
 
 export class TokenController {
+    private getTokenBalance: any
 
-    public readAllTokens = (req: Request, res: Response) => {
+    constructor() {
+        this.getTokenBalance = new TokenParser().getTokenBalance
+    }
+
+    public readAllTokens = async (req: Request, res: Response) => {
         const validationErrors: any = TokenController.validateQueryParameters(req)
 
         if (validationErrors) return sendJSONresponse(res, 400, validationErrors)
 
         const queryParams = this.extractQueryParameters(req)
         const address = queryParams.address.toLowerCase()
+        const showBalance = queryParams.showBalance === "true"
 
-        this.getTokensByAddress(address).then((tokens: any) => {
-            if (tokens) {
-                sendJSONresponse(res, 200, {
-                    docs: tokens
-                });
-            } else {
-                sendJSONresponse(res, 404, "Balances for tokens could not be found.");
-            }
-        });
-    }
-
-    private async getTokensByAddress(address: string) {
-        const tokens = await Token.findOne({_id: address}).populate({path: "tokens"}).then((tokens: any) => tokens);
+        const tokens = await this.getTokensByAddress(address, showBalance)
 
         if (tokens) {
-            return tokens.tokens.map((token: any) => {
-                const address = token.address;
+            sendJSONresponse(res, 200, {docs: tokens})
+        } else {
+            sendJSONresponse(res, 404, "Balance for tokens could not be found")
+        }
+    }
+
+    private async getTokensByAddress(address: string, showBalance: boolean) {
+        const tokens = await Token.findOne({_id: address}).populate({path: "tokens"}).then((tokens: any) => tokens)
+
+        if (tokens) {
+            const tok = tokens.tokens.map(async (token: any) => {
+                let balance: string = "0"
+                const tokenAddress = token.address
+
+                if (showBalance) {
+                    balance = await this.getTokenBalance(address, tokenAddress).then((balance: any) => balance ? balance : "0")
+                }
+
                 return {
-                    balance: "0",
+                    balance,
                     contract: {
-                        contract: address,
-                        address,
+                        contract: tokenAddress,
+                        address: tokenAddress,
                         name: token.name,
                         decimals: token.decimals,
                         symbol: token.symbol
                     }
                 }
             })
+            return Promise.all(tok)
         } else {
-            return []
+            Promise.resolve([])
         }
-
     }
 
     public readOneToken(req: Request, res: Response) {
@@ -146,18 +156,17 @@ export class TokenController {
         req.checkQuery("page", "Page needs to be a number").optional().isNumeric();
         req.checkQuery("limit", "limit needs to be a number").optional().isNumeric();
         req.checkQuery("address", "address needs to be alphanumeric").isAlphanumeric().isLength({min: 42, max: 42});
+        req.checkQuery("showBalance", "showBalance needs to be a boolean").optional().isBoolean();
 
         return req.validationErrors();
     }
 
     private extractQueryParameters(req: Request) {
-        // page parameter
         let page = parseInt(xss.inHTMLData(req.query.page));
         if (isNaN(page) || page < 1) {
             page = 1;
         }
 
-        // limit parameter
         let limit = parseInt(xss.inHTMLData(req.query.limit));
         if (isNaN(limit)) {
             limit = 50;
@@ -167,13 +176,14 @@ export class TokenController {
             limit = 1;
         }
 
-        // address parameter
         const address = xss.inHTMLData(req.query.address);
+        const showBalance = req.query.showBalance;
 
         return {
-            address: address,
-            page: page,
-            limit: limit
+            address,
+            page,
+            limit,
+            showBalance
         };
     }
 }
