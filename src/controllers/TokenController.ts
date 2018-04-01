@@ -40,7 +40,7 @@ export class TokenController {
                 const tokenAddress = token.address
 
                 if (showBalance) {
-                    balance = await this.getTokenBalance(address, tokenAddress).then((balance: any) => balance)
+                    balance = await this.getTokenBalance(address, tokenAddress).then((balance: any) => balance ? balance : "0")
                 }
 
                 return {
