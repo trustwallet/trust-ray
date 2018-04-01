@@ -10,7 +10,7 @@ export class TokensParser {
 
     start() {
         BlockchainState.getBlockState().then(([blockInChain, blockInDb]) => {
-            const lastBlock: number = blockInDb.lastBlock // temp solution until blockchain parsed from the begining. Use blockInDb.lastBlock instead
+            const lastBlock: number = blockInDb.lastBlock
             const lastTokensBlock: number = blockInDb.lastTokensBlock
             if (lastTokensBlock <= lastBlock) {
                 this.startParsingNextBlock(lastTokensBlock, lastBlock)
@@ -21,7 +21,7 @@ export class TokensParser {
     startParsingNextBlock(block: number, lastBlock: number) {
         this.parseBlock(block).then((lastTokensBlock) => {
             const nextBlock: number = lastTokensBlock  + 1
-            if (nextBlock < lastBlock) {
+            if (nextBlock <= lastBlock) {
                 setDelay(10).then(() => { this.startParsingNextBlock(nextBlock, lastBlock)} )
             } else {
                 this.scheduleParsing()
