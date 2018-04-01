@@ -181,7 +181,7 @@ export class TokenParser {
         });
     }
 
-    private getTokenBalance(address: string, contractAddress: string) {
+    public getTokenBalance(address: string, contractAddress: string) {
         const tokenAddress: string = address.substring(2);
         const getBalanceSelector: string = Config.web3.utils.sha3("balanceOf(address)").slice(0, 10);
 
