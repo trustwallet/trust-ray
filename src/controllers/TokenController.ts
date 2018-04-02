@@ -23,12 +23,9 @@ export class TokenController {
         const showBalance = queryParams.showBalance === "true"
 
         const tokens = await this.getTokensByAddress(address, showBalance)
+        const status = tokens ? 200 : 400
 
-        if (tokens) {
-            sendJSONresponse(res, 200, {docs: tokens})
-        } else {
-            sendJSONresponse(res, 404, "Balance for tokens could not be found")
-        }
+        sendJSONresponse(res, status, {docs: tokens})
     }
 
     private async getTokensByAddress(address: string, showBalance: boolean) {
@@ -56,7 +53,7 @@ export class TokenController {
             })
             return Promise.all(tok)
         } else {
-            Promise.resolve([])
+            return Promise.resolve([])
         }
     }
 
