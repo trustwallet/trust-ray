@@ -1288,6 +1288,9 @@ export const contracts = {
      },
      "0x6f259637dcd74c767781e37bc6133cd6a68aa161": {
          id: "huobi-token"
+     },
+    "0x584B44853680ee34a0F337B712a8f66d816dF151": {
+         id: "aidoc"
      }
 }
 
