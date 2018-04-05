@@ -203,7 +203,7 @@ export const contracts = {
     "0x12480e24eb5bec1a9d4369cab6a80cad3c0a377a": {
         id: "substratum"
     },
-    "	0xd4c435f5b09f855c3317c8524cb1f586e42795fa": {
+    "0xd4c435f5b09f855c3317c8524cb1f586e42795fa": {
         id: "cindicator"
     },
     "0x103c3a209da59d3e7c4a89307e66521e081cfdf0": {
