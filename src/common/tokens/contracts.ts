@@ -1294,6 +1294,9 @@ export const contracts = {
      },
      "0x6745fab6801e376cd24f03572b9c9b0d4edddccf": {
          id: "sense"
-     }
+     },
+     "0x286bda1413a2df81731d4930ce2f862a35a609fe": {
+        id: "wabi"
+    }
 }
 
