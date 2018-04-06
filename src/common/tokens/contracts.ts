@@ -1291,6 +1291,9 @@ export const contracts = {
      },
      "0x584b44853680ee34a0f337b712a8f66d816df151": {
          id: "aidoc"
+     },
+     "0x6745fab6801e376cd24f03572b9c9b0d4edddccf": {
+         id: "sense"
      }
 }
 
