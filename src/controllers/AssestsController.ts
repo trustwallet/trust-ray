@@ -128,9 +128,7 @@ export class AssetsController {
             const url: string = buffer.url;
             const fileExt: string = url.split(".").pop();
             const fileName: string = url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("."));
-
-            if (fileExt === "png") return url;
-
+            
             if (fileExt === "svg") {
                 const bufferPNG = await this.converSvgToPng(buffer.buffer);
                 const params = this.getS3Params(fileName, "png", bufferPNG);
@@ -142,6 +140,7 @@ export class AssetsController {
                     winston.error(`Error uploading image ot S3`, error);
                 })
             }
+            return url;
         })
     }
 
