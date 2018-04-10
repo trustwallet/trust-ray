@@ -11,9 +11,16 @@ export class TokensParser {
     start() {
         BlockchainState.getBlockState().then(([blockInChain, blockInDb]) => {
             const lastBlock: number = blockInDb.lastBlock
+            const lastBackwardBlock: number = blockInDb.lastBackwardBlock
             const lastTokensBlock: number = blockInDb.lastTokensBlock
+            const lastBackwardTokensBlock: number = blockInDb.lastBackwardTokensBlock
+
             if (lastTokensBlock <= lastBlock) {
                 this.startParsingNextBlock(lastTokensBlock, lastBlock)
+            }
+
+            if (lastBackwardTokensBlock > lastBackwardBlock) {
+                this.startParsingBackwardBlock(lastBackwardTokensBlock, lastBackwardBlock)
             }
         })
     }
@@ -28,6 +35,20 @@ export class TokensParser {
             }
         }).catch(err => {
             winston.error(`startParsingNextBlock: ${err}`)
+            this.scheduleParsing()
+        })
+    }
+
+    startParsingBackwardBlock(block: number, lastBackwardBlock: number) {
+        this.parseBlock(block).then((lastTokensBlock) => {
+            const nextBlock: number = lastTokensBlock  - 1
+            if (nextBlock > lastBackwardBlock) {
+                setDelay(10).then(() => { this.startParsingBackwardBlock(nextBlock, lastBackwardBlock)} )
+            } else {
+                this.scheduleParsing()
+            }
+        }).catch(err => {
+            winston.error(`startParsingBackwardBlock: ${err}`)
             this.scheduleParsing()
         })
     }

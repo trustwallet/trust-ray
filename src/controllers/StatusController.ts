@@ -41,7 +41,8 @@ export class StatusController {
                     latestBlockNumberInDB,
                     latestBackwordBlockNumberInDB,
                     lastPusherBlock: lastParsedBlock.lastPusherBlock,
-                    lastTokensBlock: lastParsedBlock.lastTokensBlock
+                    lastTokensBlock: lastParsedBlock.lastTokensBlock,
+                    lastBackwardTokensBlock: lastParsedBlock.lastBackwardTokensBlock
                 },
                 sync: {
                     blocksToSync,

@@ -14,6 +14,9 @@ const lastParsedBlockSchema = new Schema({
     },
     lastTokensBlock: {
         type: Number
+    },
+    lastTokensBackwardBlock: {
+        type: Number
     }
 }, {
     versionKey: false,
