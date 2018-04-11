@@ -1303,6 +1303,9 @@ export const contracts = {
     },
     "0x23b75bc7aaf28e2d6628c3f424b3882f8f072a3c": {
         id: "vice-industry-token"
+    },
+    "0x4270bb238f6dd8b1c3ca01f96ca65b2647c06d3c": {
+        id: "fortuna"
     }
 }
 
