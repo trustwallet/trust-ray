@@ -422,7 +422,7 @@ export const contracts = {
     "0x0abdace70d3790235af448c88547603b945604ea": {
         id: "district0x"
     },
-    "0xfa05A73FfE78ef8f1a739473e462c54bae6567D9": {
+    "0xfa05a73ffe78ef8f1a739473e462c54bae6567d9": {
         id: "lunyr"
     },
     "0xd0d6d6c5fe4a677d343cc433536bb717bae167dd": {
