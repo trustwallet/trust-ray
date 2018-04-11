@@ -1312,6 +1312,9 @@ export const contracts = {
     },
     "0xa15c7ebe1f07caf6bff097d8a589fb8ac49ae5b3": {
         id: "pundi-x"
+    },
+    "0xfa05a73ffe78ef8f1a739473e462c54bae6567d9": {
+        id: "lunyr"
     }
 }
 
