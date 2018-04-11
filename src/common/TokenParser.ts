@@ -7,6 +7,7 @@ import { NotParsableContracts } from "../models/NotParsableContractModel";
 import { Transaction } from "../models/TransactionModel";
 import * as BluebirdPromise from "bluebird";
 import { contracts } from "./tokens/contracts";
+import { nameABI, symbolABI, decimalsABI, totalSupplyABI, standartERC20ABI } from "./abi/ABI";
 const flattenDeep = require("lodash.flattendeep");
 
 export class TokenParser {
@@ -70,59 +71,139 @@ export class TokenParser {
         });
     }
 
-    /**
-     * For each ABI that is currently stored, try to parse
-     * the given contract with it. If any succeeds, update
-     * database with given information.
-     *
-     * @param {String} contract
-     * @returns {Promise<void>}
-     */
-    private getContract(contract: string): Promise<void> {
-        return NotParsableContracts.findOne({address: contract}).exec().then((notParsableToken: any) => {
-            if (notParsableToken) return Promise.resolve(undefined);
-            const promises = [];
+    public getContract = async (contract: string) => {
+        try {
+            const notParsableToken = await NotParsableContracts.findOne({address: contract})
+            if (notParsableToken) { Promise.resolve() }
 
-            for (const abi of this.abiList) {
-                const contractInstance = new Config.web3.eth.Contract(abi, contract);
+            const isContractVerified: boolean = this.isContractVerified(contract)
+            const erc20Contract = await this.getERC20Contract(contract)
 
-                const p1 = contractInstance.methods.name().call();
-                const p2 = contractInstance.methods.totalSupply().call();
-                const p3 = contractInstance.methods.decimals().call();
-                const p4 = contractInstance.methods.symbol().call();
-
-                promises.push(Promise.all([p1, p2, p3, p4]).then(([name, totalSupply, decimals, receivedSymbol]: string[]) => {
-                    const symbol = this.convertSymbol(receivedSymbol);
-                    return [name, totalSupply, decimals, symbol];
-                }).catch((error: Error) => {
-                    winston.error(`Failed to get contract ${contract} object with error ${error}`);
-                }));
+            if (erc20Contract) {
+                const decimal = erc20Contract[2];
+                const supply = erc20Contract[3]
+                const name: string = erc20Contract[0]
+                const symbol: string = erc20Contract[1]
+                const decimals: string = decimal
+                const totalSupply: string = supply
+                const updatedERC20 = await this.updateERC20Token(contract, name, symbol, decimals, totalSupply, isContractVerified)
+                return updatedERC20
             }
 
-            return Promise.all(promises).then((contracts: any[]) => {
-                const contractObj = contracts.filter((ele: any) => ele !== undefined )[0];
-                const isContractVerified: boolean = this.isContractVerified(contract);
+            const p1 = await this.getContractName(contract)
+            const p2 = await this.getContractSymbol(contract)
+            const p3 = await this.getContractDecimals(contract)
+            const p4 = await this.getContractTotalSupply(contract)
 
-                return this.updateERC20Token(contract, {
-                    name: contractObj[0],
-                    totalSupply: contractObj[1],
-                    decimals: contractObj[2],
-                    symbol: contractObj[3],
-                    verified: isContractVerified
-                });
-            }).catch((error: Error) => {
-                winston.error(`Could not parse input for contract ${contract} with error ${error}`);
-                NotParsableContracts.findOneAndUpdate(
-                    {address: contract},
-                    {address: contract},
-                    {upsert: true, new: true}
-                ).then(() => {
-                    winston.info(`Saved ${contract} to non-parsable contracts`);
-                }).catch((err: Error) => {
-                    winston.error(`Could not save non-parsable contract for ${contract}.`);
-                });
-            });
-        });
+            const [name, symbol, decimals, totalSupply] = await Promise.all([p1, p2, p3, p4])
+            const updateERC20Token = await this.updateERC20Token(contract, name, symbol, decimals, totalSupply, isContractVerified)
+
+            return updateERC20Token;
+        } catch (error) {
+            winston.error(`Could not get contract ${contract} with error ${error}`)
+            const updateNotParsableContract = await this.updateNotParsableContract(contract)
+            return updateNotParsableContract
+        }
+    }
+
+    public getERC20Contract = async (contractAddress) => {
+        try {
+            const contract = await this.getContractInstance(contractAddress, standartERC20ABI)
+            if (contract.indexOf(undefined) != -1) {
+                throw new Error()
+            }
+            return contract
+        } catch (error) {
+            winston.error(`Error getting standart ERC20 ${contractAddress} `, error)
+            Promise.resolve()
+        }
+    }
+
+    public getContractInstance = async (contractAddress, ABI) => {
+            const contractPromise = BluebirdPromise.map(ABI, async (abi: any) => {
+                try {
+                    const contractInstance = new Config.web3.eth.Contract([abi], contractAddress);
+                    const value = await contractInstance.methods[abi.name]().call()
+                    return value;
+                } catch (error) {
+                    winston.error(`Error getting contract ${contractAddress} instance method ${abi.name}`, error)
+                    Promise.resolve()
+                }
+            })
+            return contractPromise
+     }
+
+    public getContractName = async (contractAddress: string) => {
+        try {
+            const contractPromises = await this.getContractInstance(contractAddress, nameABI)
+            const nameResults = await BluebirdPromise.all(contractPromises).then((names: any) => {
+                const name =  names.filter((name: any) => typeof name === "string" && name.length > 0)
+                return name
+            })
+                let name = nameResults.length > 0 ? nameResults[0] : "";
+                if (name.startsWith("0x")) {
+                    name = this.convertHexToAscii(name)
+                }
+                return name;
+        } catch (error) {
+             winston.error(`Error getting contract ${contractAddress} name`, error)
+            Promise.resolve()
+        }
+    }
+
+    public getContractSymbol = async (contractAddress: string) => {
+        try {
+            const symbolPromises = await this.getContractInstance(contractAddress, symbolABI)
+            const nameResults = await BluebirdPromise.all(symbolPromises).then((symbols: any) => {
+              return symbols.filter((res: any) => typeof res === "string" && !res.startsWith("0x0") ? true : false)
+            })
+            let name = nameResults.length > 0 ? nameResults[0] : "";
+            if (name.startsWith("0x")) {
+              name = this.convertHexToAscii(name)
+          }
+            return name;
+        } catch (error) {
+             winston.error(`Error getting contract ${contractAddress} symbol value`, error)
+            Promise.resolve()
+        }
+    }
+
+    public getContractDecimals = async (contractAddress: string) => {
+        try {
+            const decimalPromises = await this.getContractInstance(contractAddress, decimalsABI)
+            const nameResults = await BluebirdPromise.all(decimalPromises).then((decimals: any) => {
+              return decimals
+            })
+            const decimal = nameResults.length > 0 ? nameResults[0] : Promise.reject(nameResults);
+            return decimal;
+        } catch (error) {
+             winston.error(`Error getting contract ${contractAddress} decimal value`, error)
+            Promise.resolve()
+        }
+    }
+
+    public getContractTotalSupply = async (contractAddress: string) => {
+        try {
+            const totalSupplyPromises = await this.getContractInstance(contractAddress, totalSupplyABI)
+            const nameResults = await BluebirdPromise.all(totalSupplyPromises).then((totalSupplies: any) => {
+              return totalSupplies.filter((res: any) => typeof res === "string" && !res.startsWith("0x0") ? true : false)
+            })
+            let name = nameResults.length > 0 ? nameResults[0] : "";
+            if (name.startsWith("0x")) {
+              name = this.convertHexToAscii(name)
+          }
+            return name;
+        } catch (error) {
+             winston.error(`Error getting contract totalSupply ${contractAddress} value`, error)
+            Promise.resolve()
+        }
+    }
+
+    public convertHexToAscii(symbol: string): string {
+        if (symbol.startsWith("0x")) {
+            return Config.web3.utils.hexToAscii(symbol).replace(/\u0000*$/, "");
+        }
+        return symbol;
     }
 
     public isContractVerified = (address: string): boolean => contracts[address] ? true : false;
@@ -134,15 +215,33 @@ export class TokenParser {
         return symbol;
     }
 
-    private updateERC20Token(contract: String, obj: any): Promise<void> {
-        return ERC20Contract.findOneAndUpdate({address: contract}, {
-            address: contract,
-            name: obj.name,
-            totalSupply: obj.totalSupply,
-            decimals: obj.decimals,
-            symbol: obj.symbol,
-            verified: obj.verified
-        }, {upsert: true, new: true}).then((savedToken: any) => savedToken);
+    private async updateERC20Token(address: string, name: string, symbol: string, decimal: string, totalSupply: string, isContractVerified: boolean) {
+        try {
+            const update = await ERC20Contract.findOneAndUpdate({address}, {
+                address,
+                name,
+                symbol,
+                decimals: decimal,
+                totalSupply,
+                verified: isContractVerified
+            }, {upsert: true, new: true})
+
+            return update
+        } catch (error) {
+            winston.error(`Error updating ERC20 token`, error)
+            return Promise.reject(error)
+        }
+    }
+
+    private async updateNotParsableContract(address: string) {
+        try {
+            await NotParsableContracts.findOneAndUpdate({address}, {address}, {upsert: true, new: true}).then((savedNonParsable: any) => {
+                winston.info(`Saved ${savedNonParsable} to non-parsable contracts`)
+            })
+        } catch (error) {
+            winston.error(`Could not save non-parsable contract ${address} with error`, error);
+            return Promise.reject(error)
+        }
     }
 
     private flatContracts(contracts: any) {
