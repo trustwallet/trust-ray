@@ -1306,6 +1306,12 @@ export const contracts = {
     },
     "0x4270bb238f6dd8b1c3ca01f96ca65b2647c06d3c": {
         id: "fortuna"
+    },
+    "0x4de2573e27e648607b50e1cfff921a33e4a34405": {
+        id: "lendroid-support-token"
+    },
+    "0xa15c7ebe1f07caf6bff097d8a589fb8ac49ae5b3": {
+        id: "pundi-x"
     }
 }
 
