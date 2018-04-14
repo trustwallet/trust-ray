@@ -1312,6 +1312,9 @@ export const contracts = {
     },
     "0xa15c7ebe1f07caf6bff097d8a589fb8ac49ae5b3": {
         id: "pundi-x"
+    },
+    "0x41ab1b6fcbb2fa9dced81acbdec13ea6315f2bf2": {
+        id: "xinfin-network"
     }
 }
 
