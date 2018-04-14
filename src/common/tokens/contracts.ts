@@ -1315,6 +1315,8 @@ export const contracts = {
     },
     "0x41ab1b6fcbb2fa9dced81acbdec13ea6315f2bf2": {
         id: "xinfin-network"
+    },
+    "0xac838aee2f650a6b970ecea56d4651653c1f84a1": {
+      id: "clearcoin"
     }
 }
-
