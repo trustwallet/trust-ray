@@ -90,12 +90,12 @@ export class TokenParser {
                 return updatedERC20
             }
 
-            const p1 = await this.getContractName(contract)
-            const p2 = await this.getContractSymbol(contract)
-            const p3 = await this.getContractDecimals(contract)
-            const p4 = await this.getContractTotalSupply(contract)
+            const namePromise = await this.getContractName(contract)
+            const symbolPromise = await this.getContractSymbol(contract)
+            const decimalsPromise = await this.getContractDecimals(contract)
+            const totalSupplyPromise = await this.getContractTotalSupply(contract)
 
-            const [name, symbol, decimals, totalSupply] = await Promise.all([p1, p2, p3, p4])
+            const [name, symbol, decimals, totalSupply] = await Promise.all([namePromise, symbolPromise, decimalsPromise, totalSupplyPromise])
             const updateERC20Token = await this.updateERC20Token(contract, name, symbol, decimals, totalSupply, isContractVerified)
 
             return updateERC20Token;
