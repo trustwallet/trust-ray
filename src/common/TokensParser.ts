@@ -9,15 +9,25 @@ import { BlockchainState } from "./BlockchainState";
 export class TokensParser {
 
     start() {
+        this.startForward()
+        this.startBackward()
+    }
+
+    startForward() {
         BlockchainState.getBlockState().then(([blockInChain, blockInDb]) => {
             const lastBlock: number = blockInDb.lastBlock
-            const lastBackwardBlock: number = blockInDb.lastBackwardBlock
             const lastTokensBlock: number = blockInDb.lastTokensBlock
-            const lastBackwardTokensBlock: number = blockInDb.lastBackwardTokensBlock
 
             if (lastTokensBlock <= lastBlock) {
                 this.startParsingNextBlock(lastTokensBlock, lastBlock)
             }
+        })
+    }
+
+    startBackward() {
+        BlockchainState.getBlockState().then(([blockInChain, blockInDb]) => {
+            const lastBackwardBlock: number = blockInDb.lastBackwardBlock
+            const lastBackwardTokensBlock: number = blockInDb.lastBackwardTokensBlock
 
             if (lastBackwardTokensBlock > lastBackwardBlock) {
                 this.startParsingBackwardBlock(lastBackwardTokensBlock, lastBackwardBlock)
@@ -33,11 +43,11 @@ export class TokensParser {
             if (nextBlock <= lastBlock) {
                 setDelay(10).then(() => { this.startParsingNextBlock(nextBlock, lastBlock)} )
             } else {
-                this.scheduleParsing()
+                this.scheduleForwardParsing()
             }
         }).catch(err => {
             winston.error(`startParsingNextBlock: ${err}`)
-            this.scheduleParsing()
+            this.scheduleForwardParsing()
         })
     }
 
@@ -49,11 +59,11 @@ export class TokensParser {
             if (nextBlock > lastBackwardBlock) {
                 setDelay(10).then(() => { this.startParsingBackwardBlock(nextBlock, lastBackwardBlock)} )
             } else {
-                this.scheduleParsing()
+                this.scheduleBackwardParsing()
             }
         }).catch(err => {
             winston.error(`startParsingBackwardBlock: ${err}`)
-            this.scheduleParsing()
+            this.scheduleBackwardParsing()
         })
     }
 
@@ -89,9 +99,15 @@ export class TokensParser {
         return operations
     }
 
-    scheduleParsing() {
+    scheduleForwardParsing() {
         setDelay(5000).then(() => {
-            this.start()
+            this.startForward()
+        })
+    }
+
+    scheduleBackwardParsing() {
+        setDelay(5000).then(() => {
+            this.startBackward()
         })
     }
 
