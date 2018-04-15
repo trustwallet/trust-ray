@@ -81,7 +81,7 @@ export class TokenParser {
             const erc20Contract = await this.erc20Parser.getERC20Contract(contract)
 
             if (erc20Contract) {
-                const updatedERC20 = await this.updateERC20Token(contract, erc20Contract[0], erc20Contract[1], erc20Contract[2], erc20Contract[3], isContractVerified)
+                const updatedERC20 = await this.updateERC20Token(contract, erc20Contract.name, erc20Contract.symbol, erc20Contract.decimals, erc20Contract.totalSupply, isContractVerified)
                 return updatedERC20
             }
 

@@ -18,7 +18,12 @@ export class ERC20Parser {
             if (contract.indexOf(undefined) != -1) {
                 throw new Error()
             }
-            return contract
+            return {
+                name: contract[0],
+                symbol: contract[1],
+                decimals: contract[2],
+                totalSupply: contract[3],
+            }
         } catch (error) {
             winston.error(`Error getting standart ERC20 ${contractAddress} `, error)
             Promise.resolve()
