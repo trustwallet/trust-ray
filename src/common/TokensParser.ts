@@ -9,61 +9,30 @@ import { BlockchainState } from "./BlockchainState";
 export class TokensParser {
 
     start() {
-        this.startForward()
-        this.startBackward()
-    }
-
-    startForward() {
         BlockchainState.getBlockState().then(([blockInChain, blockInDb]) => {
             const lastBlock: number = blockInDb.lastBlock
             const lastTokensBlock: number = blockInDb.lastTokensBlock
-
             if (lastTokensBlock <= lastBlock) {
                 this.startParsingNextBlock(lastTokensBlock, lastBlock)
-            }
-        })
-    }
-
-    startBackward() {
-        BlockchainState.getBlockState().then(([blockInChain, blockInDb]) => {
-            const lastBackwardBlock: number = blockInDb.lastBackwardBlock
-            const lastBackwardTokensBlock: number = blockInDb.lastBackwardTokensBlock
-
-            if (lastBackwardTokensBlock > lastBackwardBlock) {
-                this.startParsingBackwardBlock(lastBackwardTokensBlock, lastBackwardBlock)
+            } else {
+                this.scheduleParsing()
             }
         })
     }
 
     startParsingNextBlock(block: number, lastBlock: number) {
         this.parseBlock(block).then((lastTokensBlock) => {
-            return LastParsedBlock.findOneAndUpdate({}, {lastTokensBlock: block}, {new: true}).exec().then((res: any) => res.lastTokensBlock)            
-        }).then((lastTokensBlock) => {
-            const nextBlock: number = lastTokensBlock  + 1
+            return LastParsedBlock.findOneAndUpdate({}, {lastTokensBlock: block}, {new: true}).exec().then((res: any) => res.lastTokensBlock)
+        }).then(lastTokensBlock => {
+            const nextBlock: number = lastTokensBlock + 1
             if (nextBlock <= lastBlock) {
                 setDelay(10).then(() => { this.startParsingNextBlock(nextBlock, lastBlock)} )
             } else {
-                this.scheduleForwardParsing()
+                this.scheduleParsing()
             }
         }).catch(err => {
             winston.error(`startParsingNextBlock: ${err}`)
-            this.scheduleForwardParsing()
-        })
-    }
-
-    startParsingBackwardBlock(block: number, lastBackwardBlock: number) {
-        this.parseBlock(block).then((lastTokensBlock) => {
-            return LastParsedBlock.findOneAndUpdate({}, {lastBackwardBlock: block}, {new: true}).exec().then((res: any) => res.lastBackwardBlock)            
-        }).then((lastBackwardBlock) => {
-            const nextBlock: number = lastBackwardBlock  - 1
-            if (nextBlock > lastBackwardBlock) {
-                setDelay(10).then(() => { this.startParsingBackwardBlock(nextBlock, lastBackwardBlock)} )
-            } else {
-                this.scheduleBackwardParsing()
-            }
-        }).catch(err => {
-            winston.error(`startParsingBackwardBlock: ${err}`)
-            this.scheduleBackwardParsing()
+            this.scheduleParsing()
         })
     }
 
@@ -99,15 +68,9 @@ export class TokensParser {
         return operations
     }
 
-    scheduleForwardParsing() {
+    scheduleParsing() {
         setDelay(5000).then(() => {
-            this.startForward()
-        })
-    }
-
-    scheduleBackwardParsing() {
-        setDelay(5000).then(() => {
-            this.startBackward()
+            this.start()
         })
     }
 
