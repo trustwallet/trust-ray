@@ -1318,5 +1318,8 @@ export const contracts = {
     },
     "0xac838aee2f650a6b970ecea56d4651653c1f84a1": {
       id: "clearcoin"
+    },
+    "0xbf52f2ab39e26e0951d2a02b49b7702abe30406a": {
+        id: "odem"
     }
 }
