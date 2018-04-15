@@ -57,7 +57,7 @@ export function loadContractABIs() {
     const path = require("path");
     const normalizedPath = path.join(__dirname, "contracts");
     require("fs").readdirSync(normalizedPath).forEach(function(file: any) {
-        if (path.extname(file) === ".js") {
+        if (path.extname(file) === ".ts") {
             const abi = require(path.join(normalizedPath, file));
             dstList.push(abi);
         }
