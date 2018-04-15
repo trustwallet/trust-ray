@@ -80,13 +80,7 @@ export class TokenParser {
             const erc20Contract = await this.getERC20Contract(contract)
 
             if (erc20Contract) {
-                const decimal = erc20Contract[2];
-                const supply = erc20Contract[3]
-                const name: string = erc20Contract[0]
-                const symbol: string = erc20Contract[1]
-                const decimals: string = decimal
-                const totalSupply: string = supply
-                const updatedERC20 = await this.updateERC20Token(contract, name, symbol, decimals, totalSupply, isContractVerified)
+                const updatedERC20 = await this.updateERC20Token(contract, erc20Contract[0], erc20Contract[1], erc20Contract[2], erc20Contract[3], isContractVerified)
                 return updatedERC20
             }
 
