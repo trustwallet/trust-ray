@@ -1,4 +1,5 @@
 import { contracts } from "../../src/common/tokens/contracts";
+import { ERC20Parser } from "../../src/common/ERC20Parser"
 import { TokenParser } from "../../src/common/TokenParser"
 const chai = require("chai")
 chai.use(require("chai-as-promised"))
@@ -6,7 +7,7 @@ const should = chai.should()
 const expect = chai.expect
 const assert = chai.assert
 
-describe("Test TokenParser", () => {
+describe("Test ERC20Parser", () => {
     describe("Test isContractVerified", () => {
         const isContractVerified = new TokenParser().isContractVerified;
         it("Should return true when supply verified contract", () => {
@@ -23,17 +24,21 @@ describe("Test TokenParser", () => {
 
     describe("Test getERC20Contract", () => {
         it("Should sucsesscully parse ERC20 combatible contract", async () => {
-                const getERC20Contract = new TokenParser().getERC20Contract
+                const getERC20Contract = new ERC20Parser().getERC20Contract
                 const erc20Address = "0xeda8b016efa8b1161208cf041cd86972eee0f31e"
                 const erc20contract = await getERC20Contract(erc20Address)
 
-                expect(erc20contract).to.be.include.ordered.members(["I HOUSE TOKEN", "IHT", "18", "1000000000000000000000000000"])
+                expect(erc20contract).to.have.property("name").eql("I HOUSE TOKEN")
+                expect(erc20contract).to.have.property("symbol").eql("IHT")
+                expect(erc20contract).to.have.property("decimals").eql("18")
+                expect(erc20contract).to.have.property("totalSupply").eql("1000000000000000000000000000")
+
         })
     })
 
     describe("Test getContractName", function() {
         this.timeout(4000)
-        const getContractName = new TokenParser().getContractName
+        const getContractName = new ERC20Parser().getContractName
         const tests = [
             {address: "0x5c743a35e903f6c584514ec617acee0611cf44f3", name: "name", type: "string", expectedName: "Experty Token"},
             // {address: "0xe41d2489571d322189246dafa5ebde1f4699f498", name: "name", type: "string", expectedName: "0x Protocol Token"},
@@ -57,7 +62,7 @@ describe("Test TokenParser", () => {
     })
 
     describe("Test getContractSymbol", () => {
-        const getContractSybol = new TokenParser().getContractSymbol
+        const getContractSybol = new ERC20Parser().getContractSymbol
         const tests = [
             {address: "0xeda8b016efa8b1161208cf041cd86972eee0f31e", symbol: "symbol", type: "string", expectedSymbol: "IHT"},
             {address: "0x05435983b4736d18d3c56e860d607f2825dc5d64", symbol: "symbol", type: "bytes32", expectedSymbol: "PASS"},
@@ -80,7 +85,7 @@ describe("Test TokenParser", () => {
     })
 
     describe("Test getContractDecimals", () => {
-        const getContractDecimals = new TokenParser().getContractDecimals
+        const getContractDecimals = new ERC20Parser().getContractDecimals
         const tests = [
             {address: "0x57ad67acf9bf015e4820fbd66ea1a21bed8852ec", decimals: "decimals", type: "uint8", expectedDecimals: "18"},
             {address: "0x86fa049857e0209aa7d9e616f7eb3b3b78ecfdb0", decimals: "decimals", type: "uint256", expectedDecimals: "18"},
@@ -105,7 +110,7 @@ describe("Test TokenParser", () => {
     })
 
     describe("Test getContractTotalSupply", () => {
-        const getContractTotalSupply = new TokenParser().getContractTotalSupply
+        const getContractTotalSupply = new ERC20Parser().getContractTotalSupply
         const tests = [
             {address: "0x57ad67acf9bf015e4820fbd66ea1a21bed8852ec", totalSupply: "totalSupply", type: "uint256", expectedTotalSupply: "999999999017098867808380000"},
             // {address: "", totalSupply: "Not defined", type: "Not defined", expectedTotalSupply: ""} // TO DO
