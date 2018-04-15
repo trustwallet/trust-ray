@@ -1321,5 +1321,17 @@ export const contracts = {
     },
     "0xbf52f2ab39e26e0951d2a02b49b7702abe30406a": {
         id: "odem"
+    },
+    "0x814f67fa286f7572b041d041b1d99b432c9155ee": {
+        id: "dragon-coins"
+    },
+    "0x123ab195dd38b1b40510d467a6a359b201af056f": {
+        id: "legolas-exchange"
+    },
+    "0x23352036e911a22cfc692b5e2e196692658aded9": {
+        id: "friends"
+    },
+    "0x9e46a38f5daabe8683e10793b06749eef7d733d1": {
+        id: "polyswarm"
     }
 }
