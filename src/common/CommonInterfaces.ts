@@ -68,7 +68,8 @@ export interface ITransaction {
         value: string,
         v?: string,
         r?: string,
-        s?: string
+        s?: string,
+        contractAddress: string
 }
 
 export interface IExtractedTransaction extends ITransaction {
