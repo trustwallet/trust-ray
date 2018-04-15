@@ -14,13 +14,17 @@ export class TokensParser {
             const lastTokensBlock: number = blockInDb.lastTokensBlock
             if (lastTokensBlock <= lastBlock) {
                 this.startParsingNextBlock(lastTokensBlock, lastBlock)
+            } else {
+                this.scheduleParsing()
             }
         })
     }
 
     startParsingNextBlock(block: number, lastBlock: number) {
         this.parseBlock(block).then((lastTokensBlock) => {
-            const nextBlock: number = lastTokensBlock  + 1
+            return LastParsedBlock.findOneAndUpdate({}, {lastTokensBlock: block}, {new: true}).exec().then((res: any) => res.lastTokensBlock)
+        }).then(lastTokensBlock => {
+            const nextBlock: number = lastTokensBlock + 1
             if (nextBlock <= lastBlock) {
                 setDelay(10).then(() => { this.startParsingNextBlock(nextBlock, lastBlock)} )
             } else {
@@ -36,8 +40,6 @@ export class TokensParser {
         return TransactionParser.getTransactions(block).then(transactions => {
             const operations = this.createOperations(transactions)
             return this.completeBulk(this.createBulk(operations))
-        }).then(() => {
-            return LastParsedBlock.findOneAndUpdate({}, {lastTokensBlock: block}, {new: true}).exec().then((res: any) => res.lastTokensBlock)
         }).catch((error: Error) => {
             winston.error(`Error parsing block ${block}`, error)
         })

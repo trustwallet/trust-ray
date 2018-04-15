@@ -11,7 +11,9 @@ export class BlockchainState {
                 return new LastParsedBlock({
                     lastBlock: blockInChain,
                     lastBackwardBlock: blockInChain,
-                    lastPusherBlock: blockInChain
+                    lastPusherBlock: blockInChain,
+                    lastTokensBlock: blockInChain,
+                    lastTokensBackwardBlock: blockInChain
                 }).save()
             }
 
@@ -28,7 +30,11 @@ export class BlockchainState {
             }
 
             if (!blockInDb.lastTokensBlock) {
-                blockInDb.lastTokensBlock = 1
+                blockInDb.lastTokensBlock = blockInChain
+            }
+
+            if (!blockInDb.lastTokensBackwardBlock) {
+                blockInDb.lastTokensBackwardBlock = blockInChain
             }
 
             return blockInDb.save()

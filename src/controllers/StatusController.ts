@@ -40,8 +40,13 @@ export class StatusController {
                     latestBlockNumberInBC,
                     latestBlockNumberInDB,
                     latestBackwordBlockNumberInDB,
-                    lastPusherBlock: lastParsedBlock.lastPusherBlock,
-                    lastTokensBlock: lastParsedBlock.lastTokensBlock
+                    pusher: {
+                        latest: lastParsedBlock.lastPusherBlock
+                    },
+                    tokens: {
+                        tokensBlock: lastParsedBlock.lastTokensBlock,
+                        backwardTokensBlock: lastParsedBlock.lastTokensBackwardBlock
+                    }
                 },
                 sync: {
                     blocksToSync,
