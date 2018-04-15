@@ -61,6 +61,7 @@ export class TransactionParser {
         const newTransaction = transaction;
         newTransaction.gasUsed = receipt.gasUsed;
         newTransaction.receipt = receipt;
+        newTransaction.contract = receipt.contractAddress ? receipt.contractAddress.toLowerCase() : null
         if (receipt.status) {
             newTransaction.error = receipt.status === "0x1" ? "" : "Error";
         }
@@ -84,7 +85,8 @@ export class TransactionParser {
             gasPrice: String(transaction.gasPrice),
             gasUsed: String(0),
             input: String(transaction.input),
-            addresses
+            addresses,
+            contract: transaction.contractAddress
         };
     }
 

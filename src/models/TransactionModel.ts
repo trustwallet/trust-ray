@@ -65,7 +65,11 @@ const transactionSchema = new Schema({
     operations: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "TransactionOperation"
-    }]
+    }],
+    contract: {
+        type: String,
+        default: null
+    }
 
 }, {
     versionKey: false,
