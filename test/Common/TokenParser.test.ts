@@ -66,12 +66,10 @@ describe("Test ERC20Parser", () => {
         const tests = [
             {address: "0xeda8b016efa8b1161208cf041cd86972eee0f31e", symbol: "symbol", type: "string", expectedSymbol: "IHT"},
             {address: "0x05435983b4736d18d3c56e860d607f2825dc5d64", symbol: "symbol", type: "bytes32", expectedSymbol: "PASS"},
-            // {address: "", symbol: "SYMBOL", type: "string", expectedSymbol: ""}, // TO DO
+            {address: "0x38c6a68304cdefb9bec48bbfaaba5c5b47818bb2", symbol: "SYMBOL", type: "string", expectedSymbol: "HPB"},
             {address: "0x35f85c7d1a8fe03c40b8e3b326b4de04a1db0b51", symbol: "Not defined", type: "Not defined", expectedSymbol: ""},
             {address: "0x28c8d01ff633ea9cd8fc6a451d7457889e698de6", symbol: "Not defined", type: "Not defined", expectedSymbol: "ETG"},
             {address: "0x8065d58b69f8ede4f02b2b7331a6d797f2cdcfac", symbol: "No ABI", type: "No ABI", expectedSymbol: "LILAND"}
-            // {address: "?", name: "NAME", type: "bytes32", expectedSymbol: "?"} // TO DO
-            // {address: "?", name: "?", type: "?", expectedSymbol: "?"} // TO DO
         ]
 
         tests.forEach(({address, symbol, type, expectedSymbol}) => {
@@ -90,7 +88,7 @@ describe("Test ERC20Parser", () => {
             {address: "0x57ad67acf9bf015e4820fbd66ea1a21bed8852ec", decimals: "decimals", type: "uint8", expectedDecimals: "18"},
             {address: "0x86fa049857e0209aa7d9e616f7eb3b3b78ecfdb0", decimals: "decimals", type: "uint256", expectedDecimals: "18"},
             {address: "0xb5a5f22694352c15b00323844ad545abb2b11028", decimals: "decimals", type: "uint256", expectedDecimals: "0"},
-            // {address: "", decimals: "DECIMALS", type: "uint8", expectedDecimal: ""}, // TO DO
+            {address: "0x38c6a68304cdefb9bec48bbfaaba5c5b47818bb2", decimals: "DECIMALS", type: "uint256", expectedDecimals: "18"},
             // {address: "", decimals: "DECIMALS", type: "uint256", expectedDecimal: ""}, // TO DO
             // {address: "", decimals: "", type: "", expectedDecimal: ""},
             // {address: "", decimals: "Not defined", type: "Not defined", expectedDecimal: ""},
