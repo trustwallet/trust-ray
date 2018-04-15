@@ -37,7 +37,7 @@ export class ERC20Parser {
                     const value = await contractInstance.methods[abi.name]().call()
                     return value;
                 } catch (error) {
-                    winston.error(`Error getting contract ${contractAddress} instance method ${abi.name}`, error)
+                    winston.error(`Error getting contract ${contractAddress} instance method ${abi.name}`)
                     Promise.resolve()
                 }
             })
@@ -57,7 +57,7 @@ export class ERC20Parser {
                 }
                 return name;
         } catch (error) {
-             winston.error(`Error getting contract ${contractAddress} name`, error)
+             winston.error(`Error getting contract ${contractAddress} name`)
             Promise.resolve()
         }
     }
@@ -74,7 +74,7 @@ export class ERC20Parser {
           }
             return name;
         } catch (error) {
-             winston.error(`Error getting contract ${contractAddress} symbol value`, error)
+             winston.error(`Error getting contract ${contractAddress} symbol value`)
             Promise.resolve()
         }
     }
@@ -84,10 +84,10 @@ export class ERC20Parser {
             const decimalPromises = await this.getContractInstance(contractAddress, decimalsABI)
             const decimalsResults = await BluebirdPromise.all(decimalPromises)
 
-            const decimal = decimalsResults.length > 0 ? Math.max(...decimalsResults).toPrecision() : Promise.reject(decimalsResults);
+            const decimal = decimalsResults.length > 0 ? Math.max(...decimalsResults).toString() : Promise.reject(decimalsResults);
             return decimal;
         } catch (error) {
-             winston.error(`Error getting contract ${contractAddress} decimal value`, error)
+             winston.error(`Error getting contract ${contractAddress} decimal value`)
             Promise.resolve()
         }
     }
@@ -104,7 +104,7 @@ export class ERC20Parser {
           }
             return name;
         } catch (error) {
-             winston.error(`Error getting contract totalSupply ${contractAddress} value`, error)
+             winston.error(`Error getting contract totalSupply ${contractAddress} value`)
             Promise.resolve()
         }
     }
