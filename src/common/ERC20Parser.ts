@@ -82,10 +82,9 @@ export class ERC20Parser {
     public getContractDecimals = async (contractAddress: string) => {
         try {
             const decimalPromises = await this.getContractInstance(contractAddress, decimalsABI)
-            const nameResults = await BluebirdPromise.all(decimalPromises).then((decimals: any) => {
-              return decimals
-            })
-            const decimal = nameResults.length > 0 ? nameResults[0] : Promise.reject(nameResults);
+            const decimalsResults = await BluebirdPromise.all(decimalPromises)
+
+            const decimal = decimalsResults.length > 0 ? Math.max(...decimalsResults).toPrecision() : Promise.reject(decimalsResults);
             return decimal;
         } catch (error) {
              winston.error(`Error getting contract ${contractAddress} decimal value`, error)
