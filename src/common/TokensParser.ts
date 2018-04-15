@@ -27,6 +27,8 @@ export class TokensParser {
 
     startParsingNextBlock(block: number, lastBlock: number) {
         this.parseBlock(block).then((lastTokensBlock) => {
+            return LastParsedBlock.findOneAndUpdate({}, {lastTokensBlock: block}, {new: true}).exec().then((res: any) => res.lastTokensBlock)            
+        }).then((lastTokensBlock) => {
             const nextBlock: number = lastTokensBlock  + 1
             if (nextBlock <= lastBlock) {
                 setDelay(10).then(() => { this.startParsingNextBlock(nextBlock, lastBlock)} )
@@ -41,7 +43,9 @@ export class TokensParser {
 
     startParsingBackwardBlock(block: number, lastBackwardBlock: number) {
         this.parseBlock(block).then((lastTokensBlock) => {
-            const nextBlock: number = lastTokensBlock  - 1
+            return LastParsedBlock.findOneAndUpdate({}, {lastBackwardBlock: block}, {new: true}).exec().then((res: any) => res.lastBackwardBlock)            
+        }).then((lastBackwardBlock) => {
+            const nextBlock: number = lastBackwardBlock  - 1
             if (nextBlock > lastBackwardBlock) {
                 setDelay(10).then(() => { this.startParsingBackwardBlock(nextBlock, lastBackwardBlock)} )
             } else {
@@ -57,8 +61,6 @@ export class TokensParser {
         return TransactionParser.getTransactions(block).then(transactions => {
             const operations = this.createOperations(transactions)
             return this.completeBulk(this.createBulk(operations))
-        }).then(() => {
-            return LastParsedBlock.findOneAndUpdate({}, {lastTokensBlock: block}, {new: true}).exec().then((res: any) => res.lastTokensBlock)
         }).catch((error: Error) => {
             winston.error(`Error parsing block ${block}`, error)
         })
