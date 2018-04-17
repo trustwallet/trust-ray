@@ -71,7 +71,7 @@
     "node-cron": "^1.2.1",
     "request": "^2.78.0",
     "svg2png": "^4.1.1",
-    "ts-node": "^5.0.0",
+    "ts-node": "^6.0.0",
     "tsc-watch": "^1.0.10",
     "tslint": "^5.0.0",
     "typescript": "^2.7.2",
