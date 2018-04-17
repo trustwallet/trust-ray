@@ -1333,5 +1333,8 @@ export const contracts = {
     },
     "0x9e46a38f5daabe8683e10793b06749eef7d733d1": {
         id: "polyswarm"
+    },
+    "0x8db54ca569d3019a2ba126d03c37c44b5ef81ef6": {
+        id: "datawallet"
     }
 }
