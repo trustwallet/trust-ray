@@ -13,8 +13,8 @@ export class AssetsController {
     private supportedNetworksIDs = [1, 4]
     private networkID: number;
     private openSeaURL: string;
-    private mainnetOpenSeaURL: string = "https://opensea-api.herokuapp.com/assets/?order_by=auction_created_date&order_direction=desc&owner=";
-    private rinkebyOpenSeaURL: string = "https://etherbay-api-1.herokuapp.com/assets/?order_by=auction_created_date&order_direction=desc&owner=";
+    private mainnetOpenSeaURL: string = "https://opensea-api.herokuapp.com/assets/?limit=100&order_by=auction_created_date&order_direction=desc&owner=";
+    private rinkebyOpenSeaURL: string = "https://etherbay-api-1.herokuapp.com/assets/?limit=100&order_by=auction_created_date&order_direction=desc&owner=";
 
     getAssets = async (req: Request, res: Response) => {
         if (!this.networkID) {
