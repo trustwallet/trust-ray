@@ -1317,7 +1317,7 @@ export const contracts = {
         id: "xinfin-network"
     },
     "0xac838aee2f650a6b970ecea56d4651653c1f84a1": {
-      id: "clearcoin"
+        id: "clearcoin"
     },
     "0xbf52f2ab39e26e0951d2a02b49b7702abe30406a": {
         id: "odem"
@@ -1333,5 +1333,8 @@ export const contracts = {
     },
     "0x9e46a38f5daabe8683e10793b06749eef7d733d1": {
         id: "polyswarm"
+    },
+    "0x8db54ca569d3019a2ba126d03c37c44b5ef81ef6": {
+        id: "datawallet"
     }
 }
