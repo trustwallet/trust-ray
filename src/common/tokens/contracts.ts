@@ -1339,5 +1339,8 @@ export const contracts = {
     },
     "0xe69a353b3152dd7b706ff7dd40fe1d18b7802d31": {
         id: "adhive"
+    },
+    "0x9f5f3cfd7a32700c93f971637407ff17b91c7342": {
+        id: "scryinfo"
     }
 }
