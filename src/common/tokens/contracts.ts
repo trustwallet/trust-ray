@@ -1336,5 +1336,8 @@ export const contracts = {
     },
     "0x8db54ca569d3019a2ba126d03c37c44b5ef81ef6": {
         id: "datawallet"
+    },
+    "0xe69a353b3152dd7b706ff7dd40fe1d18b7802d31": {
+        id: "adhive"
     }
 }
