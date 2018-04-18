@@ -85,8 +85,7 @@ export class TransactionParser {
             gasPrice: String(transaction.gasPrice),
             gasUsed: String(0),
             input: String(transaction.input),
-            addresses,
-            contract: transaction.contractAddress
+            addresses
         };
     }
 
