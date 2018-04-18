@@ -69,11 +69,11 @@ export interface ITransaction {
         v?: string,
         r?: string,
         s?: string,
-        contractAddress: string
 }
 
 export interface IExtractedTransaction extends ITransaction {
-    _id: string
+    _id: string,
+    contractAddress: string
 }
 
 export interface IBlock {
