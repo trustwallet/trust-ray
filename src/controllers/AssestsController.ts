@@ -53,7 +53,7 @@ export class AssetsController {
 
                 if (fileExt === "svg") {
                     if (await this.assetExists(assetName)) {
-                        return {...asset, image_url: `${this.S3BucketBaseURL}${this.S3Bucket}/${assetName}.png`}
+                        return {...asset, image_url: this.getAssetFullPath(assetName)}
                     } else {
                         const bufferURL = await this.getURLBuffer(assetURL)
                         const s3URLs = await this.getS3URL(asset.contract_address, asset.token_id, bufferURL)
@@ -128,14 +128,6 @@ export class AssetsController {
         }
     }
 
-    public getAssetIDByURL(url: string): string {
-        return url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("."))
-    }
-
-    public getAssetExtensionByURL(url: string): string {
-        return url.split(".").pop()
-    }
-
     private getS3URL = async (assetContract: string, assetID: string, buffer: any) => {
         try {
             const bufferPNG = await this.converSvgToPng(buffer)
@@ -157,12 +149,10 @@ export class AssetsController {
 
     public assetExists = async (assetName): Promise<boolean> => {
         try {
-            winston.info(`Checking if url exist ${this.S3BucketBaseURL}${this.S3Bucket}/${assetName}.png`)
-            const response = await axios.head(`${this.S3BucketBaseURL}${this.S3Bucket}/${assetName}.png`)
+            const response = await axios.head(this.getAssetFullPath(assetName))
             return response.status === 200;
         } catch (error) {
-            winston.error(`Error checking file ${this.S3BucketBaseURL}${this.S3Bucket}/${assetName}.png existence on S3 `)
-            // Promise.resolve(false)
+            winston.error(`Error checking file ${this.getAssetFullPath(assetName)} existence on S3`)
             return false
         }
     }
@@ -175,6 +165,18 @@ export class AssetsController {
         .catch((errr: Error) => {
             winston.error(`Error converting SVG`, errr)
         })
+    }
+
+    public getAssetIDByURL(url: string): string {
+        return url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("."))
+    }
+
+    public getAssetExtensionByURL(url: string): string {
+        return url.split(".").pop()
+    }
+
+    public getAssetFullPath(assetName: string): string {
+        return `${this.S3BucketBaseURL}${this.S3Bucket}/${assetName}.png`
     }
 }
 
