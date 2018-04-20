@@ -1342,5 +1342,11 @@ export const contracts = {
     },
     "0x9f5f3cfd7a32700c93f971637407ff17b91c7342": {
         id: "scryinfo"
+    },
+    "0x7e9e431a0b8c4d532c745b1043c7fa29a48d4fba": {
+        id: "eosdac"
+    },
+    "0x6ba460ab75cd2c56343b3517ffeba60748654d26": {
+        id: "uptoken"
     }
 }
