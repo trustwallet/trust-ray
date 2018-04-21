@@ -1348,5 +1348,8 @@ export const contracts = {
     },
     "0x6ba460ab75cd2c56343b3517ffeba60748654d26": {
         id: "uptoken"
+    },
+    "0x08d32b0da63e2c3bcf8019c9c5d849d7a9d791e6": {
+        id: "dentacoin"
     }
 }
