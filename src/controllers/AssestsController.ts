@@ -19,6 +19,10 @@ export class AssetsController {
     private S3Bucket: string = config.get("AWS.BUCKET");
 
     getAssets = async (req: Request, res: Response) => {
+        const validationErrors: any = this.validateQueryParameters(req)
+
+        if (validationErrors) return sendJSONresponse(res, 400, validationErrors)
+
         if (!this.networkID) {
             this.networkID = await Config.web3.eth.net.getId().then((id: number) => id);
         }
@@ -115,7 +119,7 @@ export class AssetsController {
             const assets = await axios.get(`${this.openSeaURL}${address}`).then((res: any) => res.data.assets);
             return assets;
         } catch (error) {
-            winston.error(`Error`, error)
+            winston.error(`Error getting assets from opensea`, error)
         }
     }
 
@@ -177,6 +181,12 @@ export class AssetsController {
 
     public getAssetFullPath(assetName: string): string {
         return `${this.S3BucketBaseURL}${this.S3Bucket}/${assetName}.png`
+    }
+
+    public validateQueryParameters(req: Request) {
+        req.checkQuery("address", "address needs to be alphanumeric and have length 42").isAlphanumeric().isLength({min: 42, max: 42});
+
+        return req.validationErrors();
     }
 }
 
