@@ -171,10 +171,6 @@ export class AssetsController {
         })
     }
 
-    public getAssetIDByURL(url: string): string {
-        return url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("."))
-    }
-
     public getAssetExtensionByURL(url: string): string {
         return url.split(".").pop()
     }
