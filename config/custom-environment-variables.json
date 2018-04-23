@@ -24,6 +24,7 @@
             "ACCESSKEYID": "S3_ACCESSKEYID",
             "SECRETACCESSKEY": "S3_SECRETACCESSKEY"
         },
-        "BUCKET": "S3BUCKET"
+        "BUCKET": "S3BUCKET",
+        "BUCKET_BASE_URL": "BUCKET_BASE_URL"
     }
 }

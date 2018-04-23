@@ -15,8 +15,14 @@ export class AssetsController {
     private openSeaURL: string;
     private mainnetOpenSeaURL: string = "https://opensea-api.herokuapp.com/assets/?limit=100&order_by=auction_created_date&order_direction=desc&owner=";
     private rinkebyOpenSeaURL: string = "https://etherbay-api-1.herokuapp.com/assets/?limit=100&order_by=auction_created_date&order_direction=desc&owner=";
+    private S3BucketBaseURL: string = config.get("AWS.BUCKET_BASE_URL")
+    private S3Bucket: string = config.get("AWS.BUCKET");
 
     getAssets = async (req: Request, res: Response) => {
+        const validationErrors: any = this.validateQueryParameters(req)
+
+        if (validationErrors) return sendJSONresponse(res, 400, validationErrors)
+
         if (!this.networkID) {
             this.networkID = await Config.web3.eth.net.getId().then((id: number) => id);
         }
@@ -32,10 +38,10 @@ export class AssetsController {
         const address: string = req.query.address;
         try {
             const assetsByAddress = await this.getAssetsByAddress(address);
-            const assets: IAsset[] = assetsByAddress.map((asset: IAsset) => {
+            const assets: any[] = assetsByAddress.map((asset: IAsset) => {
                 return {
                     token_id: asset.token_id,
-                    contract_address: asset.asset_contract.address,
+                    contract_address: asset.asset_contract.address.toLowerCase(),
                     category: asset.asset_contract.name,
                     image_url: asset.image_url,
                     name: asset.name,
@@ -43,11 +49,25 @@ export class AssetsController {
                     description: asset.description
                 }
             });
-            const assetsURI: string[] = assets.map((asset: IAsset) => asset.image_url);
-            const urlBuffers = await this.getURLBuffer(assetsURI);
-            const s3URLs = await this.getS3URL(urlBuffers);
-            const assetsByCategory = this.mergeAssets(assets, s3URLs);
 
+            const assets2 = await Bluebird.map(assets, async (asset) => {
+                const assetURL = asset.image_url
+                const fileExt = this.getAssetExtensionByURL(assetURL)
+                const assetName = `${asset.contract_address}-${asset.token_id}`
+
+                if (fileExt === "svg") {
+                    if (await this.assetExists(assetName)) {
+                        return {...asset, image_url: this.getAssetFullPath(assetName)}
+                    } else {
+                        const bufferURL = await this.getURLBuffer(assetURL)
+                        const s3URLs = await this.getS3URL(asset.contract_address, asset.token_id, bufferURL)
+                        return {...asset, image_url: s3URLs}
+                    }
+                } else {
+                    return asset
+                }
+            })
+            const assetsByCategory = this.mergeAssets(assets2);
         sendJSONresponse(res, 200, {
             docs: assetsByCategory
         });
@@ -65,7 +85,7 @@ export class AssetsController {
         }
     }
 
-    private mergeAssets(assets: IAsset[], urls: string[]) {
+    private mergeAssets(assets: IAsset[]) {
         const sortedAssets: any = [];
         const categories: any = {};
 
@@ -74,7 +94,7 @@ export class AssetsController {
 
             if (categories.hasOwnProperty(assetID)) {
                 if (categories[assetID].id = assetID) {
-                    categories[assetID].items.push({...asset, image_url: urls[i]});
+                    categories[assetID].items.push(asset);
                 }
             } else {
                 categories[assetID] = {
@@ -83,7 +103,7 @@ export class AssetsController {
                     items: []
                 }
 
-                categories[assetID].items.push({...asset, image_url: urls[i]})
+                categories[assetID].items.push(asset)
             }
         })
 
@@ -99,59 +119,45 @@ export class AssetsController {
             const assets = await axios.get(`${this.openSeaURL}${address}`).then((res: any) => res.data.assets);
             return assets;
         } catch (error) {
-            winston.error(`Error`, error)
+            winston.error(`Error getting assets from opensea`, error)
         }
     }
 
-    private getURLBuffer(urls: string[]) {
-        return Bluebird.map(urls, url => {
-            return axios({
-                method: "get",
-                url,
-                responseType: "arraybuffer"
-            })
-            .then((res: any) => {
-                return {
-                    url,
-                    buffer: res.data
-                }
-            })
-            .catch((error) => {
-                winston.error(`Error getting image`, error);
-            })
-        })
+    private getURLBuffer = async (url: string) => {
+        try {
+            const buffer = await axios({method: "get", url, responseType: "arraybuffer"})
+            return buffer.data
+        } catch (error) {
+            winston.error(`Error getting image ${url} buffer`, error);
+        }
     }
 
-    private getS3URL(buffers: any[]) {
-
-        return Bluebird.map(buffers, async (buffer) => {
-            const url: string = buffer.url;
-            const fileExt: string = url.split(".").pop();
-            const fileName: string = url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("."));
-            
-            if (fileExt === "svg") {
-                const bufferPNG = await this.converSvgToPng(buffer.buffer);
-                const params = this.getS3Params(fileName, "png", bufferPNG);
-
-                return s3.upload(params).promise().then((uploaded: any) => {
-                    return uploaded.Location;
-                })
-                .catch((error) => {
-                    winston.error(`Error uploading image ot S3`, error);
-                })
+    private getS3URL = async (assetContract: string, assetID: string, buffer: any) => {
+        try {
+            const bufferPNG = await this.converSvgToPng(buffer)
+            const params = {
+                ACL: "public-read",
+                Bucket: this.S3Bucket,
+                Key: `${assetContract}-${assetID}.png`,
+                ContentType: `image/png`,
+                Body: bufferPNG
             }
-            return url;
-        })
+
+            const uploaded = await s3.upload(params).promise()
+            return uploaded.Location
+        } catch (error) {
+            winston.error(`Error uploading image ot S3`, error);
+            return ""
+        }
     }
 
-    private getS3Params(name: string, ext: string, buffer: any) {
-        const bucket: string = config.get("AWS.BUCKET");
-        return  {
-            ACL: "public-read",
-            Bucket: bucket,
-            Key: `${name}.${ext}`,
-            ContentType: `image/${ext}`,
-            Body: buffer
+    public assetExists = async (assetName): Promise<boolean> => {
+        try {
+            const response = await axios.head(this.getAssetFullPath(assetName))
+            return response.status === 200;
+        } catch (error) {
+            winston.error(`Error checking file ${this.getAssetFullPath(assetName)} existence on S3`)
+            return false
         }
     }
 
@@ -163,6 +169,20 @@ export class AssetsController {
         .catch((errr: Error) => {
             winston.error(`Error converting SVG`, errr)
         })
+    }
+
+    public getAssetExtensionByURL(url: string): string {
+        return url.split(".").pop()
+    }
+
+    public getAssetFullPath(assetName: string): string {
+        return `${this.S3BucketBaseURL}${this.S3Bucket}/${assetName}.png`
+    }
+
+    public validateQueryParameters(req: Request) {
+        req.checkQuery("address", "address needs to be alphanumeric and have length 42").isAlphanumeric().isLength({min: 42, max: 42});
+
+        return req.validationErrors();
     }
 }
 
