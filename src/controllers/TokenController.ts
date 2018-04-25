@@ -119,7 +119,8 @@ export class TokenController {
             { "symbol": { $regex: re }},
             { "address": { $regex: re }}
         ]).exec().then((contracts: any) => {
-            sendJSONresponse(res, 200, contracts);
+            const verifiedFirst = contracts.sort((a, b) => a.verified === true ? -1 : 1)
+            sendJSONresponse(res, 200, verifiedFirst);
         }).catch((err: Error) => {
             sendJSONresponse(res, 404, err);
         });
