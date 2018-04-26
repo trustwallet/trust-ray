@@ -119,7 +119,7 @@ export class TokenParser {
                 decimals: decimal,
                 totalSupply,
                 verified: isContractVerified
-            }, {upsert: true, new: true})
+            }, {upsert: true, new: true, setDefaultsOnInsert: true})
 
             return update
         } catch (error) {

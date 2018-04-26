@@ -25,6 +25,10 @@ const ERC20ContractScheme = new Schema({
     verified: {
         type: Boolean,
         default: false
+    },
+    enabled: {
+        type: Boolean,
+        default: true
     }
 }, {
     versionKey: false,
