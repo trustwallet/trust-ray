@@ -28,10 +28,10 @@ export class TokenController {
     }
 
     private async getTokensByAddress(address: string, showBalance: boolean) {
-        const tokens = await Token.findOne({_id: address}).populate({path: "tokens"}).then((tokens: any) => tokens)
+        const tokens = await Token.findOne({_id: address}).populate({path: "tokens", match: {enabled: true}})
 
         if (tokens) {
-            const tok = tokens.tokens.map(async (token: any) => {
+            const tokensBalance = tokens.tokens.map(async (token: any) => {
                 let balance: string = "0"
                 const tokenAddress = token.address
 
@@ -50,7 +50,7 @@ export class TokenController {
                     }
                 }
             })
-            return Promise.all(tok)
+            return Promise.all(tokensBalance)
         } else {
             return Promise.resolve([])
         }
@@ -114,11 +114,16 @@ export class TokenController {
             return;
         }
         const re = new RegExp(term, "i");
-        ERC20Contract.find().limit(20).or([
-            { "name": { $regex: re }},
-            { "symbol": { $regex: re }},
-            { "address": { $regex: re }}
-        ]).sort({verified: -1}).exec().then((contracts: any) => {
+        ERC20Contract.find({
+            $and: [
+                {$or: [
+                    { "name": { $regex: re }},
+                    { "symbol": { $regex: re }},
+                    { "address": { $regex: re }}
+                ]},
+                {enabled: true},
+            ]
+        }).limit(20).sort({verified: -1}).exec().then((contracts: any) => {
             sendJSONresponse(res, 200, contracts);
         }).catch((err: Error) => {
             sendJSONresponse(res, 404, err);
