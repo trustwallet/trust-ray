@@ -1357,5 +1357,8 @@ export const contracts = {
     },
     "0x865e3707a580f9db89304005cddd050ade8873eb": {
         id: "hirematch"
+    },
+    "0x37d40510a2f5bc98aa7a0f7bf4b3453bcfb90ac1": {
+        id: "belugapay"
     }
 }
