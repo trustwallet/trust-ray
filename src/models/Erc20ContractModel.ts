@@ -4,11 +4,13 @@ const Schema = mongoose.Schema;
 
 const ERC20ContractScheme = new Schema({
     address :  {
-        type: String
+        type: String,
+        index: true
     },
     name: {
         type: String,
-        required: true
+        required: true,
+        index: true
     },
     totalSupply: {
         type: String,
@@ -20,7 +22,8 @@ const ERC20ContractScheme = new Schema({
     },
     symbol: {
         type: String,
-        required: true
+        required: true,
+        index: true
     },
     verified: {
         type: Boolean,
@@ -28,7 +31,8 @@ const ERC20ContractScheme = new Schema({
     },
     enabled: {
         type: Boolean,
-        default: true
+        default: true,
+        index: true
     }
 }, {
     versionKey: false,
