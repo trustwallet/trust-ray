@@ -1360,5 +1360,8 @@ export const contracts = {
     },
     "0x37d40510a2f5bc98aa7a0f7bf4b3453bcfb90ac1": {
         id: "belugapay"
+    },
+    "0x2f85e502a988af76f7ee6d83b7db8d6c0a823bf9": {
+        id: "latiumx"
     }
 }
