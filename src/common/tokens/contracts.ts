@@ -1366,5 +1366,11 @@ export const contracts = {
     },
     "0x9b70740e708a083c6ff38df52297020f5dfaa5ee": {
         id: "daneel"
+    },
+    "0xfdbc1adc26f0f8f8606a5d63b7d3a3cd21c22b23": {
+        id: "1world"
+    },
+    "0x1460a58096d80a50a2f1f956dda497611fa4f165": {
+        id: "chainium"
     }
 }
