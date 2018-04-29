@@ -1363,5 +1363,8 @@ export const contracts = {
     },
     "0x2f85e502a988af76f7ee6d83b7db8d6c0a823bf9": {
         id: "latiumx"
+    },
+    "0x9b70740e708a083c6ff38df52297020f5dfaa5ee": {
+        id: "daneel"
     }
 }
