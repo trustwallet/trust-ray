@@ -1372,5 +1372,8 @@ export const contracts = {
     },
     "0x1460a58096d80a50a2f1f956dda497611fa4f165": {
         id: "chainium"
-    }
+    },
+    "0xffe02ee4c69edf1b340fcad64fbd6b37a7b9e265": {
+        id: "nanjcoin"
+    },
 }
