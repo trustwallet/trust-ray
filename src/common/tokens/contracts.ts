@@ -1376,4 +1376,7 @@ export const contracts = {
     "0xffe02ee4c69edf1b340fcad64fbd6b37a7b9e265": {
         id: "nanjcoin"
     },
+    "0x900b4449236a7bb26b286601dd14d2bde7a6ac6c": {
+        id: "earth-token"
+    }
 }
