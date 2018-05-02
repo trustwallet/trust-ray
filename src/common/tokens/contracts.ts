@@ -1378,5 +1378,8 @@ export const contracts = {
     },
     "0x900b4449236a7bb26b286601dd14d2bde7a6ac6c": {
         id: "earth-token"
-    }
+    },
+    "0xb62132e35a6c13ee1ee0f84dc5d40bad8d815206": {
+        id: "nexo"
+    },
 }
