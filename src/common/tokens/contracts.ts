@@ -1382,4 +1382,7 @@ export const contracts = {
     "0xb62132e35a6c13ee1ee0f84dc5d40bad8d815206": {
         id: "nexo"
     },
+    "0xfc2c4d8f95002c14ed0a7aa65102cac9e5953b5e": {
+        id: "rublix"
+    }
 }
