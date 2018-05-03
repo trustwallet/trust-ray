@@ -1384,5 +1384,8 @@ export const contracts = {
     },
     "0xfc2c4d8f95002c14ed0a7aa65102cac9e5953b5e": {
         id: "rublix"
+    },
+    "0x53066cdDBc0099eb6c96785d9b3DF2AAeEDE5DA3": {
+        id: "penta"
     }
 }
