@@ -1396,5 +1396,8 @@ export const contracts = {
     },
     "0x6710c63432a2de02954fc0f851db07146a6c0312": {
         id: "syncfab"
+    },
+    "0x7b171c08d812f9c642dcf61f7e080610cbca64b3": {
+        id: "hade-platform"
     }
 }
