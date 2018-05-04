@@ -1390,5 +1390,8 @@ export const contracts = {
     },
     "0xebbdf302c940c6bfd49c6b165f457fdb324649bc": {
         id: "hydrogen"
+    },
+    "0x737f98ac8ca59f2c68ad658e3c3d8c8963e40a4c": {
+        id: "amon"
     }
 }
