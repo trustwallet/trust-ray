@@ -1495,5 +1495,8 @@ export const contracts = {
     },
     "0xccbf21ba6ef00802ab06637896b799f7101f54a2": {
         id: "budbo"
-    }
+    },
+    "0xd7732e3783b0047aa251928960063f863ad022d8": {
+        id: "brahmaos"
+    },
 }
