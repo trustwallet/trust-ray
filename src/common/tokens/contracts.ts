@@ -1447,5 +1447,8 @@ export const contracts = {
     },
     "0x03c780cd554598592b97b7256ddaad759945b125": {
         id: "biotron"
+    },
+    "0x17f8afb63dfcdcc90ebe6e84f060cc306a98257d": {
+        id: "nebula-ai"
     }
 }
