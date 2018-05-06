@@ -1510,5 +1510,8 @@ export const contracts = {
     },
     "0xea11755ae41d889ceec39a63e6ff75a02bc1c00d": {
         id: "cortex"
+    },
+    "0x899338b84d25ac505a332adce7402d697d947494": {
+        id: "wawllet"
     }
 }
