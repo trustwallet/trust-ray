@@ -1421,4 +1421,7 @@ export const contracts = {
     "0x4a527d8fc13c5203ab24ba0944f4cb14658d1db6": {
         id: "morpheus-labs"
     },
+    "0xd2fa8f92ea72abb35dbd6deca57173d22db2ba49": {
+        id: "origami"
+    }
 }
