@@ -1432,5 +1432,8 @@ export const contracts = {
     },
     "0x6c6ee5e31d828de241282b9606c8e98ea48526e2": {
         id: "holo"
+    },
+    "0x12759512d326303b45f1cec8f7b6fd96f387778e": {
+        id: "trakinvest"
     }
 }
