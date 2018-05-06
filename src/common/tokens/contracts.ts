@@ -1486,5 +1486,8 @@ export const contracts = {
     },
     "0x52db8ebf894036ec997da693c5fa237a4fb69d10": {
         id: "curriculum-vitae"
+    },
+    "0xb444208cb0516c150178fcf9a52604bc04a1acea": {
+        id: "greenmed"
     }
 }
