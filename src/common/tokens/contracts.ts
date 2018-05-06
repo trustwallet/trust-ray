@@ -1469,4 +1469,7 @@ export const contracts = {
     "0xe5dada80aa6477e85d09747f2842f7993d0df71c": {
         id: "dock"
     },
+    "0x13c2fab6354d3790d8ece4f0f1a3280b4a25ad96": {
+        id: "phi-token"
+    },
 }
