@@ -1513,5 +1513,8 @@ export const contracts = {
     },
     "0x899338b84d25ac505a332adce7402d697d947494": {
         id: "wawllet"
-    }
+    },
+    "0xbe428c3867f05dea2a89fc76a102b544eac7f772": {
+        id: "cybervein"
+    },
 }
