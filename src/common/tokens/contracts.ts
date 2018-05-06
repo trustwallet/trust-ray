@@ -1453,5 +1453,8 @@ export const contracts = {
     },
     "0xf41e5fbc2f6aac200dd8619e121ce1f05d150077": {
         id: "crycash"
+    },
+    "0xd559f20296FF4895da39b5bd9ADd54b442596a61": {
+        id: "fintrux-network"
     }
 }
