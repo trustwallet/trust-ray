@@ -1517,4 +1517,7 @@ export const contracts = {
     "0xbe428c3867f05dea2a89fc76a102b544eac7f772": {
         id: "cybervein"
     },
+    "0xa44e5137293e855b1b7bc7e2c6f8cd796ffcb037": {
+        id: "sentinel"
+    }
 }
