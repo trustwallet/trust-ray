@@ -1472,4 +1472,7 @@ export const contracts = {
     "0x13c2fab6354d3790d8ece4f0f1a3280b4a25ad96": {
         id: "phi-token"
     },
+    "0x6beb418fc6e1958204ac8baddcf109b8e9694966": {
+        id: "linker-coin"
+    },
 }
