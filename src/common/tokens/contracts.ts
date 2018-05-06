@@ -1507,5 +1507,8 @@ export const contracts = {
     },
     "0x52fb36c83ad33c1824912fc81071ca5eeb8ab390": {
         id: "fidelium"
+    },
+    "0xea11755ae41d889ceec39a63e6ff75a02bc1c00d": {
+        id: "cortex"
     }
 }
