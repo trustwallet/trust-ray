@@ -1411,4 +1411,8 @@ export const contracts = {
     },
     "0x763186eb8d4856d536ed4478302971214febc6a9": {
         id: "betterbetting"
+    },
+    "0xb0280743b44bf7db4b6be482b2ba7b75e5da096c": {
+        id: "transcodium"
+    },
 }
