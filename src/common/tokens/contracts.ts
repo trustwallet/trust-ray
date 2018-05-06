@@ -1409,4 +1409,6 @@ export const contracts = {
     "0xbbff862d906e348e9946bfb2132ecb157da3d4b4": {
         id: "sharder"
     },
+    "0x763186eb8d4856d536ed4478302971214febc6a9": {
+        id: "betterbetting"
 }
