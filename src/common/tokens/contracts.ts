@@ -1435,5 +1435,8 @@ export const contracts = {
     },
     "0x12759512d326303b45f1cec8f7b6fd96f387778e": {
         id: "trakinvest"
-    }
+    },
+    "0x2008e3057bd734e10ad13c9eae45ff132abc1722": {
+        id: "zebi"
+    },
 }
