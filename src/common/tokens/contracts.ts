@@ -1480,5 +1480,8 @@ export const contracts = {
     },
     "0x44f588aeeb8c44471439d1270b3603c66a9262f1": {
         id: "snipcoin"
+    },
+    "0x076c97e1c869072ee22f8c91978c99b4bcb02591": {
+        id: "commerceblock"
     }
 }
