@@ -1423,5 +1423,8 @@ export const contracts = {
     },
     "0xd2fa8f92ea72abb35dbd6deca57173d22db2ba49": {
         id: "origami"
-    }
+    },
+    "0xbcdfe338d55c061c084d81fd793ded00a27f226d": {
+        id: "decentralized-machine-learning"
+    },
 }
