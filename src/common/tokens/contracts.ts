@@ -1406,4 +1406,7 @@ export const contracts = {
     "0x0b4bdc478791897274652dc15ef5c135cae61e60": {
         id: "daex"
     },
+    "0xbbff862d906e348e9946bfb2132ecb157da3d4b4": {
+        id: "sharder"
+    },
 }
