@@ -1399,5 +1399,8 @@ export const contracts = {
     },
     "0x7b171c08d812f9c642dcf61f7e080610cbca64b3": {
         id: "hade-platform"
+    },
+    "0x6295ab2be04a617747481b292c390bfca592cf28": {
+        id: "tokendesk"
     }
 }
