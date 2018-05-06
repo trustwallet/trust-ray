@@ -1418,4 +1418,7 @@ export const contracts = {
     "0x47bc01597798dcd7506dcca36ac4302fc93a8cfb": {
         id: "crowd-machine"
     },
+    "0x4a527d8fc13c5203ab24ba0944f4cb14658d1db6": {
+        id: "morpheus-labs"
+    },
 }
