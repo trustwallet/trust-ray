@@ -1439,4 +1439,7 @@ export const contracts = {
     "0x2008e3057bd734e10ad13c9eae45ff132abc1722": {
         id: "zebi"
     },
+    "0x0947b0e6d821378805c9598291385ce7c791a6b2": {
+        id: "lendingblock"
+    }
 }
