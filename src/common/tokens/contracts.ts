@@ -1427,4 +1427,7 @@ export const contracts = {
     "0xbcdfe338d55c061c084d81fd793ded00a27f226d": {
         id: "decentralized-machine-learning"
     },
+    "0xe34e1944e776f39b9252790a0527ebda647ae668": {
+        id: "helbiz"
+    }
 }
