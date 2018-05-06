@@ -1415,4 +1415,7 @@ export const contracts = {
     "0xb0280743b44bf7db4b6be482b2ba7b75e5da096c": {
         id: "transcodium"
     },
+    "0x47bc01597798dcd7506dcca36ac4302fc93a8cfb": {
+        id: "crowd-machine"
+    },
 }
