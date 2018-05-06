@@ -1501,5 +1501,8 @@ export const contracts = {
     },
     "0x093e5c256ff8b32c7f1377f4c20e331674c77f00": {
         id: "dignity"
+    },
+    "0x8810c63470d38639954c6b41aac545848c46484a": {
+        id: "aditus"
     }
 }
