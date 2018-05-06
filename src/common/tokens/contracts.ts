@@ -1504,5 +1504,8 @@ export const contracts = {
     },
     "0x8810c63470d38639954c6b41aac545848c46484a": {
         id: "aditus"
+    },
+    "0x52fb36c83ad33c1824912fc81071ca5eeb8ab390": {
+        id: "fidelium"
     }
 }
