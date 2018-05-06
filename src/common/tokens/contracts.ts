@@ -1475,4 +1475,7 @@ export const contracts = {
     "0x6beb418fc6e1958204ac8baddcf109b8e9694966": {
         id: "linker-coin"
     },
+    "0xe7d3e4413e29ae35b0893140f4500965c74365e5": {
+        id: "b2bcoin"
+    }
 }
