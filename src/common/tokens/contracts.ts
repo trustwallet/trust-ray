@@ -1522,5 +1522,8 @@ export const contracts = {
     },
     "0x3543638ed4a9006e4840b105944271bcea15605d": {
         id: "u-network"
-    }
+    },
+    "0xc343f099d3e41aa5c1b59470450e21e92e2d840b": {
+        id: "verime"
+    },
 }
