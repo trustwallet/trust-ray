@@ -1463,4 +1463,7 @@ export const contracts = {
     "0xc27c95350ecd634c80df89db0f10cd5c24b7b11f": {
         id: "pixie-coin"
     },
+    "0xef8cf79c21637fc6f951bcac348915508a639a41": {
+        id: "srcoin"
+    },
 }
