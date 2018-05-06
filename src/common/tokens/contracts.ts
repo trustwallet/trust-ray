@@ -1483,5 +1483,8 @@ export const contracts = {
     },
     "0x076c97e1c869072ee22f8c91978c99b4bcb02591": {
         id: "commerceblock"
+    },
+    "0x52db8ebf894036ec997da693c5fa237a4fb69d10": {
+        id: "curriculum-vitae"
     }
 }
