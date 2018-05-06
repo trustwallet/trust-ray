@@ -1477,5 +1477,8 @@ export const contracts = {
     },
     "0xe7d3e4413e29ae35b0893140f4500965c74365e5": {
         id: "b2bcoin"
+    },
+    "0x44f588aeeb8c44471439d1270b3603c66a9262f1": {
+        id: "snipcoin"
     }
 }
