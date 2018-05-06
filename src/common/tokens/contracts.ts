@@ -1519,5 +1519,8 @@ export const contracts = {
     },
     "0xa44e5137293e855b1b7bc7e2c6f8cd796ffcb037": {
         id: "sentinel"
+    },
+    "0x3543638ed4a9006e4840b105944271bcea15605d": {
+        id: "u-network"
     }
 }
