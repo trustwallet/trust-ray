@@ -1492,5 +1492,8 @@ export const contracts = {
     },
     "0xc12d099be31567add4e4e4d0d45691c3f58f5663": {
         id: "auctus"
+    },
+    "0xccbf21ba6ef00802ab06637896b799f7101f54a2": {
+        id: "budbo"
     }
 }
