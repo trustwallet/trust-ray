@@ -1489,5 +1489,8 @@ export const contracts = {
     },
     "0xb444208cb0516c150178fcf9a52604bc04a1acea": {
         id: "greenmed"
+    },
+    "0xc12d099be31567add4e4e4d0d45691c3f58f5663": {
+        id: "auctus"
     }
 }
