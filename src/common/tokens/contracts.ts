@@ -1466,4 +1466,7 @@ export const contracts = {
     "0xef8cf79c21637fc6f951bcac348915508a639a41": {
         id: "srcoin"
     },
+    "0xe5dada80aa6477e85d09747f2842f7993d0df71c": {
+        id: "dock"
+    },
 }
