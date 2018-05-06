@@ -1450,5 +1450,8 @@ export const contracts = {
     },
     "0x17f8afb63dfcdcc90ebe6e84f060cc306a98257d": {
         id: "nebula-ai"
+    },
+    "0xf41e5fbc2f6aac200dd8619e121ce1f05d150077": {
+        id: "crycash"
     }
 }
