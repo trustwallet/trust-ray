@@ -1441,5 +1441,8 @@ export const contracts = {
     },
     "0x0947b0e6d821378805c9598291385ce7c791a6b2": {
         id: "lendingblock"
-    }
+    },
+    "0xa017ac5fac5941f95010b12570b812c974469c2c": {
+        id: "proxeus"
+    },
 }
