@@ -1460,4 +1460,7 @@ export const contracts = {
     "0xf453b5b9d4e0b5c62ffb256bb2378cc2bc8e8a89": {
         id: "mark-space"
     },
+    "0xc27c95350ecd634c80df89db0f10cd5c24b7b11f": {
+        id: "pixie-coin"
+    },
 }
