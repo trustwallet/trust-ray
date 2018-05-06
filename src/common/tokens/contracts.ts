@@ -1499,4 +1499,7 @@ export const contracts = {
     "0xd7732e3783b0047aa251928960063f863ad022d8": {
         id: "brahmaos"
     },
+    "0x093e5c256ff8b32c7f1377f4c20e331674c77f00": {
+        id: "dignity"
+    }
 }
