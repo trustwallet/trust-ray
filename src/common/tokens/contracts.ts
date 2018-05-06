@@ -1402,5 +1402,8 @@ export const contracts = {
     },
     "0x6295ab2be04a617747481b292c390bfca592cf28": {
         id: "tokendesk"
-    }
+    },
+    "0x0b4bdc478791897274652dc15ef5c135cae61e60": {
+        id: "daex"
+    },
 }
