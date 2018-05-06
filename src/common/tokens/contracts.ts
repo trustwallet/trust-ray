@@ -1445,4 +1445,7 @@ export const contracts = {
     "0xa017ac5fac5941f95010b12570b812c974469c2c": {
         id: "proxeus"
     },
+    "0x03c780cd554598592b97b7256ddaad759945b125": {
+        id: "biotron"
+    }
 }
