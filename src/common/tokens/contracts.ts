@@ -1456,5 +1456,8 @@ export const contracts = {
     },
     "0xd559f20296FF4895da39b5bd9ADd54b442596a61": {
         id: "fintrux-network"
-    }
+    },
+    "0xf453b5b9d4e0b5c62ffb256bb2378cc2bc8e8a89": {
+        id: "mark-space"
+    },
 }
