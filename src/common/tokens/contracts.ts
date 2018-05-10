@@ -1549,5 +1549,8 @@ export const contracts = {
     },
     "0x61f33da40594cec1e3dc900faf99f861d01e2e7d": {
         id: "cybereits"
+    },
+    "0x6dd4e4aad29a40edd6a409b9c1625186c9855b4d": {
+        id: "parkgene"
     }
 }
