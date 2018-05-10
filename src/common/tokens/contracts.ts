@@ -1546,5 +1546,8 @@ export const contracts = {
     },
     "0xfedae5642668f8636a11987ff386bfd215f942ee": {
         id: "policypal-network"
+    },
+    "0x61f33da40594cec1e3dc900faf99f861d01e2e7d": {
+        id: "cybereits"
     }
 }
