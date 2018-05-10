@@ -1543,5 +1543,8 @@ export const contracts = {
     },
     "0x139d9397274bb9e2c29a9aa8aa0b5874d30d62e3": {
         id: "boutspro"
+    },
+    "0xfedae5642668f8636a11987ff386bfd215f942ee": {
+        id: "policypal-network"
     }
 }
