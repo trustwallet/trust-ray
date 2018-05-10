@@ -1540,5 +1540,8 @@ export const contracts = {
     },
     "0x3abdff32f76b42e7635bdb7e425f0231a5f3ab17": {
         id: "connectjob"
+    },
+    "0x139d9397274bb9e2c29a9aa8aa0b5874d30d62e3": {
+        id: "boutspro"
     }
 }
