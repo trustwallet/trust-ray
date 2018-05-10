@@ -1534,5 +1534,8 @@ export const contracts = {
     },
     "0x9b4e2b4b13d125238aa0480dd42b4f6fc71b37cc": {
         id: "mytoken"
+    },
+    "0x4cd988afbad37289baaf53c13e98e2bd46aaea8c": {
+        id: "key"
     }
 }
