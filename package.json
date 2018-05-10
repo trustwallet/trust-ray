@@ -37,7 +37,7 @@
     "@types/mongoose": "^4.7.24",
     "@types/mongoose-paginate": "^5.0.6",
     "@types/morgan": "^1.7.35",
-    "@types/node": "^9.4.6",
+    "@types/node": "^10.0.7",
     "@types/request": "2.47.0",
     "@types/winston": "^2.3.7",
     "@types/xss-filters": "0.0.27",
