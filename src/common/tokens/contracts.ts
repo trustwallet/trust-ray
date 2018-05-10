@@ -1552,5 +1552,8 @@ export const contracts = {
     },
     "0x6dd4e4aad29a40edd6a409b9c1625186c9855b4d": {
         id: "parkgene"
+    },
+    "0x1829aa045e21e0d59580024a951db48096e01782": {
+        id: "fuzex"
     }
 }
