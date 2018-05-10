@@ -1526,4 +1526,7 @@ export const contracts = {
     "0xc343f099d3e41aa5c1b59470450e21e92e2d840b": {
         id: "verime"
     },
+    "0x24a77c1f17c547105e14813e517be06b0040aa76": {
+        id: "live-stars"
+    },
 }
