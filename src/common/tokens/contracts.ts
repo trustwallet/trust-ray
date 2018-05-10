@@ -1537,5 +1537,8 @@ export const contracts = {
     },
     "0x4cd988afbad37289baaf53c13e98e2bd46aaea8c": {
         id: "key"
+    },
+    "0x3abdff32f76b42e7635bdb7e425f0231a5f3ab17": {
+        id: "connectjob"
     }
 }
