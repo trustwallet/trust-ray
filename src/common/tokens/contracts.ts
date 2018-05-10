@@ -1529,4 +1529,7 @@ export const contracts = {
     "0x24a77c1f17c547105e14813e517be06b0040aa76": {
         id: "live-stars"
     },
+    "0x905e337c6c8645263d3521205aa37bf4d034e745": {
+        id: "docademic"
+    }
 }
