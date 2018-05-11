@@ -1558,5 +1558,8 @@ export const contracts = {
     },
     "0x543ff227f64aa17ea132bf9886cab5db55dcaddf": {
         id: "daostack"
+    },
+    "0xd99b8a7fa48e25cce83b81812220a3e03bf64e5f": {
+        id: "skrumble-network"
     }
 }
