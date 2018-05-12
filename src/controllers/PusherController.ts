@@ -13,13 +13,15 @@ export class Pusher {
         const preferences = {
             isAirdrop: inputPreferences.isAirdrop || false
         }
+        const type: string = req.body.type || ""
 
         Device.findOneAndUpdate({
             deviceID: req.body.deviceID
         }, {
             wallets: unuqieWallets,
             token: req.body.token,
-            preferences
+            preferences,
+            type
         }, {
             upsert: true,
             new: true,
