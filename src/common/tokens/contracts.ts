@@ -1561,5 +1561,8 @@ export const contracts = {
     },
     "0xd99b8a7fa48e25cce83b81812220a3e03bf64e5f": {
         id: "skrumble-network"
+    },
+    "0x17e67d1cb4e349b9ca4bc3e17c7df2a397a7bb64": {
+        id: "freyrchain"
     }
 }
