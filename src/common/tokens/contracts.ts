@@ -1564,5 +1564,8 @@ export const contracts = {
     },
     "0x17e67d1cb4e349b9ca4bc3e17c7df2a397a7bb64": {
         id: "freyrchain"
+    },
+    "0xE814aeE960a85208C3dB542C53E7D4a6C8D5f60F": {
+        id: "chronologic"
     }
 }
