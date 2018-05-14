@@ -1570,5 +1570,8 @@ export const contracts = {
     },
     "0x905E337c6c8645263D3521205Aa37bf4d034e745": {
         id: "docademic"
+    },
+    "0x6710c63432a2de02954fc0f851db07146a6c0312": {
+        id: "syncfab"
     }
 }
