@@ -1567,5 +1567,8 @@ export const contracts = {
     },
     "0xE814aeE960a85208C3dB542C53E7D4a6C8D5f60F": {
         id: "chronologic"
+    },
+    "0x905E337c6c8645263D3521205Aa37bf4d034e745": {
+        id: "docademic"
     }
 }
