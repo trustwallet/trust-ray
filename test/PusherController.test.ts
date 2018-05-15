@@ -51,6 +51,7 @@ describe("Register device", () => {
                 response.should.have.property("createdAt").to.be.a("string");
                 response.should.have.property("createdAt").to.be.a("string");
                 response.should.have.property("token").eql(token);
+                response.should.have.property("type").to.be.a("string")
                 done();
             });
     })
