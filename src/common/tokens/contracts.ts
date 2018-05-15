@@ -1579,5 +1579,8 @@ export const contracts = {
     },
     "0xa0872ee815b8dd0f6937386fd77134720d953581": {
         id: "edu-coin"
+    },
+    "0x8713d26637cf49e1b6b4a7ce57106aabc9325343": {
+        id: "content-neutrality-network"
     }
 }
