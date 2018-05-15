@@ -1576,5 +1576,8 @@ export const contracts = {
     },
     "0xec985525f3f22c7fa9c9ff4a49e37589a76d86d4": {
         id: "super-game-chain"
+    },
+    "0xa0872ee815b8dd0f6937386fd77134720d953581": {
+        id: "edu-coin"
     }
 }
