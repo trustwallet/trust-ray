@@ -1585,5 +1585,8 @@ export const contracts = {
     },
     "0x6ea6531b603f270d23d9edd2d8279135dc5d6773": {
         id: "insurchain"
+    },
+    "0x228ba514309ffdf03a81a205a6d040e429d6e80c": {
+        id: "global-social-chain"
     }
 }
