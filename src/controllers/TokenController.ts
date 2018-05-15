@@ -31,12 +31,13 @@ export class TokenController {
         const tokens = await Token.findOne({_id: address}).populate({path: "tokens", match: {enabled: true}})
 
         if (tokens) {
-            const tokensBalance = tokens.tokens.map(async (token: any) => {
+            const tokensBalancePromise = tokens.tokens.map(async (token: any) => {
                 let balance: string = "0"
                 const tokenAddress = token.address
+                balance = await this.getTokenBalance(address, tokenAddress)
 
-                if (showBalance) {
-                    balance = await this.getTokenBalance(address, tokenAddress).then((balance: any) => balance ? balance : "0")
+                if (balance === "0") {
+                    await Token.findOneAndUpdate({_id: address}, {$pull: {tokens: token._id}})
                 }
 
                 return {
@@ -50,7 +51,8 @@ export class TokenController {
                     }
                 }
             })
-            return Promise.all(tokensBalance)
+
+            return Promise.all(tokensBalancePromise).then((tokens) => tokens.filter((token: any) => token.balance !== "0"))
         } else {
             return Promise.resolve([])
         }
