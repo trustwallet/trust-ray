@@ -1597,5 +1597,8 @@ export const contracts = {
     },
     "0xb6f43025b29196af2dddd69b0a58afba079cd600": {
         id: "intelligent-investment-chain"
+    },
+    "0x4af328c52921706dcb739f25786210499169afe6": {
+        id: "sakura-bloom"
     }
 }
