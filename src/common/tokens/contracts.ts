@@ -1574,4 +1574,7 @@ export const contracts = {
     "0xedd7c94fd7b4971b916d15067bc454b9e1bad980": {
         id: "zippie"
     },
+    "0xec985525f3f22c7fa9c9ff4a49e37589a76d86d4": {
+        id: "super-game-chain"
+    }
 }
