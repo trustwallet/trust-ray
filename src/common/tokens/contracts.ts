@@ -1594,5 +1594,8 @@ export const contracts = {
     },
     "0x4bffc9b4d4dcf730820a2edcad48ff5d7e0ae807": {
         id: "influence-chain"
+    },
+    "0xb6f43025b29196af2dddd69b0a58afba079cd600": {
+        id: "intelligent-investment-chain"
     }
 }
