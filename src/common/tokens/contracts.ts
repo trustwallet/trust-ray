@@ -1591,5 +1591,8 @@ export const contracts = {
     },
     "0x4f3afec4e5a3f2a6a1a411def7d7dfe50ee057bf": {
         id: "digix-gold-token"
+    },
+    "0x4bffc9b4d4dcf730820a2edcad48ff5d7e0ae807": {
+        id: "influence-chain"
     }
 }
