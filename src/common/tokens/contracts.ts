@@ -1582,5 +1582,8 @@ export const contracts = {
     },
     "0x8713d26637cf49e1b6b4a7ce57106aabc9325343": {
         id: "content-neutrality-network"
+    },
+    "0x6ea6531b603f270d23d9edd2d8279135dc5d6773": {
+        id: "insurchain"
     }
 }
