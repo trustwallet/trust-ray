@@ -193,7 +193,7 @@ export const totalSupplyABI = [
   },
 ]
 
-export const standartERC20ABI = [
+export const standardERC20ABI = [
   {
     "constant": true,
     "inputs": [],
