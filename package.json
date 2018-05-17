@@ -16,7 +16,7 @@
     "watch-debug": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-ts\" \"npm run serve-debug\""
   },
   "engines": {
-    "node": "9.5.0",
+    "node": "10",
     "npm": "5.6.0"
   },
   "dependencies": {
