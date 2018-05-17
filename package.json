@@ -52,6 +52,7 @@
     "chai-as-promised": "^7.1.1",
     "chai-http": "^3.0.0",
     "coinmarketcap-api": "^2.0.0",
+    "compression": "^1.7.2",
     "concurrently": "^3.4.0",
     "config": "^1.29.4",
     "connect-mongo": "^2.0.0",

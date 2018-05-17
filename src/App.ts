@@ -12,6 +12,7 @@ import { Config } from "./common/Config";
 
 const config = require("config");
 const cors = require("cors");
+const compression = require("compression")
 const port = process.env.PORT || 8000;
 
 export class App {
@@ -39,6 +40,7 @@ export class App {
 
 
     private configureMiddleware() {
+        this.app.use(compression())
         this.app.use(cors());
         this.app.set("port", port);
         this.app.use(logger("dev"));
