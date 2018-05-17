@@ -6,7 +6,6 @@ import * as errorHandler from "errorhandler";
 import { Database } from "./models/Database";
 import { router } from "./routes/ApiRoutes";
 import expressValidator = require("express-validator");
-import * as fs from "fs";
 import * as winston from "winston";
 import { Config } from "./common/Config";
 
@@ -44,7 +43,6 @@ export class App {
         this.app.use(cors());
         this.app.set("port", port);
         this.app.use(logger("dev"));
-        this.app.use(logger("common", {stream: fs.createWriteStream("./access.log", {flags: "a"})}));
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({ extended: true }));
         this.app.use(expressValidator());
