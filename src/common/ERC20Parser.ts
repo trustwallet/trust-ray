@@ -1,7 +1,7 @@
 import * as winston from "winston";
 import { Config } from "./Config";
 import * as BluebirdPromise from "bluebird";
-import { nameABI, symbolABI, decimalsABI, totalSupplyABI, standartERC20ABI } from "./abi/ABI";
+import { nameABI, symbolABI, decimalsABI, totalSupplyABI, standardERC20ABI } from "./abi/ABI";
 
 export class ERC20Parser {
 
@@ -14,7 +14,7 @@ export class ERC20Parser {
 
     public getERC20Contract = async (contractAddress) => {
         try {
-            const contract = await this.getContractInstance(contractAddress, standartERC20ABI)
+            const contract = await this.getContractInstance(contractAddress, standardERC20ABI)
             if (contract.indexOf(undefined) != -1) {
                 throw new Error()
             }
@@ -25,7 +25,7 @@ export class ERC20Parser {
                 totalSupply: contract[3],
             }
         } catch (error) {
-            winston.error(`Error getting standart ERC20 ${contractAddress} `, error)
+            winston.error(`Error getting standard ERC20 ${contractAddress} `, error)
             Promise.resolve()
         }
     }
