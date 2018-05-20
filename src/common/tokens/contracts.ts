@@ -1606,5 +1606,8 @@ export const contracts = {
     },
     "0x1a0f2ab46ec630f9fd638029027b552afa64b94c": {
         id: "aston"
+    },
+    "0x6758b7d441a9739b98552b373703d8d3d14f9e62": {
+        id: "poa-network"
     }
 }
