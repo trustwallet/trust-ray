@@ -1609,5 +1609,8 @@ export const contracts = {
     },
     "0x6758b7d441a9739b98552b373703d8d3d14f9e62": {
         id: "poa-network"
+    },
+    "0xc20464e0c373486d2b3335576e83a218b1618a5e": {
+        id: "datarius-credit"
     }
 }
