@@ -35,7 +35,7 @@ export class TokenPriceController {
     }
 
     private filterTokenPrices(prices: any[], tokens: IToken[], currency: string): any {
-        const altContract = "0x0000000000000000000000000000000000000000"; // ETH, EHC, POA
+        const altContract = "0x0000000000000000000000000000000000000000"; // ETH, EHC, POA, CLO
         const pricesCoinmarket = prices[0];
         const pricesMap: IPrice[] = pricesCoinmarket.reduce((map: any, obj: any) => {
             map[obj.id] = obj;
@@ -46,6 +46,7 @@ export class TokenPriceController {
             "ETH": "ethereum",
             "ETC": "ethereum-classic",
             "POA": "poa-network",
+            "CLO": "callisto-network"
         }
 
         const result1 = tokens.map((token: IToken) => {
