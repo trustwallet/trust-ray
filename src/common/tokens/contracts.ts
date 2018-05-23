@@ -1651,5 +1651,8 @@ export const contracts = {
     },
     "0x4df47b4969b2911c966506e3592c41389493953b": {
         id: "fundrequest"
+    },
+    "0x4162178b78d6985480a308b2190ee5517460406d": {
+        id: "colu-local-network"
     }
 }
