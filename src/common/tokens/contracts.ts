@@ -1636,5 +1636,8 @@ export const contracts = {
     },
     "0x2859021ee7f2cb10162e67f33af2d22764b31aff": {
         id: "silent-notary"
+    },
+    "0x55296f69f40ea6d20e478533c15a6b08b654e758": {
+        id: "xyo-network"
     }
 }
