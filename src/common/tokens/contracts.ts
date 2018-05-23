@@ -1630,5 +1630,8 @@ export const contracts = {
     },
     "0x69c4bb240cf05d51eeab6985bab35527d04a8c64": {
         id: "open-platform"
+    },
+    "0x2ef27bf41236bd859a95209e17a43fbd26851f92": {
+        id: "morpheus-network"
     }
 }
