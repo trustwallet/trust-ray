@@ -1621,5 +1621,8 @@ export const contracts = {
     },
     "0xdae1baf249964bc4b6ac98c3122f0e3e785fd279": {
         id: "tokia"
+    },
+    "0xf3b3cad094b89392fce5fafd40bc03b80f2bc624": {
+        id: "patron"
     }
 }
