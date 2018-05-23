@@ -852,7 +852,7 @@ export const contracts = {
         id: "life"
     },
     "0x8dd5fbce2f6a956c3022ba3663759011dd51e73e": {
-        id: "true-usd"
+        id: "trueusd"
     },
     "0xf05a9382a4c3f29e2784502754293d88b835109c": {
         id: "real-estate-tokens"
