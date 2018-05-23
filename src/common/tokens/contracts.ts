@@ -1624,5 +1624,8 @@ export const contracts = {
     },
     "0xf3b3cad094b89392fce5fafd40bc03b80f2bc624": {
         id: "patron"
+    },
+    "0xfe5f141bf94fe84bc28ded0ab966c16b17490657": {
+        id: "libra-credit"
     }
 }
