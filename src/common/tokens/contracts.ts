@@ -1645,5 +1645,8 @@ export const contracts = {
     },
     "0xb2135ab9695a7678dd590b1a996cb0f37bcb0718": {
         id: "signals-network"
+    },
+    "0x8542325b72c6d9fc0ad2ca965a78435413a915a0": {
+        id: "oyster-shell"
     }
 }
