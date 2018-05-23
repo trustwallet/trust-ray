@@ -1629,6 +1629,6 @@ export const contracts = {
         id: "libra-credit"
     },
     "0x69c4bb240cf05d51eeab6985bab35527d04a8c64": {
-        id: ""
+        id: "open-platform"
     }
 }
