@@ -1657,5 +1657,8 @@ export const contracts = {
     },
     "0x491c9a23db85623eed455a8efdd6aba9b911c5df": {
         id: "heronode"
+    },
+    "0x8400d94a5cb0fa0d041a3788e395285d61c9ee5e": {
+        id: "unibright"
     }
 }
