@@ -1642,5 +1642,8 @@ export const contracts = {
     },
     "0xf03045a4c8077e38f3b8e2ed33b8aee69edf869f": {
         id: "blockmesh"
+    },
+    "0xb2135ab9695a7678dd590b1a996cb0f37bcb0718": {
+        id: "signals-network"
     }
 }
