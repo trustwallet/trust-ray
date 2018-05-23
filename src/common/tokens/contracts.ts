@@ -1648,5 +1648,8 @@ export const contracts = {
     },
     "0x8542325b72c6d9fc0ad2ca965a78435413a915a0": {
         id: "oyster-shell"
+    },
+    "0x4df47b4969b2911c966506e3592c41389493953b": {
+        id: "fundrequest"
     }
 }
