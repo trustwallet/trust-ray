@@ -1618,5 +1618,8 @@ export const contracts = {
     },
     "0x02585e4a14da274d02df09b222d4606b10a4e940": {
         id: "hero"
+    },
+    "0xdae1baf249964bc4b6ac98c3122f0e3e785fd279": {
+        id: "tokia"
     }
 }
