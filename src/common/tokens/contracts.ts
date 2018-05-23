@@ -1615,5 +1615,8 @@ export const contracts = {
     },
     "0x48df4e0296f908ceab0428a5182d19b31fc037d6": {
         id: "fitrova"
+    },
+    "0x02585e4a14da274d02df09b222d4606b10a4e940": {
+        id: "hero"
     }
 }
