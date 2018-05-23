@@ -1612,5 +1612,8 @@ export const contracts = {
     },
     "0xc20464e0c373486d2b3335576e83a218b1618a5e": {
         id: "datarius-credit"
+    },
+    "0x48df4e0296f908ceab0428a5182d19b31fc037d6": {
+        id: "fitrova"
     }
 }
