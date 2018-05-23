@@ -1656,6 +1656,6 @@ export const contracts = {
         id: "colu-local-network"
     },
     "0x491c9a23db85623eed455a8efdd6aba9b911c5df": {
-        id: ""
+        id: "heronode"
     }
 }
