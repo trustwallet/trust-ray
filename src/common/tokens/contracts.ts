@@ -1633,5 +1633,8 @@ export const contracts = {
     },
     "0x2ef27bf41236bd859a95209e17a43fbd26851f92": {
         id: "morpheus-network"
+    },
+    "0x2859021ee7f2cb10162e67f33af2d22764b31aff": {
+        id: "silent-notary"
     }
 }
