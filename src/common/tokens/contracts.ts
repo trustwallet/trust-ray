@@ -1639,5 +1639,8 @@ export const contracts = {
     },
     "0x55296f69f40ea6d20e478533c15a6b08b654e758": {
         id: "xyo-network"
+    },
+    "0xf03045a4c8077e38f3b8e2ed33b8aee69edf869f": {
+        id: "blockmesh"
     }
 }
