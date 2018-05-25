@@ -1660,5 +1660,8 @@ export const contracts = {
     },
     "0x8400d94a5cb0fa0d041a3788e395285d61c9ee5e": {
         id: "unibright"
+    },
+    "0x6fb3e0a217407efff7ca062d46c26e5d60a14d69": {
+        id: "iotex"
     }
 }
