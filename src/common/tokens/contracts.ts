@@ -1663,5 +1663,8 @@ export const contracts = {
     },
     "0x6fb3e0a217407efff7ca062d46c26e5d60a14d69": {
         id: "iotex"
+    },
+    "0xece83617db208ad255ad4f45daf81e25137535bb": {
+        id: "invacio"
     }
 }
