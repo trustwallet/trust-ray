@@ -1669,5 +1669,8 @@ export const contracts = {
     },
     "0x1fe70be734e473e5721ea57c8b5b01e6caa52686": {
         id: "bitrent"
+    },
+    "0x1ccaa0f2a7210d76e1fdec740d5f323e2e1b1672": {
+        id: "faceter"
     }
 }
