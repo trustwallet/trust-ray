@@ -1678,5 +1678,8 @@ export const contracts = {
     },
     "0x5dbe296f97b23c4a6aa6183d73e574d02ba5c719": {
         id: "level-up"
+    },
+    "0x588047365df5ba589f923604aac23d673555c623": {
+        id: "naviaddress"
     }
 }
