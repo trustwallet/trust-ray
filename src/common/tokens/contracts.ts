@@ -1672,5 +1672,8 @@ export const contracts = {
     },
     "0x1ccaa0f2a7210d76e1fdec740d5f323e2e1b1672": {
         id: "faceter"
+    },
+    "0x00c4b398500645eb5da00a1a379a88b11683ba01": {
+        id: "eximchain"
     }
 }
