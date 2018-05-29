@@ -1681,5 +1681,8 @@ export const contracts = {
     },
     "0x588047365df5ba589f923604aac23d673555c623": {
         id: "naviaddress"
+    },
+    "0xa9d2927d3a04309e008b6af6e2e282ae2952e7fd": {
+        id: "zip"
     }
 }
