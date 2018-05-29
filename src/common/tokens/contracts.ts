@@ -1684,5 +1684,8 @@ export const contracts = {
     },
     "0xa9d2927d3a04309e008b6af6e2e282ae2952e7fd": {
         id: "zip"
+    },
+    "0x1dEa979ae76f26071870F824088dA78979eb91C8": {
+        id: "spindle"
     }
 }
