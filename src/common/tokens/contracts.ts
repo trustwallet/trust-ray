@@ -1675,5 +1675,8 @@ export const contracts = {
     },
     "0x00c4b398500645eb5da00a1a379a88b11683ba01": {
         id: "eximchain"
+    },
+    "0x5dbe296f97b23c4a6aa6183d73e574d02ba5c719": {
+        id: "level-up"
     }
 }
