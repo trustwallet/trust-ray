@@ -1666,5 +1666,8 @@ export const contracts = {
     },
     "0xece83617db208ad255ad4f45daf81e25137535bb": {
         id: "invacio"
+    },
+    "0x1fe70be734e473e5721ea57c8b5b01e6caa52686": {
+        id: "bitrent"
     }
 }
