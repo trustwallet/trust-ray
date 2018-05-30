@@ -23,15 +23,14 @@ export class TokensParser {
     }
 
     startParsingNextBlock(block: number, lastBlock: number) {
-        let rebalanceBlock = block - this.rebalanceOffsets
-        let promises = [this.parseBlock(block)]
+        const rebalanceBlock = block - this.rebalanceOffsets
+        const promises = [this.parseBlock(block)]
         if (rebalanceBlock > 0) {
             promises.push(this.parseBlock(rebalanceBlock))
         }
-        Promise.all(promises).then(function(values) {
+        Promise.all(promises).then(() => {
             return LastParsedBlock.findOneAndUpdate({}, {lastTokensBlock: block}, {new: true}).exec().then((res: any) => res.lastTokensBlock)
         }).then(lastTokensBlock => {
-            console.log("lastTokensBlock", lastTokensBlock);
             const nextBlock: number = lastTokensBlock + 1
             if (nextBlock <= lastBlock) {
                 setDelay(10).then(() => { this.startParsingNextBlock(nextBlock, lastBlock)} )
