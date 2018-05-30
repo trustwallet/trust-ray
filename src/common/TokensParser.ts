@@ -24,8 +24,9 @@ export class TokensParser {
 
     startParsingNextBlock(block: number, lastBlock: number) {
         const rebalanceBlock = block - this.rebalanceOffsets
+        const rebalanceBlockActive = (lastBlock - block < 20)
         const promises = [this.parseBlock(block)]
-        if (rebalanceBlock > 0) {
+        if (rebalanceBlock > 0 && rebalanceBlockActive) {
             promises.push(this.parseBlock(rebalanceBlock))
         }
         Promise.all(promises).then(() => {
