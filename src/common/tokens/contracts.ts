@@ -1687,5 +1687,8 @@ export const contracts = {
     },
     "0x1dEa979ae76f26071870F824088dA78979eb91C8": {
         id: "spindle"
+    },
+    "0x3adfc4999f77d04c8341bac5f3a76f58dff5b37a": {
+        id: "privatix"
     }
 }
