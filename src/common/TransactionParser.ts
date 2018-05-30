@@ -3,7 +3,7 @@ import { Transaction } from "../models/TransactionModel";
 import { TransactionOperation } from "../models/TransactionOperationModel";
 import { removeScientificNotationFromNumbString } from "./Utils";
 import { Config } from "./Config";
-import { Promise } from "bluebird";
+import * as Bluebird from "bluebird";
 import { IDecodedLog, IContract, ITransaction, IBlock, IExtractedTransaction, ISavedTransaction } from "./CommonInterfaces";
 const erc20abi = require("./contracts/Erc20Abi");
 const erc20ABIDecoder = require("abi-decoder");
@@ -94,11 +94,11 @@ export class TransactionParser {
     public parseTransactionOperations(transactions: ISavedTransaction[], contracts: IContract[]) {
         if (!transactions || !contracts) return Promise.resolve();
 
-        return Promise.map(transactions, (transaction) => {
+        return Bluebird.map(transactions, (transaction) => {
             const decodedLogs = erc20ABIDecoder.decodeLogs(transaction.receipt.logs).filter((decodedLog?: IDecodedLog) => decodedLog);
 
             if (decodedLogs.length > 0) {
-                return Promise.mapSeries(decodedLogs, (decodedLog: IDecodedLog, index: number) => {
+                return Bluebird.mapSeries(decodedLogs, (decodedLog: IDecodedLog, index: number) => {
                     if (decodedLog.name === this.OperationTypes.Transfer) {
                         const contract = contracts.find((contract: IContract) => contract.address === decodedLog.address.toLowerCase());
                         if (contract) {
@@ -153,34 +153,50 @@ export class TransactionParser {
         })
     }
 
-    // https://gist.github.com/jdkanani/e76baa731a2b0cb6bbff26d085476722
-    private fetchTransactionReceipts (transactions: any) {
-        return new Promise((resolve, reject) => {
-          const result: any = [];
-          let completed = false;
-          const callback = (err: Error, receipt: any) => {
-            if (completed) return;
-            if (err || !receipt) {
-                completed = true;
-                return reject(err);
-            }
-            result.push(err ? null : receipt);
-            if (result.length >= transactions.length) {
-                completed = true;
-                resolve(result);
-            }
-          };
+    private async fetchTransactionReceipts (transactions: any) {
+        const batchLimit = 300
+        const chunk = (list, size) => list.reduce((r, v) =>
+            (!r.length || r[r.length - 1].length === size ?
+            r.push([v]) : r[r.length - 1].push(v)) && r
+        , []);
+        const chunkTransactions = chunk(transactions, batchLimit)
 
-          if (transactions.length > 0) {
-            const batch = new Config.web3.BatchRequest();
-            transactions.forEach((tx: any) => {
-                batch.add(Config.web3.eth.getTransactionReceipt.request(tx, callback));
-            });
-            batch.execute();
-          } else {
-            resolve(result);
-          }
-        });
+        try {
+            const receipts = await Bluebird.map(chunkTransactions, (chunk: any) => {
+                return new Promise((resolve, reject) => {
+                  let completed = false;
+                  const chunkReceipts = [];
+                  const callback = (err: Error, receipt: any) => {
+                    if (completed) return;
+                    if (err || !receipt) {
+                        completed = true;
+                        reject(err);
+                    }
+
+                    chunkReceipts.push(err ? null : receipt);
+                    if (chunkReceipts.length >= chunk.length) {
+                        completed = true;
+                        resolve(chunkReceipts);
+                    }
+                  };
+
+                  if (chunk.length > 0) {
+                    const batch = new Config.web3.BatchRequest();
+                    chunk.forEach((tx: any) => {
+                        batch.add(Config.web3.eth.getTransactionReceipt.request(tx, callback));
+                    });
+                    batch.execute();
+                  } else {
+                    resolve(chunkReceipts);
+                  }
+                });
+            })
+
+            return [].concat(...receipts)
+        } catch (error) {
+            winston.error(`Error getting transtaction receipt `, error)
+            Promise.reject(error)
+        }
     }
 
     static getTransactions(blockNumber: number): Promise<any[]> {
