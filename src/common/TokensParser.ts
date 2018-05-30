@@ -8,6 +8,8 @@ import { BlockchainState } from "./BlockchainState";
 
 export class TokensParser {
 
+    private rebalanceOffsets: number = 20
+    
     start() {
         BlockchainState.getBlockState().then(([blockInChain, blockInDb]) => {
             const lastBlock: number = blockInDb.lastBlock
@@ -21,9 +23,15 @@ export class TokensParser {
     }
 
     startParsingNextBlock(block: number, lastBlock: number) {
-        this.parseBlock(block).then((lastTokensBlock) => {
+        let rebalanceBlock = block - this.rebalanceOffsets
+        let promises = [this.parseBlock(block)]
+        if (rebalanceBlock > 0) {
+            promises.push(this.parseBlock(rebalanceBlock))
+        }
+        Promise.all(promises).then(function(values) {
             return LastParsedBlock.findOneAndUpdate({}, {lastTokensBlock: block}, {new: true}).exec().then((res: any) => res.lastTokensBlock)
         }).then(lastTokensBlock => {
+            console.log("lastTokensBlock", lastTokensBlock);
             const nextBlock: number = lastTokensBlock + 1
             if (nextBlock <= lastBlock) {
                 setDelay(10).then(() => { this.startParsingNextBlock(nextBlock, lastBlock)} )
