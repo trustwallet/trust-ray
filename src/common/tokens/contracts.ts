@@ -1690,5 +1690,8 @@ export const contracts = {
     },
     "0x3adfc4999f77d04c8341bac5f3a76f58dff5b37a": {
         id: "privatix"
+    },
+    "0x949bed886c739f1a3273629b3320db0c5024c719": {
+        id: "amis"
     }
 }
