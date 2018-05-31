@@ -69,7 +69,6 @@
     "mongoose": "^5.0.0",
     "mongoose-paginate": "^5.0.3",
     "morgan": "^1.7.0",
-    "node-cron": "^1.2.1",
     "request": "^2.78.0",
     "svg2png": "^4.1.1",
     "ts-node": "^6.0.0",
