@@ -28,6 +28,7 @@ export class StatusController {
 
             const latestBackwordBlockNumberInDB = lastParsedBlock.lastBackwardBlock;
             const blocksToSyncBackward = latestBackwordBlockNumberInDB;
+            const tokensToSync = latestBlockNumberInBC - lastParsedBlock.lastTokensBlock
 
             sendJSONresponse(res, 200, {
                 database: {
@@ -51,6 +52,7 @@ export class StatusController {
                 sync: {
                     blocksToSync,
                     blocksToSyncBackward,
+                    tokensToSync
                 },
                 version: packageJSON.version,
                 config: {
