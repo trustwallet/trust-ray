@@ -36,9 +36,9 @@ export class TokenPriceController {
 
     private filterTokenPrices(prices: any[], tokens: IToken[], currency: string): any {
         const altContract = "0x0000000000000000000000000000000000000000"; // ETH, EHC, POA, CLO
-        const pricesCoinmarket = prices[0];
-        const pricesMap: IPrice[] = pricesCoinmarket.reduce((map: any, obj: any) => {
-            map[obj.id] = obj;
+        const pricesCoinmarket = prices[0].data;
+        const pricesMap: IPrice[] = pricesCoinmarket.reduce((map: any, ticker: any) => {
+            map[ticker["website_slug"]] = ticker;
             return map;
         }, {});
 
@@ -49,36 +49,35 @@ export class TokenPriceController {
             "CLO": "callisto-network"
         }
 
-        const result1 = tokens.map((token: IToken) => {
-            const contract: string = token.contract;
-            const contractLowerCase: string = token.contract.toLowerCase();
-            const symbol: string = token.symbol;
-            const currencyLowerCase = currency.toLowerCase()
+        return tokens.map((token: IToken) => {
+            const contract: string = token.contract.toLowerCase()
+            const symbol: string = token.symbol.toUpperCase()
+            const currencyUpperCase = currency.toUpperCase()
 
             if (contract === altContract && altValues.hasOwnProperty(symbol)) {
                 const id = altValues[token.symbol];
                 const tokenPrice: IPrice = pricesMap[id];
-                const price = tokenPrice["price_" + currencyLowerCase]
+                const price = tokenPrice.quotes[currencyUpperCase]
                 return {
-                    id: tokenPrice.id,
+                    id: tokenPrice["website_slug"],
                     name: tokenPrice.name,
                     symbol,
-                    price,
-                    percent_change_24h: tokenPrice.percent_change_24h || "0",
-                    contract: contract,
+                    price: price.price,
+                    percent_change_24h: price.percent_change_24h || "0",
+                    contract,
                     image: this.getImageUrl(token.contract),
                 }
-            } else if (contracts.hasOwnProperty(contractLowerCase)) {
-                const id = contracts[contractLowerCase].id;
-                const tokenPrice: any = pricesMap[id] || {};
-                const price = tokenPrice["price_" + currencyLowerCase];
+            } else if (contracts.hasOwnProperty(contract)) {
+                const slug = contracts[contract].id;
+                const tokenPrice: any = pricesMap[slug] || {};
+                const price = tokenPrice.quotes[currencyUpperCase]
 
                 return {
-                    id: tokenPrice.id || "",
+                    id: tokenPrice["website_slug"] || "",
                     name: tokenPrice.name || "",
                     symbol: token.symbol || "",
-                    price: price || "",
-                    percent_change_24h: tokenPrice.percent_change_24h || "0",
+                    price: price.price || "",
+                    percent_change_24h: price.percent_change_24h || "0",
                     contract,
                     image: this.getImageUrl(contract),
                 }
@@ -94,8 +93,6 @@ export class TokenPriceController {
                 }
              }
         })
-
-        return result1;
     }
 
     private getImageUrl(contract: string): string {
@@ -120,7 +117,7 @@ export class TokenPriceController {
                     return [this.latestPrices[currency]];
 
                 } catch (error) {
-                    winston.error("getRemotePrices ", error);
+                    winston.error(`Error getting price from coinmarket`, error);
 
                     this.isUpdating[currency] = false;
 
@@ -137,7 +134,7 @@ export class TokenPriceController {
 
     private getCoinMarketCapPrices(currency: string) {
         return new BluebirbPromise((resolve, reject) => {
-            this.client.getTicker({limit: 0, convert: currency}).then((prices: any) => {
+            this.client.getTicker({limit: 0, convert: currency, structure: "array"}).then((prices: any) => {
                 resolve(prices);
             }).catch((error: Error) => {
                 reject(error);
