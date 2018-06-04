@@ -32,13 +32,13 @@ export class PriceController {
         });
     }
 
-    private filterPrices(prices: any[], symbols: string[], currency: string): any {
+    private filterPrices(prices: any, symbols: string[], currency: string): any {
         // Improve. Exclude duplicate symbols. order by market cap.
 
         const ignoredSymbols = new Set<string>(["CAT"]);
         const foundSymbols = new Set<any>();
         const foundPrices: any[] = [];
-        prices.forEach(price => {
+        prices.data.forEach(price => {
             const priceSymbol = price.symbol;
 
             if (ignoredSymbols.has(priceSymbol)) return;
@@ -49,13 +49,12 @@ export class PriceController {
             }
         })
         return foundPrices.map((price) => {
-            const priceKey = "price_" + currency.toLowerCase();
             return {
-                id: price.id,
+                id: price.website_slug,
                 name: price.name,
                 symbol: price.symbol,
-                price: price[priceKey] || "0",
-                percent_change_24h: price.percent_change_24h || "0",
+                price: price.quotes[currency].price || "0",
+                percent_change_24h: price.quotes[currency].percent_change_24h || "0",
                 image: this.imageForPrice(price),
             }
         })
@@ -92,7 +91,7 @@ export class PriceController {
 
     private getCoinMarketCapPrices(currency: string) {
         return new Promise((resolve, reject) => {
-            this.client.getTicker({limit: 0, convert: currency}).then((prices: any) => {
+            this.client.getTicker({limit: 0, convert: currency, structure: "array"}).then((prices: any) => {
                 resolve(prices);
             });
         });
