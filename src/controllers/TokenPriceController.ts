@@ -55,29 +55,34 @@ export class TokenPriceController {
             const currencyUpperCase = currency.toUpperCase()
 
             if (contract === altContract && altValues.hasOwnProperty(symbol)) {
-                const id = altValues[token.symbol];
-                const tokenPrice: IPrice = pricesMap[id];
-                const price = tokenPrice.quotes[currencyUpperCase]
+                const slug = altValues[token.symbol];
+                const tokenPrice: IPrice = pricesMap[slug];
+                const currencyPrice = tokenPrice.quotes[currencyUpperCase]
+                const price: string = currencyPrice.price.toString()
+                const percent_change_24h: string = currencyPrice.percent_change_24h.toString() || "0"
+
                 return {
                     id: tokenPrice["website_slug"],
                     name: tokenPrice.name,
                     symbol,
-                    price: price.price,
-                    percent_change_24h: price.percent_change_24h || "0",
+                    price,
+                    percent_change_24h,
                     contract,
                     image: this.getImageUrl(token.contract),
                 }
             } else if (contracts.hasOwnProperty(contract)) {
                 const slug = contracts[contract].id;
                 const tokenPrice: any = pricesMap[slug] || {};
-                const price = tokenPrice.quotes[currencyUpperCase]
+                const currencyPrice = tokenPrice.quotes[currencyUpperCase]
+                const price: string = currencyPrice.price.toString() || ""
+                const percent_change_24h: string = currencyPrice.percent_change_24h.toString() || "0"
 
                 return {
                     id: tokenPrice["website_slug"] || "",
                     name: tokenPrice.name || "",
                     symbol: token.symbol || "",
-                    price: price.price || "",
-                    percent_change_24h: price.percent_change_24h || "0",
+                    price,
+                    percent_change_24h,
                     contract,
                     image: this.getImageUrl(contract),
                 }
