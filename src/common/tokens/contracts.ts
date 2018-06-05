@@ -1702,5 +1702,8 @@ export const contracts = {
     },
     "0x6175f6f85339f1e56affac5a68cbf8297969004d": {
         id: "shopin"
+    },
+    "0xb9bb08ab7e9fa0a1356bd4a39ec0ca267e03b0b3": {
+        id: "pchain"
     }
 }
