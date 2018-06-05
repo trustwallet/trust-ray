@@ -1714,5 +1714,8 @@ export const contracts = {
     },
     "0xc528c28fec0a90c083328bc45f587ee215760a0f": {
         id: "endor-protocol"
+    },
+    "0xa4ea687a2a7f29cf2dc66b39c68e4411c0d00c49": {
+        id: "ivy"
     }
 }
