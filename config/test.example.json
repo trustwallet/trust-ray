@@ -10,6 +10,12 @@
             "KEYID": "FILL_ME_IN",
             "TEAMID": "FILL_ME_IN",
             "BUNDLE": "FILL_ME_IN"
+        },
+        "FCM": {
+            "PROJECT_ID": "FCM_PROJECT_ID",
+            "CLIENT_EMAIL": "FCM_CLIENT_EMAIL",
+            "PRIVATE_KEY": "FCM_PRIVATE_KEY",
+            "DATABASE_URL": "FCM_DATABASE_URL"
         }
     }
 }
