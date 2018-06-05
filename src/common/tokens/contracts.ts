@@ -1705,5 +1705,8 @@ export const contracts = {
     },
     "0xb9bb08ab7e9fa0a1356bd4a39ec0ca267e03b0b3": {
         id: "pchain"
+    },
+    "0xb6ed7644c69416d67b522e20bc294a9a9b405b31": {
+        id: "0xbtc"
     }
 }
