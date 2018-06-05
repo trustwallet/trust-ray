@@ -1708,5 +1708,8 @@ export const contracts = {
     },
     "0xb6ed7644c69416d67b522e20bc294a9a9b405b31": {
         id: "0xbtc"
+    },
+    "0x84f7c44b6fed1080f647e354d552595be2cc602f": {
+        id: "bigbom"
     }
 }
