@@ -1711,5 +1711,8 @@ export const contracts = {
     },
     "0x84f7c44b6fed1080f647e354d552595be2cc602f": {
         id: "bigbom"
+    },
+    "0xc528c28fec0a90c083328bc45f587ee215760a0f": {
+        id: "endor-protocol"
     }
 }
