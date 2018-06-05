@@ -1699,5 +1699,8 @@ export const contracts = {
     },
     "0xea26c4ac16d4a5a106820bc8aee85fd0b7b2b664": {
         id: "quarkchain"
+    },
+    "0x6175f6f85339f1e56affac5a68cbf8297969004d": {
+        id: "shopin"
     }
 }
