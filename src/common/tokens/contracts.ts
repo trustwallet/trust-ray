@@ -1717,5 +1717,8 @@ export const contracts = {
     },
     "0xa4ea687a2a7f29cf2dc66b39c68e4411c0d00c49": {
         id: "ivy"
+    },
+    "0xac0741127cac11e4455c7943b654bcced7fdd5a4": {
+        id: "ejoy"
     }
 }
