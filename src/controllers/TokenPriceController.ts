@@ -75,7 +75,7 @@ export class TokenPriceController {
                 const tokenPrice: any = pricesMap[slug] || {};
                 const currencyPrice = tokenPrice.quotes[currencyUpperCase]
                 const price: string = currencyPrice.price.toString() || ""
-                const percent_change_24h: string = currencyPrice.percent_change_24h.toString() || "0"
+                const percent_change_24h: string = currencyPrice.percent_change_24h ? currencyPrice.percent_change_24h.toString() : "0"
 
                 return {
                     id: tokenPrice["website_slug"] || "",
