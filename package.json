@@ -62,6 +62,7 @@
     "express-flash": "^0.0.2",
     "express-session": "^1.14.2",
     "express-validator": "^5.1.1",
+    "firebase-admin": "^5.12.1",
     "fs": "0.0.2",
     "lodash.flattendeep": "^4.4.0",
     "lodash.uniqby": "^4.7.0",
