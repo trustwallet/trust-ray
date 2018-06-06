@@ -30,7 +30,7 @@ export class Notification {
     }
 
     process(transaction: any, device: any) {
-        winston.info(`Processing device transaction block: ${transaction.blockNumber} id: ${transaction._id}, ${JSON.stringify(device)}`);
+        winston.info(`Processing device transaction block: ${transaction.blockNumber} ${device.deviceID ? device.deviceID : device.token}`);
 
         const transactionType = this.getTransactionType(transaction);
         const addresses: string[] = transaction.addresses;

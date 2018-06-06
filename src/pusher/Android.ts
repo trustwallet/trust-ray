@@ -1,12 +1,8 @@
 import * as admin from "firebase-admin";
-import * as Bluebird from "bluebird";
 import * as winston from "winston";
 const config = require("config");
-import { getValueInEth } from "../common/ValueConverter";
-import {  TransactionType, TransactionAction } from "./Interfaces/INotification";
 
 export default class Firebase {
-    private firebase
 
     constructor() {
         admin.initializeApp({
@@ -21,25 +17,26 @@ export default class Firebase {
 
 
     send(deviceToken, title, from) {
-        const message = this.createMeassage(deviceToken, title, from)
+        const message = this.createMeassage(title, from)
+        const options: admin.messaging.MessagingOptions = {
+            priority: "high",
+        }
 
-        admin.messaging().send(message)
+        admin.messaging().sendToDevice(deviceToken, message, options)
             .then((response: any) => {
-                winston.info(`Successfully sent message ${response}`)
+                winston.info(`FCM successfully sent message to device ${deviceToken} from`, response)
             })
             .catch((error: Error) => {
-                winston.error(`Error sending message to firebase ${error}`)
+                winston.error(`FCM failed to send message`, error)
             })
     }
 
-    createMeassage(token, title, body) {
+    private createMeassage(title, body): admin.messaging.MessagingPayload  {
         return {
             notification: {
                 title,
                 body
             },
-            token
         }
     }
-
 }
