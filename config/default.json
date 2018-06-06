@@ -10,6 +10,12 @@
             "KEYID": "",
             "TEAMID": "",
             "BUNDLE": ""
+        },
+        "FCM": {
+            "PROJECT_ID": "",
+            "CLIENT_EMAIL": "",
+            "PRIVATE_KEY": "",
+            "DATABASE_URL": ""
         }
     },
     "PARSER": {
