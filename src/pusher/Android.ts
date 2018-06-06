@@ -9,7 +9,7 @@ export default class Firebase {
             credential: admin.credential.cert({
                 projectId: config.get("PUSHER.FCM.PROJECT_ID"),
                 clientEmail: config.get("PUSHER.FCM.CLIENT_EMAIL"),
-                privateKey: config.get("PUSHER.FCM.PRIVATE_KEY"),
+                privateKey: config.get("PUSHER.FCM.PRIVATE_KEY").replace(/\\n/g, "\n"),
             }),
             databaseURL: config.get("PUSHER.FCM.DATABASE_URL")
         });
