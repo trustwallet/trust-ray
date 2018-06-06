@@ -1723,5 +1723,8 @@ export const contracts = {
     },
     "0xb1eef147028e9f480dbc5ccaa3277d417d1b85f0": {
         id: "seele"
+    },
+    "0x697beac28b09e122c4332d163985e8a73121b97f": {
+        id: "quantum-resistant-ledger"
     }
 }
