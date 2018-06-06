@@ -81,6 +81,20 @@ export class BlockTransactionParser {
         return Promise.resolve(results);
     }
 
+    public updateDatabase(transactions: any) {
+        const bulkTransactions = Transaction.collection.initializeUnorderedBulkOp();
+
+        transactions.forEach((transaction: IExtractedTransaction) =>
+            bulkTransactions.find({_id: transaction._id}).upsert().replaceOne(transaction)
+        );
+
+        if (bulkTransactions.length === 0) return Promise.resolve();
+
+        return bulkTransactions.execute().then((bulkResult: any) => {
+            return Promise.resolve(transactions);
+        });
+    }
+
     // ###### private methods ######
 
     private getRawTransactions(block): any[] {
