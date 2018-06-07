@@ -1726,5 +1726,8 @@ export const contracts = {
     },
     "0x697beac28b09e122c4332d163985e8a73121b97f": {
         id: "quantum-resistant-ledger"
+    },
+    "0xfd1e80508f243e64ce234ea88a5fd2827c71d4b7": {
+        id: "medx"
     }
 }
