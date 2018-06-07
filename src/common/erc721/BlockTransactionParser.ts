@@ -1,10 +1,19 @@
-import { Transaction } from "../../models/TransactionModel";
-import { IBlock, IExtractedTransaction, ITransaction } from "../CommonInterfaces";
 import * as Bluebird from "bluebird";
 import * as winston from "winston";
+
+import { Transaction } from "../../models/TransactionModel";
+import { IBlock, IExtractedTransaction, ITransaction } from "../CommonInterfaces";
 import { Config } from "../Config";
 
 export class BlockTransactionParser {
+    public async parse(block): Promise<any[]> {
+        const transactions = this.extractTransactions(block);
+        const transactionIDs = this.getTransactionIDs(transactions);
+        const receipts = await this.fetchReceiptsFromTransactionIDs(transactionIDs);
+        const mergedTransactions = this.mergeTransactionsAndReceipts(transactions, receipts);
+        return Promise.resolve(mergedTransactions);
+    }
+
     public extractTransactions(block): any[] {
         return this.getRawTransactions(block).map((tx: ITransaction) => {
             return new Transaction(this.extractTransaction(block, tx));
