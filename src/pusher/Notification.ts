@@ -4,12 +4,14 @@ import { Promise } from "bluebird";
 import { Config } from "../common/Config";
 import { getValueInEth } from "../common/ValueConverter";
 import {  TransactionType, TransactionAction } from "./Interfaces/INotification";
+import Firebase from "./Android";
 
 const PushNotifications = require("@shackpank/node-pushnotifications");
 const config = require("config");
 
 export class Notification {
-    private push: any;
+    private push
+    private firebase
     private networkSymbol = config.get("NETWORK_SYMBOL") || "ETH";
     private settings = {
         apn: {
@@ -24,10 +26,11 @@ export class Notification {
 
     constructor() {
          this.push = new PushNotifications(this.settings);
+         this.firebase = new Firebase();
     }
 
     process(transaction: any, device: any) {
-        winston.info(`Processing device transaction block: ${transaction.blockNumber} id: ${transaction._id}, ${JSON.stringify(device)}`);
+        winston.info(`Processing device transaction block: ${transaction.blockNumber} ${device.deviceID ? device.deviceID : device.token}`);
 
         const transactionType = this.getTransactionType(transaction);
         const addresses: string[] = transaction.addresses;
@@ -42,24 +45,32 @@ export class Notification {
                     const title = `${transactionAction} ${getValueInEth(transaction.value, 18)} ${this.networkSymbol} from`;
                     const ethMessage = this.createMeassage(title, from);
 
-                    return this.send(token, ethMessage).then((notificationResult: any) => {
-                        winston.info("Notification result :", JSON.stringify(notificationResult));
-                    });
+                    if (device.type === "android") {
+                        this.firebase.send(token, title, from)
+                    } else {
+                        return this.send(token, ethMessage).then((notificationResult: any) => {
+                            winston.info("Notification result :", JSON.stringify(notificationResult));
+                        });
+                    }
                 }
 
                 if (transactionType === "token_transfer") {
                     const operations = transaction.operations.filter((operation: any) => operation.to === wallet);
+
                     return Promise.map(operations, (operation: any) => {
                         const decimal: number = operation.contract.decimals;
                         const symbol: string = operation.contract.symbol;
                         const value: string = operation.value;
 
                         const title = `${transactionAction} ${getValueInEth(value, decimal)} ${symbol} from`;
-                        const tokenMessage = this.createMeassage(title, from);
-
-                        return this.send(token, tokenMessage).then((notificationResult: any) => {
-                            winston.info("Notification result :", JSON.stringify(notificationResult));
-                        });
+                        if (device.type === "android") {
+                            this.firebase.send(token, title, from)
+                        } else {
+                            const tokenMessage = this.createMeassage(title, from);
+                            return this.send(token, tokenMessage).then((notificationResult: any) => {
+                                winston.info("Notification result :", JSON.stringify(notificationResult));
+                            });
+                        }
                     })
                 }
             }
