@@ -1,11 +1,20 @@
 import * as winston from "winston";
 
+import { loadContractABIs } from "../Utils";
+
 export class ERC721Parser {
     private abiDecoder = require("abi-decoder");
+    private abiList = loadContractABIs();
 
     // ERC20    - Transfer
     // ERC721   - Transfer, Approval, approve
     private operationTypes = ["Transfer", "Approval", "approve"];
+
+    constructor() {
+        for (const abi of this.abiList) {
+            this.abiDecoder.addABI(abi);
+        }
+    }
 
     public extractContracts(transactions: any[]): Promise<any[]> {
             if (!transactions) return Promise.resolve([]);
@@ -20,7 +29,8 @@ export class ERC721Parser {
                 if (decodedLogs.length === 0) return;
 
                 decodedLogs.forEach((decodedLog: any) => {
-                    if (this.operationTypes.indexOf(decodedLog.name)) {
+                    if (this.operationTypes.indexOf(decodedLog.name) >= 0) {
+                        winston.info(`ERC721Parser.extractContracts(), decodedLog.name: ${decodedLog.name}, transaction: ${transaction._id}, contract: ${decodedLog.address.toLowerCase()}`)
                         contractAddresses.push(decodedLog.address.toLowerCase());
                     }
                 })

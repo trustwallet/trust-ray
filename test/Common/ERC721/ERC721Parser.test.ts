@@ -16,8 +16,12 @@ describe("Test ERC721Parser", () => {
         const transactions = await blockTransactionParser.parse(block);
         const contractAddresses = await erc721Parser.extractContracts(transactions);
 
-        expect(contractAddresses.length).to.equal(0);
+        expect(transactions.length).to.equal(178);
+        expect(contractAddresses.length).to.equal(33);
 
-        // TODO: loop from block number 1 to see
+        // has 3 Approval transactions
+        expect(contractAddresses.hasOwnProperty("0x80a7e048f37a50500351c204cb407766fa3bae7f"));
+        expect(contractAddresses.hasOwnProperty("0x1460a58096d80a50a2f1f956dda497611fa4f165"));
+        expect(contractAddresses.hasOwnProperty("0x87d598064c736dd0c712d329afcfaa0ccc1921a1"));
     })
 })
