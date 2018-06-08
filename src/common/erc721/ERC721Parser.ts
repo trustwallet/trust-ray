@@ -1,13 +1,14 @@
 import * as winston from "winston";
+import * as BluebirdPromise from "bluebird";
 
 import { loadContractABIs } from "../Utils";
+import { Config } from "../Config";
+import { nameABI, ownerOfABI, standardERC721ABI } from "../abi/ABI";
 
 export class ERC721Parser {
     private abiDecoder = require("abi-decoder");
     private abiList = loadContractABIs();
 
-    // ERC20    - Transfer
-    // ERC721   - Transfer, Approval, approve
     private operationTypes = ["Transfer", "Approval", "approve"];
 
     constructor() {
@@ -39,6 +40,48 @@ export class ERC721Parser {
             const uniqueContractAddresses = [...(new Set(contractAddresses))];
 
             return Promise.resolve(uniqueContractAddresses);
+    }
+
+    public convertHexToAscii(symbol: string): string {
+        if (symbol.startsWith("0x")) {
+            return Config.web3.utils.hexToAscii(symbol).replace(/\u0000*$/, "");
+        }
+        return symbol;
+    }
+
+    public getERC721Contract = async (contractAddress) => {
+        try {
+            const contract = await this.getContractInstance(contractAddress, standardERC721ABI)
+
+            if (contract.indexOf(undefined) != -1) {
+                throw new Error()
+            }
+
+            winston.info(`Successfully got ERC721 contract ${contractAddress}`)
+
+            return {
+                name: contract[0],
+                symbol: contract[1],
+                totalSupply: contract[2],
+                implementsERC721: contract[3],
+            }
+        } catch (error) {
+            winston.error(`Error getting ${contractAddress} as an ERC721 contract`, error)
+            Promise.resolve()
+        }
+    }
+
+    public getContractInstance = async (contractAddress, ABI, ... args: any[]) => {
+        const contractPromise = BluebirdPromise.map(ABI, async (abi: any) => {
+            try {
+                const contractInstance = new Config.web3.eth.Contract([abi], contractAddress);
+                return await contractInstance.methods[abi.name](...args).call()
+            } catch (error) {
+                winston.error(`Error getting ${contractAddress} as an ERC721 contract instance, method ${abi.name}\n${error}`)
+                Promise.resolve()
+            }
+        })
+        return contractPromise
     }
 
     /*
