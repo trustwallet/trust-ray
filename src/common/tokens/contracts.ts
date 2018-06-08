@@ -1738,5 +1738,8 @@ export const contracts = {
     },
     "0x81b4d08645da11374a03749ab170836e4e539767": {
         id: "paymon"
+    },
+    "0xcdb7ecfd3403eef3882c65b761ef9b5054890a47": {
+        id: "hurify"
     }
 }
