@@ -21,23 +21,35 @@ export class ERC721Parser {
         }
     }
 
+    public extractDecodedLogsFromTransaction(transaction): any[] {
+        const results = [];
+
+        if (transaction.receipt.logs.length === 0 ) return results;
+
+        const decodedLogs = this.abiDecoder.decodeLogs(transaction.receipt.logs).filter((log: any) => log);
+
+        if (decodedLogs.length === 0) return results;
+
+        decodedLogs.forEach((decodedLog: any) => {
+            if (this.operationTypes.indexOf(decodedLog.name) >= 0) {
+                results.push(decodedLog);
+            }
+        })
+
+        return results;
+    }
+
     public extractContracts(transactions: any[]): Promise<any[]> {
             if (!transactions) return Promise.resolve([]);
 
             const contractAddresses: string[] = [];
 
             transactions.map((transaction: any) => {
-                if (transaction.receipt.logs.length === 0 ) return;
-
-                const decodedLogs = this.abiDecoder.decodeLogs(transaction.receipt.logs).filter((log: any) => log);
-
-                if (decodedLogs.length === 0) return;
+                const decodedLogs = this.extractDecodedLogsFromTransaction(transaction);
 
                 decodedLogs.forEach((decodedLog: any) => {
-                    if (this.operationTypes.indexOf(decodedLog.name) >= 0) {
-                        winston.info(`ERC721Parser.extractContracts(), decodedLog.name: ${decodedLog.name}, transaction: ${transaction._id}, contract: ${decodedLog.address.toLowerCase()}`)
-                        contractAddresses.push(decodedLog.address.toLowerCase());
-                    }
+                    winston.info(`ERC721Parser.extractContracts(), decodedLog.name: ${decodedLog.name}, transaction: ${transaction._id}, contract: ${decodedLog.address.toLowerCase()}`)
+                    contractAddresses.push(decodedLog.address.toLowerCase());
                 })
             });
 
