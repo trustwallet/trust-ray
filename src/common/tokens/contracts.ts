@@ -1741,5 +1741,8 @@ export const contracts = {
     },
     "0xcdb7ecfd3403eef3882c65b761ef9b5054890a47": {
         id: "hurify"
+    },
+    "0x3209f98bebf0149b769ce26d71f7aea8e435efea": {
+        id: "traxia"
     }
 }
