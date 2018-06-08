@@ -4,12 +4,16 @@ import * as BluebirdPromise from "bluebird";
 import { loadContractABIs } from "../Utils";
 import { Config } from "../Config";
 import { nameABI, ownerOfABI, standardERC721ABI } from "../abi/ABI";
+import { ERC721Contract } from "../../models/Erc721ContractModel";
+import { contracts } from "../tokens/contracts";
 
 export class ERC721Parser {
     private abiDecoder = require("abi-decoder");
     private abiList = loadContractABIs();
 
     private operationTypes = ["Transfer", "Approval", "approve"];
+
+    private cachedContracts = {};
 
     constructor() {
         for (const abi of this.abiList) {
@@ -42,13 +46,6 @@ export class ERC721Parser {
             return Promise.resolve(uniqueContractAddresses);
     }
 
-    public convertHexToAscii(symbol: string): string {
-        if (symbol.startsWith("0x")) {
-            return Config.web3.utils.hexToAscii(symbol).replace(/\u0000*$/, "");
-        }
-        return symbol;
-    }
-
     public getERC721Contract = async (contractAddress) => {
         try {
             const contract = await this.getContractInstance(contractAddress, standardERC721ABI)
@@ -60,6 +57,7 @@ export class ERC721Parser {
             winston.info(`Successfully got ERC721 contract ${contractAddress}`)
 
             return {
+                address: contractAddress,
                 name: contract[0],
                 symbol: contract[1],
                 totalSupply: contract[2],
@@ -71,7 +69,65 @@ export class ERC721Parser {
         }
     }
 
-    public getContractInstance = async (contractAddress, ABI, ... args: any[]) => {
+    public getContractName = async (contractAddress: string) => {
+        try {
+            const contractPromises = await this.getContractInstance(contractAddress, nameABI)
+            const nameResults = await BluebirdPromise.all(contractPromises).then((names: any) => {
+                const name =  names.filter((name: any) => typeof name === "string" && name.length > 0)
+                return name
+            })
+            let name = nameResults.length > 0 ? nameResults[0] : "";
+            if (name.startsWith("0x")) {
+                name = this.convertHexToAscii(name)
+            }
+            return name;
+        } catch (error) {
+            winston.error(`Error getting contract ${contractAddress} name`)
+            Promise.resolve()
+        }
+    }
+
+    public getContractOwnerOf = async (contractAddress: string, tokenId: string) => {
+        try {
+            const contractPromises = await this.getContractInstance(contractAddress, ownerOfABI, tokenId)
+            const ownerResults = await BluebirdPromise.all(contractPromises).then((owners: any) => {
+                const owner =  owners.filter((owner: any) => typeof owner === "string" && owner.length > 0)
+                return owner
+            })
+            return ownerResults.length > 0 ? ownerResults[0] : "";
+        } catch (error) {
+            winston.error(`Error getting ERC721 contract ${contractAddress} owner`)
+            Promise.resolve()
+        }
+    }
+
+    public updateDatabase(erc721Contract): Promise<any> {
+        erc721Contract.verified = this.isContractVerified(erc721Contract.address);
+        erc721Contract.enabled = true;
+
+        return ERC721Contract.findOneAndUpdate(
+            {address: erc721Contract.address},
+            erc721Contract,
+            {new: true, upsert: true}
+        ).exec().then((contract: any) => {
+            return Promise.resolve(contract);
+        }).catch((err: Error) => {
+            winston.error(`ERC721Parser.updateDatabase(erc721Contract) error for contract ${erc721Contract}: ${err}`);
+        });
+    }
+
+    // ###### private methods ######
+
+    private isContractVerified = (address: string): boolean => contracts[address] ? true : false;
+
+    private convertHexToAscii(symbol: string): string {
+        if (symbol.startsWith("0x")) {
+            return Config.web3.utils.hexToAscii(symbol).replace(/\u0000*$/, "");
+        }
+        return symbol;
+    }
+
+    private getContractInstance = async (contractAddress, ABI, ... args: any[]) => {
         const contractPromise = BluebirdPromise.map(ABI, async (abi: any) => {
             try {
                 const contractInstance = new Config.web3.eth.Contract([abi], contractAddress);
@@ -83,19 +139,4 @@ export class ERC721Parser {
         })
         return contractPromise
     }
-
-    /*
-    public parse(block) {
-        const transactions = this.parseTransactionsInBlock(block);
-        const erc721Contracts = this.parseERC721ContractsFromTransactions(transactions);
-        this.updateDatabase(transactions, erc721Contracts);
-    }
-
-    public parseTransactionsInBlock(block) {
-        const transactions = this.extractTransactionsFromBlock(block);
-        const receipts = this.fetchReceiptsFromTransactions(transactions);
-        const mergedTransactions = this.mergeTransactionsAndReceipts(transactions, receipts);
-        return Promise.resolve(mergedTransactions);
-    }
-    */
 }
