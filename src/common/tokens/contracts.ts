@@ -1732,5 +1732,8 @@ export const contracts = {
     },
     "0xb5dbc6d3cf380079df3b27135664b6bcf45d1869": {
         id: "shivom"
+    },
+    "0x0e8d6b471e332f140e7d9dbb99e5e3822f728da6": {
+        id: "the-abyss"
     }
 }
