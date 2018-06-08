@@ -1,13 +1,11 @@
 import { Error } from "mongoose";
 import { LastParsedBlock } from "../models/LastParsedBlockModel";
-import { Transaction } from "../models/TransactionModel";
 import { TransactionParser } from "../common/TransactionParser";
 import { Device } from "../models/DeviceModel";
 import * as winston from "winston";
-import { Config } from "../common/Config";
 import * as utils from "../common/Utils"
 import { Notification } from "./Notification";
-import { Promise, reject } from "bluebird";
+import { Promise } from "bluebird";
 
 export class PusherScanner {
     private onErrordelay: number = 5000;
