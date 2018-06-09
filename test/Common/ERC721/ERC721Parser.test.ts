@@ -74,12 +74,17 @@ describe("Test ERC721Parser", () => {
             return txOps.type === "Approval"
         })[0];
 
+        expect(approvalTxOps.originalTransactionId).to.equal("0x39f5aa0e8782662503910daefa905876cd7b798dab3c15dc0f361ea98ab55cdb");
+        expect(approvalTxOps.transactionId).to.equal("0x39f5aa0e8782662503910daefa905876cd7b798dab3c15dc0f361ea98ab55cdb-0");
         expect(approvalTxOps.type).to.equal("Approval");
         expect(approvalTxOps.from).to.equal("0xdcf005aa5550f76cd32c925c06a570bc36b0ac6f");
         expect(approvalTxOps.to).to.equal("0xb2c3531f77ee0a7ec7094a0bc87ef4a269e0bcfc");
         expect(approvalTxOps.value).to.equal("0");
-        expect(approvalTxOps.transactionId).to.equal("0x39f5aa0e8782662503910daefa905876cd7b798dab3c15dc0f361ea98ab55cdb-0");
         expect(mongoose.Types.ObjectId.isValid(approvalTxOps.contract)).is.true;
+
+        const results = await erc721Parser.updateTransactionOperationsInDatabase(transactionOperations);
+
+        expect(results.length).to.equal(1);
     })
 
     it("Should get ERC721 contract", async () => {
@@ -98,7 +103,7 @@ describe("Test ERC721Parser", () => {
         expect(erc721Contract_CF).to.have.property("totalSupply").a("string");
         expect(erc721Contract_CF).to.have.property("implementsERC721").eql(true);
 
-        const result = await erc721Parser.updateContractInDatabase(erc721Contract_CF);
+        const result = await erc721Parser.updateERC721ContractInDatabase(erc721Contract_CF);
         // NOTE: check the database, delete the record then run the test, it should appear again.
     })
 })

@@ -100,6 +100,7 @@ export interface IBlock {
 }
 
 export interface ITransactionOperation {
+    originalTransactionId: string,
     transactionId: string,
     type: string,
     from: string,

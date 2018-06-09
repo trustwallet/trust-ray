@@ -106,15 +106,20 @@ export class ERC721Parser {
         }
     }
 
-    private updateDatabase(transactionId: string, index: number, from: string, to: string, value: string, erc20ContractId?: any): Promise<ITransactionOperation[]> {
-        const operation = this.createOperationObject(transactionId, index, from, to, value, erc20ContractId);
-        const indexedOperation = this.getIndexedOperation(transactionId, index);
+    public updateTransactionOperationsInDatabase(transactionOperations: any[]): Promise<any[]> {
+        return Promise.all(
+            transactionOperations.map((transactionOperation) => {
+                return this.updateTransactionOperationInDatabase(transactionOperation);
+            })
+        );
+    }
 
-        return TransactionOperation.findOneAndUpdate({transactionId: indexedOperation}, operation, {upsert: true, new: true})
+    private updateTransactionOperationInDatabase(transactionOperation): Promise<ITransactionOperation[]> {
+        return TransactionOperation.findOneAndUpdate({transactionId: transactionOperation.transactionId}, transactionOperation, {upsert: true, new: true})
             .then((operation: any) => {
-                return Transaction.findOneAndUpdate({_id: transactionId}, {$push: {operations: operation._id, addresses: {$each: [operation.to]}}})
+                return Transaction.findOneAndUpdate({_id: transactionOperation.originalTransactionId}, {$push: {operations: operation._id, addresses: {$each: [operation.to]}}})
                     .catch((error: Error) => {
-                        winston.error(`Could not update operation and address to transactionID ${transactionId} with error: ${error}`);
+                        winston.error(`Could not update operation and address to transactionID ${transactionOperation.transactionId} with error: ${error}`);
                     })
             }).catch((error: Error) => {
                 winston.error(`Could not save transaction operation with error: ${error}`);
@@ -123,12 +128,12 @@ export class ERC721Parser {
 
     public updateERC721ContractsInDatabase(erc721Contracts: any[]): Promise<any[]> {
         return Promise.all(erc721Contracts.map((contract) =>  {
-                return this.updateContractInDatabase(contract);
+                return this.updateERC721ContractInDatabase(contract);
             })
         )
     }
 
-    public updateContractInDatabase(erc721Contract: any): Promise<any> {
+    public updateERC721ContractInDatabase(erc721Contract: any): Promise<any> {
         erc721Contract.verified = this.isContractVerified(erc721Contract.address);
         erc721Contract.enabled = true;
 
@@ -218,14 +223,15 @@ export class ERC721Parser {
         return `${transactionId}-${index}`.toLowerCase();
     }
 
-    private createOperationObject(transactionId: string, index: number, from: string, to: string, value: string, type: string, contractID?: any): ITransactionOperation {
+    private createOperationObject(transactionId: string, index: number, from: string, to: string, value: string, type: string, contractId?: any): ITransactionOperation {
         return {
+            originalTransactionId: transactionId,
             transactionId: this.getIndexedOperation(transactionId, index),
             type: type,
             from: from.toLocaleLowerCase(),
             to: to,
             value: value,
-            contract: contractID,
+            contract: contractId,
         };
     }
 
