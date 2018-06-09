@@ -88,7 +88,7 @@ describe("Test BlockTransactionParser", () => {
         expect(mergedTransaction.receipt.logs[0].topics.length).to.equal(3);
         expect(mergedTransaction.receipt.logs[0].topics[0]).to.equal("0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef");
 
-        const results = await blockTransactionParser.updateDatabase(mergedTransactions);
+        const results = await blockTransactionParser.updateTransactionsDatabase(mergedTransactions);
 
         expect(results.length).to.equal(178);
         // NOTE: check the database to see

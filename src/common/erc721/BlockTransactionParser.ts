@@ -90,7 +90,7 @@ export class BlockTransactionParser {
         return Promise.resolve(results);
     }
 
-    public updateDatabase(transactions: any) {
+    public updateTransactionsDatabase(transactions: any) {
         const bulkTransactions = Transaction.collection.initializeUnorderedBulkOp();
 
         transactions.forEach((transaction: IExtractedTransaction) =>

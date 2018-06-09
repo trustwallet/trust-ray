@@ -52,7 +52,7 @@ describe("Test ERC721Parser", () => {
         expect(contracts[0].totalSupply).is.a("string");
         expect(contracts[0].implementsERC721).is.true;
 
-        const savedContracts = await erc721Parser.updateDatabase(contracts);
+        const savedContracts = await erc721Parser.updateERC721ContractsInDatabase(contracts);
 
         const decodedLogs = await erc721Parser.extractDecodedLogsFromTransactions(transactions);
 
@@ -98,7 +98,7 @@ describe("Test ERC721Parser", () => {
         expect(erc721Contract_CF).to.have.property("totalSupply").a("string");
         expect(erc721Contract_CF).to.have.property("implementsERC721").eql(true);
 
-        const result = await erc721Parser.updateContractRecord(erc721Contract_CF);
+        const result = await erc721Parser.updateContractInDatabase(erc721Contract_CF);
         // NOTE: check the database, delete the record then run the test, it should appear again.
     })
 })

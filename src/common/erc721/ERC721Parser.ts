@@ -106,46 +106,29 @@ export class ERC721Parser {
         }
     }
 
-    public getContractName = async (contractAddress: string) => {
-        try {
-            const contractPromises = await this.getContractInstance(contractAddress, nameABI)
-            const nameResults = await Bluebird.all(contractPromises).then((names: any) => {
-                const name =  names.filter((name: any) => typeof name === "string" && name.length > 0)
-                return name
+    private updateDatabase(transactionId: string, index: number, from: string, to: string, value: string, erc20ContractId?: any): Promise<ITransactionOperation[]> {
+        const operation = this.createOperationObject(transactionId, index, from, to, value, erc20ContractId);
+        const indexedOperation = this.getIndexedOperation(transactionId, index);
+
+        return TransactionOperation.findOneAndUpdate({transactionId: indexedOperation}, operation, {upsert: true, new: true})
+            .then((operation: any) => {
+                return Transaction.findOneAndUpdate({_id: transactionId}, {$push: {operations: operation._id, addresses: {$each: [operation.to]}}})
+                    .catch((error: Error) => {
+                        winston.error(`Could not update operation and address to transactionID ${transactionId} with error: ${error}`);
+                    })
+            }).catch((error: Error) => {
+                winston.error(`Could not save transaction operation with error: ${error}`);
             })
-            let name = nameResults.length > 0 ? nameResults[0] : "";
-            if (name.startsWith("0x")) {
-                name = this.convertHexToAscii(name)
-            }
-            return name;
-        } catch (error) {
-            winston.error(`Error getting contract ${contractAddress} name`)
-            Promise.resolve()
-        }
     }
 
-    public getContractOwnerOf = async (contractAddress: string, tokenId: string) => {
-        try {
-            const contractPromises = await this.getContractInstance(contractAddress, ownerOfABI, tokenId)
-            const ownerResults = await Bluebird.all(contractPromises).then((owners: any) => {
-                const owner =  owners.filter((owner: any) => typeof owner === "string" && owner.length > 0)
-                return owner
-            })
-            return ownerResults.length > 0 ? ownerResults[0] : "";
-        } catch (error) {
-            winston.error(`Error getting ERC721 contract ${contractAddress} owner`)
-            Promise.resolve()
-        }
-    }
-
-    public updateDatabase(erc721Contracts: any[]): Promise<any[]> {
+    public updateERC721ContractsInDatabase(erc721Contracts: any[]): Promise<any[]> {
         return Promise.all(erc721Contracts.map((contract) =>  {
-                return this.updateContractRecord(contract);
+                return this.updateContractInDatabase(contract);
             })
         )
     }
 
-    public updateContractRecord(erc721Contract: any): Promise<any> {
+    public updateContractInDatabase(erc721Contract: any): Promise<any> {
         erc721Contract.verified = this.isContractVerified(erc721Contract.address);
         erc721Contract.enabled = true;
 
@@ -188,6 +171,38 @@ export class ERC721Parser {
         });
     }
 
+    public getContractName = async (contractAddress: string) => {
+        try {
+            const contractPromises = await this.getContractInstance(contractAddress, nameABI)
+            const nameResults = await Bluebird.all(contractPromises).then((names: any) => {
+                const name =  names.filter((name: any) => typeof name === "string" && name.length > 0)
+                return name
+            })
+            let name = nameResults.length > 0 ? nameResults[0] : "";
+            if (name.startsWith("0x")) {
+                name = this.convertHexToAscii(name)
+            }
+            return name;
+        } catch (error) {
+            winston.error(`Error getting contract ${contractAddress} name`)
+            Promise.resolve()
+        }
+    }
+
+    public getContractOwnerOf = async (contractAddress: string, tokenId: string) => {
+        try {
+            const contractPromises = await this.getContractInstance(contractAddress, ownerOfABI, tokenId)
+            const ownerResults = await Bluebird.all(contractPromises).then((owners: any) => {
+                const owner =  owners.filter((owner: any) => typeof owner === "string" && owner.length > 0)
+                return owner
+            })
+            return ownerResults.length > 0 ? ownerResults[0] : "";
+        } catch (error) {
+            winston.error(`Error getting ERC721 contract ${contractAddress} owner`)
+            Promise.resolve()
+        }
+    }
+
     // ###### private methods ######
 
     private getERC721ContractPromises(contractAddresses) {
@@ -197,22 +212,6 @@ export class ERC721Parser {
                     .then((contract) => {resolve(contract)});
             });
         });
-    }
-
-    private findOrCreateTransactionOperation(transactionId: string, index: number, from: string, to: string, value: string, erc20ContractId?: any): Promise<ITransactionOperation[]> {
-
-        const operation = this.createOperationObject(transactionId, index, from, to, value, erc20ContractId);
-        const indexedOperation = this.getIndexedOperation(transactionId, index);
-
-        return TransactionOperation.findOneAndUpdate({transactionId: indexedOperation}, operation, {upsert: true, new: true})
-            .then((operation: any) => {
-                return Transaction.findOneAndUpdate({_id: transactionId}, {$push: {operations: operation._id, addresses: {$each: [operation.to]}}})
-                    .catch((error: Error) => {
-                        winston.error(`Could not update operation and address to transactionID ${transactionId} with error: ${error}`);
-                    })
-            }).catch((error: Error) => {
-                winston.error(`Could not save transaction operation with error: ${error}`);
-            })
     }
 
     private getIndexedOperation(transactionId: string, index: number): string {
