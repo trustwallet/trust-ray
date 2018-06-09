@@ -65,7 +65,7 @@ export class ERC721Parser {
                 const decodedLogs = this.extractDecodedLogsFromTransaction(transaction);
 
                 decodedLogs.forEach((decodedLog: any) => {
-                    winston.info(`ERC721Parser.extractContracts(), decodedLog.name: ${decodedLog.name}, transaction: ${transaction._id}, contract: ${decodedLog.address.toLowerCase()}`)
+                    winston.debug(`ERC721Parser.extractContracts(), decodedLog.name: ${decodedLog.name}, transaction: ${transaction._id}, contract: ${decodedLog.address.toLowerCase()}`)
                     contractAddresses.push(decodedLog.address.toLowerCase());
                 })
             });
@@ -91,7 +91,7 @@ export class ERC721Parser {
                 throw new Error()
             }
 
-            winston.info(`Successfully got ERC721 contract by address ${contractAddress}`)
+            winston.debug(`Successfully got ERC721 contract by address ${contractAddress}`)
 
             return {
                 address: contractAddress,
@@ -101,7 +101,7 @@ export class ERC721Parser {
                 implementsERC721: contract[3],
             }
         } catch (error) {
-            winston.error(`Error getting address ${contractAddress} as an ERC721 contract`, error)
+            winston.debug(`Error getting address ${contractAddress} as an ERC721 contract`, error)
             Promise.resolve()
         }
     }
@@ -253,7 +253,7 @@ export class ERC721Parser {
                 const contractInstance = new Config.web3.eth.Contract([abi], contractAddress);
                 return await contractInstance.methods[abi.name](...args).call()
             } catch (error) {
-                winston.error(`Error getting ${contractAddress} as an ERC721 contract instance, method ${abi.name}\n${error}`)
+                winston.debug(`Error getting ${contractAddress} as an ERC721 contract instance, method ${abi.name}\n${error}`)
                 Promise.resolve()
             }
         })
