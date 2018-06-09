@@ -3,6 +3,7 @@ import { BlockTransactionParser } from "../../../src/common/erc721/BlockTransact
 import { ERC721Parser } from "../../../src/common/erc721/ERC721Parser";
 import { Database } from "../../../src/models/Database";
 
+const mongoose = require("mongoose");
 const config = require("config");
 const chai = require("chai")
 chai.use(require("chai-as-promised"))
@@ -32,17 +33,6 @@ describe("Test ERC721Parser", () => {
 
         expect(emptyDecodedLogs.length).to.equal(0);
 
-        const decodedLogs = erc721Parser.extractDecodedLogsFromTransaction(
-            transactions.filter((tx) => {
-                return tx._id === "0x1020494743d0a85187c9cc92f1e8f649552df9502464f72e219e7363d7446a17"
-            })[0]
-        );
-
-        expect(decodedLogs.length).to.equal(1);
-        expect(decodedLogs[0].name).to.equal("Approval");
-        expect(decodedLogs[0].address).to.equal("0x80A7E048F37A50500351C204Cb407766fA3baE7f");
-        expect(decodedLogs[0].events.length).to.equal(3);
-
         const contractAddresses = await erc721Parser.extractContractAddresses(transactions);
 
         expect(transactions.length).to.equal(178);
@@ -57,11 +47,39 @@ describe("Test ERC721Parser", () => {
 
         expect(contracts.length).to.equal(1);
         expect(contracts[0].address).to.equal("0x87d598064c736dd0c712d329afcfaa0ccc1921a1");
-        expect(contracts[0].address).to.equal("0x87d598064c736dd0c712d329afcfaa0ccc1921a1");
-        expect(contracts[0].address).to.equal("0x87d598064c736dd0c712d329afcfaa0ccc1921a1");
-        expect(contracts[0].address).to.equal("0x87d598064c736dd0c712d329afcfaa0ccc1921a1");
+        expect(contracts[0].name).to.equal("CryptoFighters");
+        expect(contracts[0].symbol).to.equal("CF");
+        expect(contracts[0].totalSupply).is.a("string");
+        expect(contracts[0].implementsERC721).is.true;
 
-        const results = await erc721Parser.parseTransactionOperations(transactions, contracts, decodedLogs);
+        const savedContracts = await erc721Parser.updateDatabase(contracts);
+
+        const decodedLogs = await erc721Parser.extractDecodedLogsFromTransactions(transactions);
+
+        expect(decodedLogs.length).to.equal(94);
+
+        const decodedLogsFromATransaction = decodedLogs.filter((log) => {
+            return log.address === "0x80A7E048F37A50500351C204Cb407766fA3baE7f"
+        })[0];
+
+        expect(decodedLogsFromATransaction.events.length).to.equal(3);
+        expect(decodedLogsFromATransaction.name).to.equal("Approval");
+        expect(decodedLogsFromATransaction.address).to.equal("0x80A7E048F37A50500351C204Cb407766fA3baE7f");
+
+        const transactionOperations = await erc721Parser.parseTransactionOperations(transactions, savedContracts);
+
+        expect(transactionOperations.length).to.equal(1);
+
+        const approvalTxOps = transactionOperations.filter((txOps) => {
+            return txOps.type === "Approval"
+        })[0];
+
+        expect(approvalTxOps.type).to.equal("Approval");
+        expect(approvalTxOps.from).to.equal("0xdcf005aa5550f76cd32c925c06a570bc36b0ac6f");
+        expect(approvalTxOps.to).to.equal("0xb2c3531f77ee0a7ec7094a0bc87ef4a269e0bcfc");
+        expect(approvalTxOps.value).to.equal("0");
+        expect(approvalTxOps.transactionId).to.equal("0x39f5aa0e8782662503910daefa905876cd7b798dab3c15dc0f361ea98ab55cdb-0");
+        expect(mongoose.Types.ObjectId.isValid(approvalTxOps.contract)).is.true;
     })
 
     it("Should get ERC721 contract", async () => {
@@ -80,7 +98,7 @@ describe("Test ERC721Parser", () => {
         expect(erc721Contract_CF).to.have.property("totalSupply").a("string");
         expect(erc721Contract_CF).to.have.property("implementsERC721").eql(true);
 
-        const result = await erc721Parser.updateDatabase(erc721Contract_CF);
+        const result = await erc721Parser.updateContractRecord(erc721Contract_CF);
         // NOTE: check the database, delete the record then run the test, it should appear again.
     })
 })

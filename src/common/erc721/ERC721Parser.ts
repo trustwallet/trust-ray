@@ -24,6 +24,20 @@ export class ERC721Parser {
         }
     }
 
+    public extractDecodedLogsFromTransactions(transactions): Promise<any[]> {
+        const promises = transactions.map((transaction) => {
+            return new Promise((resolve) => {
+                resolve(
+                    this.extractDecodedLogsFromTransaction(transaction)
+                );
+            })
+        })
+
+        return Promise.all(promises).then((decodedLogs) => {
+            return [].concat.apply([], decodedLogs);
+        });
+    }
+
     public extractDecodedLogsFromTransaction(transaction): any[] {
         const results = [];
 
@@ -47,7 +61,7 @@ export class ERC721Parser {
 
             const contractAddresses: string[] = [];
 
-            transactions.map((transaction: any) => {
+            transactions.map((transaction) => {
                 const decodedLogs = this.extractDecodedLogsFromTransaction(transaction);
 
                 decodedLogs.forEach((decodedLog: any) => {
@@ -124,7 +138,14 @@ export class ERC721Parser {
         }
     }
 
-    public updateDatabase(erc721Contract): Promise<any> {
+    public updateDatabase(erc721Contracts: any[]): Promise<any[]> {
+        return Promise.all(erc721Contracts.map((contract) =>  {
+                return this.updateContractRecord(contract);
+            })
+        )
+    }
+
+    public updateContractRecord(erc721Contract: any): Promise<any> {
         erc721Contract.verified = this.isContractVerified(erc721Contract.address);
         erc721Contract.enabled = true;
 
@@ -139,21 +160,31 @@ export class ERC721Parser {
         });
     }
 
-    public parseTransactionOperations(transactions: ISavedTransaction[], contracts: IContract[], decodedLogs: IDecodedLog[]) {
-        if (!transactions || !contracts || !decodedLogs) return Promise.resolve([]);
+    public async parseTransactionOperations(transactions: ISavedTransaction[], contracts: IContract[]) {
+        const rawTxOps = await this.parseRawTransactionOperations(transactions, contracts);
+        const rawTxOpsFlat = [].concat.apply([], rawTxOps); // flatten [[1],[2]] to [1, 2]
+        const rawTxOpsWithoutUndefined = rawTxOpsFlat.filter(function(e) { return e }); // remove undefined elements
+        return rawTxOpsWithoutUndefined;
+    }
 
-        if (decodedLogs.length == 0) return Promise.resolve([]);
+    public parseRawTransactionOperations(transactions: ISavedTransaction[], contracts: IContract[]) {
+        if (!transactions || !contracts) return Promise.resolve();
 
         return Bluebird.map(transactions, (transaction) => {
-            return Bluebird.mapSeries(decodedLogs, (decodedLog: IDecodedLog, index: number) => {
-                const contract = contracts.find((contract: IContract) => contract.address === decodedLog.address.toLowerCase());
-                if (contract) {
-                    const transfer = this.parseEventLog(decodedLog);
-                    return this.findOrCreateTransactionOperation(transaction._id, index, transfer.from, transfer.to, transfer.value, contract._id);
-                }
-            })
+            const decodedLogs = this.extractDecodedLogsFromTransaction(transaction);
+
+            if (decodedLogs.length > 0) {
+                return Bluebird.mapSeries(decodedLogs, (decodedLog: IDecodedLog, index: number) => {
+                    const contract = contracts.find((contract: IContract) => contract.address === decodedLog.address.toLowerCase());
+                    if (contract) {
+                        const transfer = this.parseEventLog(decodedLog);
+                        return this.createOperationObject(transaction._id, index, transfer.from, transfer.to, transfer.value, decodedLog.name, contract._id);
+                    }
+                })
+
+            }
         }).catch((err: Error) => {
-            winston.error(`Could not parse transaction operations, error: ${err}`);
+            winston.error(`Could not parse transaction operations with error: ${err}`);
         });
     }
 
@@ -188,14 +219,14 @@ export class ERC721Parser {
         return `${transactionId}-${index}`.toLowerCase();
     }
 
-    private createOperationObject(transactionId: string, index: number, from: string, to: string, value: string, erc20ContractId?: any): ITransactionOperation {
+    private createOperationObject(transactionId: string, index: number, from: string, to: string, value: string, type: string, contractID?: any): ITransactionOperation {
         return {
             transactionId: this.getIndexedOperation(transactionId, index),
-            type: "token_transfer",
+            type: type,
             from: from.toLocaleLowerCase(),
-            to,
-            value,
-            contract: erc20ContractId
+            to: to,
+            value: value,
+            contract: contractID,
         };
     }
 

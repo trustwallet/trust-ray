@@ -65,7 +65,7 @@ describe("Test BlockTransactionParser", () => {
         expect(receipt.from).to.equal("0x0681d8db095565fe8a346fa0277bffde9c0edbbf");
         expect(receipt.to).to.equal("0xd850942ef8811f2a866692a623011bde52a462c1");
         expect(receipt.gasUsed).to.equal(54835);
-        expect(receipt.status).to.equal(true);
+        expect(receipt.status).to.equal("0x1");
         expect(receipt.transactionHash).to.equal("0xa22465a41c60485f29eb4f8f57a04836ab56cd43faafe2439c6de8938f10e974");
         expect(receipt.transactionIndex).to.equal(0);
 
