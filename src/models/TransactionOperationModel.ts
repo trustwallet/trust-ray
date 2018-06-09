@@ -39,4 +39,6 @@ const transactionOperationSchema = new Schema({
     versionKey: false
 });
 
+
 export const TransactionOperation = mongoose.model("TransactionOperation", transactionOperationSchema );
+export const ERC721TransactionOperation = mongoose.model("ERC721TransactionOperation", transactionOperationSchema );

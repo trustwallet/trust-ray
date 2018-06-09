@@ -7,7 +7,7 @@ import { nameABI, ownerOfABI, standardERC721ABI } from "../abi/ABI";
 import { ERC721Contract } from "../../models/Erc721ContractModel";
 import { contracts } from "../tokens/contracts";
 import { IContract, IDecodedLog, ISavedTransaction, ITransactionOperation } from "../CommonInterfaces";
-import { TransactionOperation } from "../../models/TransactionOperationModel";
+import { ERC721TransactionOperation } from "../../models/TransactionOperationModel";
 import { Transaction } from "../../models/TransactionModel";
 
 export class ERC721Parser {
@@ -114,18 +114,6 @@ export class ERC721Parser {
         );
     }
 
-    private updateTransactionOperationInDatabase(transactionOperation): Promise<ITransactionOperation[]> {
-        return TransactionOperation.findOneAndUpdate({transactionId: transactionOperation.transactionId}, transactionOperation, {upsert: true, new: true})
-            .then((operation: any) => {
-                return Transaction.findOneAndUpdate({_id: transactionOperation.originalTransactionId}, {$push: {operations: operation._id, addresses: {$each: [operation.to]}}})
-                    .catch((error: Error) => {
-                        winston.error(`Could not update operation and address to transactionID ${transactionOperation.transactionId} with error: ${error}`);
-                    })
-            }).catch((error: Error) => {
-                winston.error(`Could not save transaction operation with error: ${error}`);
-            })
-    }
-
     public updateERC721ContractsInDatabase(erc721Contracts: any[]): Promise<any[]> {
         return Promise.all(erc721Contracts.map((contract) =>  {
                 return this.updateERC721ContractInDatabase(contract);
@@ -209,6 +197,18 @@ export class ERC721Parser {
     }
 
     // ###### private methods ######
+
+    private updateTransactionOperationInDatabase(transactionOperation): Promise<ITransactionOperation[]> {
+        return ERC721TransactionOperation.findOneAndUpdate({transactionId: transactionOperation.transactionId}, transactionOperation, {upsert: true, new: true})
+            .then((operation: any) => {
+                return Transaction.findOneAndUpdate({_id: transactionOperation.originalTransactionId}, {$push: {operations: operation._id, addresses: {$each: [operation.to]}}})
+                    .catch((error: Error) => {
+                        winston.error(`Could not update operation and address to transactionID ${transactionOperation.transactionId} with error: ${error}`);
+                    })
+            }).catch((error: Error) => {
+                winston.error(`Could not save transaction operation with error: ${error}`);
+            })
+    }
 
     private getERC721ContractPromises(contractAddresses) {
         return contractAddresses.map((contractAddress) => {
