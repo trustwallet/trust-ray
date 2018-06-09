@@ -1,11 +1,14 @@
 import * as winston from "winston";
-import * as BluebirdPromise from "bluebird";
+import * as Bluebird from "bluebird";
 
-import { loadContractABIs } from "../Utils";
+import { loadContractABIs, removeScientificNotationFromNumbString } from "../Utils";
 import { Config } from "../Config";
 import { nameABI, ownerOfABI, standardERC721ABI } from "../abi/ABI";
 import { ERC721Contract } from "../../models/Erc721ContractModel";
 import { contracts } from "../tokens/contracts";
+import { IContract, IDecodedLog, ISavedTransaction, ITransactionOperation } from "../CommonInterfaces";
+import { TransactionOperation } from "../../models/TransactionOperationModel";
+import { Transaction } from "../../models/TransactionModel";
 
 export class ERC721Parser {
     private abiDecoder = require("abi-decoder");
@@ -39,7 +42,7 @@ export class ERC721Parser {
         return results;
     }
 
-    public extractContracts(transactions: any[]): Promise<any[]> {
+    public extractContractAddresses(transactions: any[]): Promise<any[]> {
             if (!transactions) return Promise.resolve([]);
 
             const contractAddresses: string[] = [];
@@ -58,7 +61,15 @@ export class ERC721Parser {
             return Promise.resolve(uniqueContractAddresses);
     }
 
-    public getERC721Contract = async (contractAddress) => {
+    public getERC721Contracts(contractAddresses): Promise<any[]> {
+        return Promise.all(
+            this.getERC721ContractPromises(contractAddresses)
+        ).then((contracts) => {
+            return contracts.filter(function(c) { return c }); // filter out null and undefined
+        });
+    }
+
+    public async getERC721Contract(contractAddress) {
         try {
             const contract = await this.getContractInstance(contractAddress, standardERC721ABI)
 
@@ -66,7 +77,7 @@ export class ERC721Parser {
                 throw new Error()
             }
 
-            winston.info(`Successfully got ERC721 contract ${contractAddress}`)
+            winston.info(`Successfully got ERC721 contract by address ${contractAddress}`)
 
             return {
                 address: contractAddress,
@@ -76,7 +87,7 @@ export class ERC721Parser {
                 implementsERC721: contract[3],
             }
         } catch (error) {
-            winston.error(`Error getting ${contractAddress} as an ERC721 contract`, error)
+            winston.error(`Error getting address ${contractAddress} as an ERC721 contract`, error)
             Promise.resolve()
         }
     }
@@ -84,7 +95,7 @@ export class ERC721Parser {
     public getContractName = async (contractAddress: string) => {
         try {
             const contractPromises = await this.getContractInstance(contractAddress, nameABI)
-            const nameResults = await BluebirdPromise.all(contractPromises).then((names: any) => {
+            const nameResults = await Bluebird.all(contractPromises).then((names: any) => {
                 const name =  names.filter((name: any) => typeof name === "string" && name.length > 0)
                 return name
             })
@@ -102,7 +113,7 @@ export class ERC721Parser {
     public getContractOwnerOf = async (contractAddress: string, tokenId: string) => {
         try {
             const contractPromises = await this.getContractInstance(contractAddress, ownerOfABI, tokenId)
-            const ownerResults = await BluebirdPromise.all(contractPromises).then((owners: any) => {
+            const ownerResults = await Bluebird.all(contractPromises).then((owners: any) => {
                 const owner =  owners.filter((owner: any) => typeof owner === "string" && owner.length > 0)
                 return owner
             })
@@ -128,7 +139,73 @@ export class ERC721Parser {
         });
     }
 
+    public parseTransactionOperations(transactions: ISavedTransaction[], contracts: IContract[], decodedLogs: IDecodedLog[]) {
+        if (!transactions || !contracts || !decodedLogs) return Promise.resolve([]);
+
+        if (decodedLogs.length == 0) return Promise.resolve([]);
+
+        return Bluebird.map(transactions, (transaction) => {
+            return Bluebird.mapSeries(decodedLogs, (decodedLog: IDecodedLog, index: number) => {
+                const contract = contracts.find((contract: IContract) => contract.address === decodedLog.address.toLowerCase());
+                if (contract) {
+                    const transfer = this.parseEventLog(decodedLog);
+                    return this.findOrCreateTransactionOperation(transaction._id, index, transfer.from, transfer.to, transfer.value, contract._id);
+                }
+            })
+        }).catch((err: Error) => {
+            winston.error(`Could not parse transaction operations, error: ${err}`);
+        });
+    }
+
     // ###### private methods ######
+
+    private getERC721ContractPromises(contractAddresses) {
+        return contractAddresses.map((contractAddress) => {
+            return new Promise((resolve) => {
+                this.getERC721Contract(contractAddress)
+                    .then((contract) => {resolve(contract)});
+            });
+        });
+    }
+
+    private findOrCreateTransactionOperation(transactionId: string, index: number, from: string, to: string, value: string, erc20ContractId?: any): Promise<ITransactionOperation[]> {
+
+        const operation = this.createOperationObject(transactionId, index, from, to, value, erc20ContractId);
+        const indexedOperation = this.getIndexedOperation(transactionId, index);
+
+        return TransactionOperation.findOneAndUpdate({transactionId: indexedOperation}, operation, {upsert: true, new: true})
+            .then((operation: any) => {
+                return Transaction.findOneAndUpdate({_id: transactionId}, {$push: {operations: operation._id, addresses: {$each: [operation.to]}}})
+                    .catch((error: Error) => {
+                        winston.error(`Could not update operation and address to transactionID ${transactionId} with error: ${error}`);
+                    })
+            }).catch((error: Error) => {
+                winston.error(`Could not save transaction operation with error: ${error}`);
+            })
+    }
+
+    private getIndexedOperation(transactionId: string, index: number): string {
+        return `${transactionId}-${index}`.toLowerCase();
+    }
+
+    private createOperationObject(transactionId: string, index: number, from: string, to: string, value: string, erc20ContractId?: any): ITransactionOperation {
+        return {
+            transactionId: this.getIndexedOperation(transactionId, index),
+            type: "token_transfer",
+            from: from.toLocaleLowerCase(),
+            to,
+            value,
+            contract: erc20ContractId
+        };
+    }
+
+    private parseEventLog(eventLog: any): {from: string, to: string, value: string} {
+        return {
+            from: eventLog.events[0].value,
+            to: eventLog.events[1].value,
+            value: removeScientificNotationFromNumbString(eventLog.events[2].value),
+        }
+    }
 
     private isContractVerified = (address: string): boolean => contracts[address] ? true : false;
 
@@ -140,7 +217,7 @@ export class ERC721Parser {
     }
 
     private getContractInstance = async (contractAddress, ABI, ... args: any[]) => {
-        const contractPromise = BluebirdPromise.map(ABI, async (abi: any) => {
+        const contractPromise = Bluebird.map(ABI, async (abi: any) => {
             try {
                 const contractInstance = new Config.web3.eth.Contract([abi], contractAddress);
                 return await contractInstance.methods[abi.name](...args).call()

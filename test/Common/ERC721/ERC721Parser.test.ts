@@ -43,7 +43,7 @@ describe("Test ERC721Parser", () => {
         expect(decodedLogs[0].address).to.equal("0x80A7E048F37A50500351C204Cb407766fA3baE7f");
         expect(decodedLogs[0].events.length).to.equal(3);
 
-        const contractAddresses = await erc721Parser.extractContracts(transactions);
+        const contractAddresses = await erc721Parser.extractContractAddresses(transactions);
 
         expect(transactions.length).to.equal(178);
         expect(contractAddresses.length).to.equal(33);
@@ -52,6 +52,16 @@ describe("Test ERC721Parser", () => {
         expect(contractAddresses.hasOwnProperty("0x80a7e048f37a50500351c204cb407766fa3bae7f"));
         expect(contractAddresses.hasOwnProperty("0x1460a58096d80a50a2f1f956dda497611fa4f165"));
         expect(contractAddresses.hasOwnProperty("0x87d598064c736dd0c712d329afcfaa0ccc1921a1"));
+
+        const contracts = await erc721Parser.getERC721Contracts(contractAddresses);
+
+        expect(contracts.length).to.equal(1);
+        expect(contracts[0].address).to.equal("0x87d598064c736dd0c712d329afcfaa0ccc1921a1");
+        expect(contracts[0].address).to.equal("0x87d598064c736dd0c712d329afcfaa0ccc1921a1");
+        expect(contracts[0].address).to.equal("0x87d598064c736dd0c712d329afcfaa0ccc1921a1");
+        expect(contracts[0].address).to.equal("0x87d598064c736dd0c712d329afcfaa0ccc1921a1");
+
+        const results = await erc721Parser.parseTransactionOperations(transactions, contracts, decodedLogs);
     })
 
     it("Should get ERC721 contract", async () => {

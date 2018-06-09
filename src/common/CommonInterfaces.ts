@@ -98,3 +98,12 @@ export interface IBlock {
     transactionsRoot: string,
     uncles: any[]
 }
+
+export interface ITransactionOperation {
+    transactionId: string,
+    type: string,
+    from: string,
+    to: string,
+    value: string,
+    contract: string,
+}
