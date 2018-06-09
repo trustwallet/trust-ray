@@ -1744,5 +1744,11 @@ export const contracts = {
     },
     "0x3209f98bebf0149b769ce26d71f7aea8e435efea": {
         id: "traxia"
+    },
+    "0xaf8a215e81faea7c180ce22b72483525121813bd": {
+        id: "engine"
+    },
+    "0x2d9765a94ff22e0ca3afc3e3f4b116de2b67582a": {
+        id: "cgc-token"
     }
 }
