@@ -1,7 +1,7 @@
 import * as winston from "winston";
 import * as Bluebird from "bluebird";
 
-import { loadContractABIs, removeScientificNotationFromNumbString } from "../Utils";
+import { loadContractABIs, removeScientificNotationFromNumbString, setDelay } from "../Utils";
 import { Config } from "../Config";
 import { nameABI, ownerOfABI, standardERC721ABI } from "../abi/ABI";
 import { contracts } from "../tokens/contracts";
@@ -45,8 +45,10 @@ export class ERC721Parser {
                             return this.parse(block);
                         })
                         .then(() => {
-                            this.saveLastParsedBlock(blockNumberToParse);
-                            Promise.resolve();
+                            Promise.resolve(this.saveLastParsedBlock(blockNumberToParse));
+                        })
+                        .then((lastParsedBlock) => {
+                            this.scheduleNextParsing();
                         })
                         .catch((err: Error) => {
                             winston.error(`ERC721Parser.start() at block: ${blockNumberToParse}, error: ${err}`);
@@ -61,7 +63,7 @@ export class ERC721Parser {
         const transactions = this.extractTransactions(block);
         const transactionIDs = this.getTransactionIDs(transactions);
         const receipts = await this.fetchReceiptsFromTransactionIDs(transactionIDs);
-        const mergedTransactions = await this.mergeTransactionsAndReceipts(transactions, receipts);
+        const mergedTransactions = await this.attachReceiptsToTransactions(transactions, receipts);
 
         const results = await this.updateTransactionsInDatabase(mergedTransactions);
 
@@ -134,7 +136,7 @@ export class ERC721Parser {
         }
     }
 
-    public mergeTransactionsAndReceipts(transactions: any[], receipts: any[]) {
+    public attachReceiptsToTransactions(transactions: any[], receipts: any[]) {
         if (transactions.length !== receipts.length) {
             winston.error(`Number of transactions not equal to number of receipts.`);
         }
@@ -372,6 +374,12 @@ export class ERC721Parser {
     }
 
     // ###### private methods ######
+
+    private scheduleNextParsing() {
+        setDelay(1000).then(() => {
+            this.start()
+        })
+    }
 
     private saveLastParsedBlock(blockNumber: number) {
         return LastParsedBlock.findOneAndUpdate({}, {lastTokensBlockForERC721: blockNumber}, {upsert: true, new: true}).catch((err: Error) => {

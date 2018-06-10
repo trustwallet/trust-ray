@@ -79,7 +79,7 @@ describe("Test ERC721Parser", () => {
         expect(receipt.logs[0].topics.length).to.equal(3);
         expect(receipt.logs[0].topics[0]).to.equal("0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef");
 
-        const mergedTransactions = await erc721Parser.mergeTransactionsAndReceipts(transactions, receipts);
+        const mergedTransactions = await erc721Parser.attachReceiptsToTransactions(transactions, receipts);
 
         expect(mergedTransactions.length).to.equal(178);
 
@@ -115,9 +115,9 @@ describe("Test ERC721Parser", () => {
         const transactions = erc721Parser.extractTransactions(block);
         const transactionIDs = erc721Parser.getTransactionIDs(transactions);
         const receipts = await erc721Parser.fetchReceiptsFromTransactionIDs(transactionIDs);
-        const mergedTransactions = await erc721Parser.mergeTransactionsAndReceipts(transactions, receipts);
+        const transactionsWithReceipts = await erc721Parser.attachReceiptsToTransactions(transactions, receipts);
 
-        const transactionWithoutLogs = mergedTransactions.filter((tx) => {
+        const transactionWithoutLogs = transactionsWithReceipts.filter((tx) => {
             return tx._id === "0x8fbcf855223bc60f996865e7a05297dc41907b8cbddd03613db462dcb103117a"
         })[0];
         const emptyDecodedLogs = erc721Parser.extractDecodedLogsFromTransaction(transactionWithoutLogs);
@@ -146,7 +146,7 @@ describe("Test ERC721Parser", () => {
         const savedContracts = await erc721Parser.updateERC721ContractsInDatabase(contracts);
 
         // TODO: extractDecodedLogsFromTransactions() is only used in test, need to be removed.
-        const decodedLogs = await erc721Parser.extractDecodedLogsFromTransactions(mergedTransactions);
+        const decodedLogs = await erc721Parser.extractDecodedLogsFromTransactions(transactionsWithReceipts);
 
         expect(decodedLogs.length).to.equal(94);
 
