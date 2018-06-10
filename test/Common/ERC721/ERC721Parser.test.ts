@@ -111,15 +111,16 @@ describe("Test ERC721Parser", () => {
 
     it("Should extract all ERC* contract addresses from transactions", async () => {
         const blockParser = new BlockParser();
-
         const block = await blockParser.getBlockByNumber(5665445);
-        const transactions = await erc721Parser.parse(block);
+        const transactions = erc721Parser.extractTransactions(block);
+        const transactionIDs = erc721Parser.getTransactionIDs(transactions);
+        const receipts = await erc721Parser.fetchReceiptsFromTransactionIDs(transactionIDs);
+        const mergedTransactions = await erc721Parser.mergeTransactionsAndReceipts(transactions, receipts);
 
-        const emptyDecodedLogs = erc721Parser.extractDecodedLogsFromTransaction(
-            transactions.filter((tx) => {
-                return tx._id === "0x8fbcf855223bc60f996865e7a05297dc41907b8cbddd03613db462dcb103117a"
-            })[0]
-        );
+        const transactionWithoutLogs = mergedTransactions.filter((tx) => {
+            return tx._id === "0x8fbcf855223bc60f996865e7a05297dc41907b8cbddd03613db462dcb103117a"
+        })[0];
+        const emptyDecodedLogs = erc721Parser.extractDecodedLogsFromTransaction(transactionWithoutLogs);
 
         expect(emptyDecodedLogs.length).to.equal(0);
 
@@ -144,7 +145,8 @@ describe("Test ERC721Parser", () => {
 
         const savedContracts = await erc721Parser.updateERC721ContractsInDatabase(contracts);
 
-        const decodedLogs = await erc721Parser.extractDecodedLogsFromTransactions(transactions);
+        // TODO: extractDecodedLogsFromTransactions() is only used in test, need to be removed.
+        const decodedLogs = await erc721Parser.extractDecodedLogsFromTransactions(mergedTransactions);
 
         expect(decodedLogs.length).to.equal(94);
 

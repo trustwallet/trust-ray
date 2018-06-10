@@ -62,13 +62,16 @@ export class ERC721Parser {
         const transactionIDs = this.getTransactionIDs(transactions);
         const receipts = await this.fetchReceiptsFromTransactionIDs(transactionIDs);
         const mergedTransactions = await this.mergeTransactionsAndReceipts(transactions, receipts);
+
         const results = await this.updateTransactionsInDatabase(mergedTransactions);
 
         const contractAddresses = await this.extractContractAddresses(transactions);
         const contracts = await this.getERC721Contracts(contractAddresses);
+
         const savedContracts = await this.updateERC721ContractsInDatabase(contracts);
 
         const transactionOperations = await this.parseTransactionOperations(transactions, savedContracts);
+
         const savedTransactions = await this.updateTransactionOperationsInDatabase(transactionOperations);
 
         return Promise.resolve(savedTransactions);
