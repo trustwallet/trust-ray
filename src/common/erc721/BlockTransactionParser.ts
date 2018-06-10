@@ -1,7 +1,7 @@
 import * as Bluebird from "bluebird";
 import * as winston from "winston";
 
-import { Transaction } from "../../models/TransactionModel";
+import { ERC721Transaction } from "../../models/Erc721TransactionModel";
 import { IBlock, IExtractedTransaction, ITransaction } from "../CommonInterfaces";
 import { Config } from "../Config";
 
@@ -16,7 +16,7 @@ export class BlockTransactionParser {
 
     public extractTransactions(block): any[] {
         return this.getRawTransactions(block).map((tx: ITransaction) => {
-            return new Transaction(this.extractTransaction(block, tx));
+            return new ERC721Transaction(this.extractTransaction(block, tx));
         });
     }
 
@@ -90,8 +90,8 @@ export class BlockTransactionParser {
         return Promise.resolve(results);
     }
 
-    public updateTransactionsDatabase(transactions: any) {
-        const bulkTransactions = Transaction.collection.initializeUnorderedBulkOp();
+    public updateTransactionsInDatabase(transactions: any) {
+        const bulkTransactions = ERC721Transaction.collection.initializeUnorderedBulkOp();
 
         transactions.forEach((transaction: IExtractedTransaction) =>
             bulkTransactions.find({_id: transaction._id}).upsert().replaceOne(transaction)

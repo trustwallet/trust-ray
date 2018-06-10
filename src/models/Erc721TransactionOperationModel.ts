@@ -32,11 +32,11 @@ const transactionOperationSchema = new Schema({
     },
     contract: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "ERC20Contract",
+        ref: "ERC721Contract",
         required: true
     }
 }, {
     versionKey: false
 });
 
-export const TransactionOperation = mongoose.model("TransactionOperation", transactionOperationSchema );
+export const ERC721TransactionOperation = mongoose.model("ERC721TransactionOperation", transactionOperationSchema );

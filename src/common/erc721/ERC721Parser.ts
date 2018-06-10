@@ -7,8 +7,8 @@ import { nameABI, ownerOfABI, standardERC721ABI } from "../abi/ABI";
 import { ERC721Contract } from "../../models/Erc721ContractModel";
 import { contracts } from "../tokens/contracts";
 import { IContract, IDecodedLog, ISavedTransaction, ITransactionOperation } from "../CommonInterfaces";
-import { ERC721TransactionOperation } from "../../models/TransactionOperationModel";
-import { Transaction } from "../../models/TransactionModel";
+import { ERC721TransactionOperation } from "../../models/Erc721TransactionOperationModel";
+import { ERC721Transaction } from "../../models/Erc721TransactionModel";
 
 export class ERC721Parser {
     private abiDecoder = require("abi-decoder");
@@ -196,12 +196,34 @@ export class ERC721Parser {
         }
     }
 
+    public getSavedTransactionsInDatabase(blockNumber: number): Promise<any[]> {
+        return ERC721Transaction.find({blockNumber: {$eq: blockNumber}})
+            .populate({
+                path: "operations",
+                populate: {
+                    path: "contract",
+                    model: "ERC721Contract"
+                }
+            });
+    }
+
+    public createOperations(transactions: any[]): any[] {
+        const operations: any = [];
+        transactions.forEach(transaction => {
+            transaction.operations.forEach((operation: any) => {
+                operations.push({address: operation.to, contract: operation.contract._id})
+                operations.push({address: operation.from, contract: operation.contract._id})
+            })
+        })
+        return operations
+    }
+
     // ###### private methods ######
 
     private updateTransactionOperationInDatabase(transactionOperation): Promise<ITransactionOperation[]> {
         return ERC721TransactionOperation.findOneAndUpdate({transactionId: transactionOperation.transactionId}, transactionOperation, {upsert: true, new: true})
             .then((operation: any) => {
-                return Transaction.findOneAndUpdate({_id: transactionOperation.originalTransactionId}, {$push: {operations: operation._id, addresses: {$each: [operation.to]}}})
+                return ERC721Transaction.findOneAndUpdate({_id: transactionOperation.originalTransactionId}, {$addToSet: {operations: operation._id, addresses: {$each: [operation.to]}}})
                     .catch((error: Error) => {
                         winston.error(`Could not update operation and address to transactionID ${transactionOperation.transactionId} with error: ${error}`);
                     })

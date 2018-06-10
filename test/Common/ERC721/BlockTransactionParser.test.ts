@@ -23,6 +23,7 @@ describe("Test BlockTransactionParser", () => {
     it("Should parse transactions from a block", async () => {
         const blockParser = new BlockParser();
         const blockTransactionParser = new BlockTransactionParser();
+
         const block = await blockParser.getBlockByNumber(5665445);
 
         const transactions = blockTransactionParser.extractTransactions(block);
@@ -88,11 +89,19 @@ describe("Test BlockTransactionParser", () => {
         expect(mergedTransaction.receipt.logs[0].topics.length).to.equal(3);
         expect(mergedTransaction.receipt.logs[0].topics[0]).to.equal("0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef");
 
-        const results = await blockTransactionParser.updateTransactionsDatabase(mergedTransactions);
+        const savedTransactions = await blockTransactionParser.updateTransactionsInDatabase(mergedTransactions);
 
-        expect(results.length).to.equal(178);
-        // NOTE: check the database to see
-        // if transaction _id = 0xb2c6a21504db37e36c5daae3663c704bbba7f1c4b0d16441fc347756e6bbfc9b
-        // is there, delete it then run the test, it should appear again.
+        expect(savedTransactions.length).to.equal(178);
+
+        const savedTransaction = savedTransactions.filter(
+            (stx) => { return stx._id === "0x39f5aa0e8782662503910daefa905876cd7b798dab3c15dc0f361ea98ab55cdb"; }
+        )[0];
+
+        /*  NOTE:
+            this saved transaction has an ERC721 approval operation,
+            but it won't get saved until transaction operation parsing is done later,
+            by ERC721Parser.updateTransactionOperationsInDatabase().
+        */
+        expect(savedTransaction.operations.length).to.equal(0);
     })
 })
