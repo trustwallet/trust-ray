@@ -38,8 +38,8 @@ export class ERC721Parser {
         BlockchainState.getBlockState()
             .then(([blockInChain, blockInDb]) => {
                 const lastTokensBlockForERC721: number = blockInDb.lastTokensBlockForERC721
-                if (lastTokensBlockForERC721 <= blockInChain) {
-                    const blockNumberToParse = lastTokensBlockForERC721 + 1;
+                if (lastTokensBlockForERC721 >= 0) {
+                    const blockNumberToParse = lastTokensBlockForERC721 - 1;
                     new BlockParser().getBlockByNumber(blockNumberToParse)
                         .then((block) => {
                             return this.parse(block);
@@ -66,15 +66,22 @@ export class ERC721Parser {
         const mergedTransactions = await this.attachReceiptsToTransactions(transactions, receipts);
 
         const results = await this.updateTransactionsInDatabase(mergedTransactions);
+        winston.info(`ERC721Parser.updateTransactionsInDatabase, rows: ${results.length}, block: ${block.number}`);
 
         const contractAddresses = await this.extractContractAddresses(transactions);
         const contracts = await this.getERC721Contracts(contractAddresses);
 
         const savedContracts = await this.updateERC721ContractsInDatabase(contracts);
+        winston.info(`ERC721Parser.updateERC721ContractsInDatabase, rows: ${savedContracts.length}, block: ${block.number}`);
 
         const transactionOperations = await this.parseTransactionOperations(transactions, savedContracts);
 
         const savedTransactions = await this.updateTransactionOperationsInDatabase(transactionOperations);
+        winston.info(`ERC721Parser.updateTransactionOperationsInDatabase, rows: ${savedTransactions.length}, block: ${block.number}`);
+
+        const savedTokenOwnerships = await this.updateTokenOwnership(block.number);
+        // TODO: print out the number of rows affected
+        winston.info(`ERC721Parser.updateTokenOwnership, rows: ${savedTokenOwnerships}, block: ${block.number}`);
 
         return Promise.resolve(savedTransactions);
     }
@@ -352,7 +359,7 @@ export class ERC721Parser {
             });
     }
 
-    public parseOperationsInBlock(blockNumber) {
+    public updateTokenOwnership(blockNumber) {
        return this.getSavedTransactionsInDatabase(blockNumber)
            .then(transactions => {
                 const operations = this.createOperations(transactions)

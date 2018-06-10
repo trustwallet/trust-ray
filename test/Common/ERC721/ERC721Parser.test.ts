@@ -222,7 +222,7 @@ describe("Test ERC721Parser", () => {
         expect(operations[1].address).to.equal("0xdcf005aa5550f76cd32c925c06a570bc36b0ac6f");
         expect(operations[0].contract).to.deep.equal(operations[1].contract);
 
-        await erc721Parser.parseOperationsInBlock(5665445);
+        await erc721Parser.updateTokenOwnership(5665445);
 
         const owner1 = await ERC721Token.find({_id: "0xb2c3531f77ee0a7ec7094a0bc87ef4a269e0bcfc"});
         const owner2 = await ERC721Token.find({_id: "0xdcf005aa5550f76cd32c925c06a570bc36b0ac6f"});
