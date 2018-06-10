@@ -13,7 +13,8 @@ export class BlockchainState {
                     lastBackwardBlock: blockInChain,
                     lastPusherBlock: blockInChain,
                     lastTokensBlock: blockInChain,
-                    lastTokensBackwardBlock: blockInChain
+                    lastTokensBackwardBlock: blockInChain,
+                    lastTokensBlockForERC721: -1,
                 }).save()
             }
 
@@ -35,6 +36,10 @@ export class BlockchainState {
 
             if (!blockInDb.lastTokensBackwardBlock) {
                 blockInDb.lastTokensBackwardBlock = blockInChain
+            }
+
+            if (!blockInDb.lastTokensBlockForERC721) {
+                blockInDb.lastTokensBlockForERC721 = -1
             }
 
             return blockInDb.save()

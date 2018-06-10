@@ -6,13 +6,16 @@ import { Config } from "../Config";
 import { nameABI, ownerOfABI, standardERC721ABI } from "../abi/ABI";
 import { contracts } from "../tokens/contracts";
 import {
-    IBlock,
-    IContract, IDecodedLog, IExtractedTransaction, ISavedTransaction, ITransaction, ITransactionOperation
+    IBlock, IContract, IDecodedLog, IExtractedTransaction,
+    ISavedTransaction, ITransaction, ITransactionOperation
 } from "../CommonInterfaces";
 import { ERC721Contract } from "../../models/Erc721ContractModel";
 import { ERC721TransactionOperation } from "../../models/Erc721TransactionOperationModel";
 import { ERC721Transaction } from "../../models/Erc721TransactionModel";
 import { ERC721Token } from "../../models/Erc721TokenModel";
+import { BlockchainState } from "../BlockchainState";
+import { LastParsedBlock } from "../../models/LastParsedBlockModel";
+import { BlockParser } from "./BlockParser";
 
 export class ERC721Parser {
     private abiDecoder = require("abi-decoder");
@@ -20,6 +23,7 @@ export class ERC721Parser {
 
     private operationTypes = ["Transfer", "Approval", "approve"];
 
+    // TODO: implement cache
     private cachedContracts = {};
 
     constructor() {
@@ -28,12 +32,46 @@ export class ERC721Parser {
         }
     }
 
+    public start() {
+        winston.info(`ERC721Parser.start()`);
+
+        BlockchainState.getBlockState()
+            .then(([blockInChain, blockInDb]) => {
+                const lastTokensBlockForERC721: number = blockInDb.lastTokensBlockForERC721
+                if (lastTokensBlockForERC721 <= blockInChain) {
+                    const blockNumberToParse = lastTokensBlockForERC721 + 1;
+                    new BlockParser().getBlockByNumber(blockNumberToParse)
+                        .then((block) => {
+                            return this.parse(block);
+                        })
+                        .then(() => {
+                            this.saveLastParsedBlock(blockNumberToParse);
+                            Promise.resolve();
+                        })
+                        .catch((err: Error) => {
+                            winston.error(`ERC721Parser.start() at block: ${blockNumberToParse}, error: ${err}`);
+                        });;
+                }
+            });
+    }
+
     public async parse(block): Promise<any[]> {
+        winston.info(`ERC721Parser.parse(${block.number})`);
+
         const transactions = this.extractTransactions(block);
         const transactionIDs = this.getTransactionIDs(transactions);
         const receipts = await this.fetchReceiptsFromTransactionIDs(transactionIDs);
-        const mergedTransactions = this.mergeTransactionsAndReceipts(transactions, receipts);
-        return Promise.resolve(mergedTransactions);
+        const mergedTransactions = await this.mergeTransactionsAndReceipts(transactions, receipts);
+        const results = await this.updateTransactionsInDatabase(mergedTransactions);
+
+        const contractAddresses = await this.extractContractAddresses(transactions);
+        const contracts = await this.getERC721Contracts(contractAddresses);
+        const savedContracts = await this.updateERC721ContractsInDatabase(contracts);
+
+        const transactionOperations = await this.parseTransactionOperations(transactions, savedContracts);
+        const savedTransactions = await this.updateTransactionOperationsInDatabase(transactionOperations);
+
+        return Promise.resolve(savedTransactions);
     }
 
     public extractTransactions(block): any[] {
@@ -331,6 +369,12 @@ export class ERC721Parser {
     }
 
     // ###### private methods ######
+
+    private saveLastParsedBlock(blockNumber: number) {
+        return LastParsedBlock.findOneAndUpdate({}, {lastTokensBlockForERC721: blockNumber}, {upsert: true, new: true}).catch((err: Error) => {
+            winston.error(`Could not save last parsed block to DB with error: ${err}`);
+        });
+    }
 
     private getRawTransactions(block): any[] {
         return block.transactions;

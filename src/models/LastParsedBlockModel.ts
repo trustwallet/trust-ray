@@ -17,7 +17,10 @@ const lastParsedBlockSchema = new Schema({
     },
     lastTokensBackwardBlock: {
         type: Number
-    }
+    },
+    lastTokensBlockForERC721: {
+        type: Number
+    },
 }, {
     versionKey: false,
 });

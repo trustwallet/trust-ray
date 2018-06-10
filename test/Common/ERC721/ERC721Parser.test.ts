@@ -227,4 +227,10 @@ describe("Test ERC721Parser", () => {
 
         expect(owner1[0].tokens[0]).to.deep.equal(owner2[0].tokens[0]);
     })
+
+    it("Should start parsing", async () => {
+        return await erc721Parser.parse(
+            await new BlockParser().getBlockByNumber(5665445)
+        );
+    })
 })
