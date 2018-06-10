@@ -5,7 +5,10 @@ import { loadContractABIs, removeScientificNotationFromNumbString } from "../Uti
 import { Config } from "../Config";
 import { nameABI, ownerOfABI, standardERC721ABI } from "../abi/ABI";
 import { contracts } from "../tokens/contracts";
-import { IContract, IDecodedLog, ISavedTransaction, ITransactionOperation } from "../CommonInterfaces";
+import {
+    IBlock,
+    IContract, IDecodedLog, IExtractedTransaction, ISavedTransaction, ITransaction, ITransactionOperation
+} from "../CommonInterfaces";
 import { ERC721Contract } from "../../models/Erc721ContractModel";
 import { ERC721TransactionOperation } from "../../models/Erc721TransactionOperationModel";
 import { ERC721Transaction } from "../../models/Erc721TransactionModel";
@@ -23,6 +26,104 @@ export class ERC721Parser {
         for (const abi of this.abiList) {
             this.abiDecoder.addABI(abi);
         }
+    }
+
+    public async parse(block): Promise<any[]> {
+        const transactions = this.extractTransactions(block);
+        const transactionIDs = this.getTransactionIDs(transactions);
+        const receipts = await this.fetchReceiptsFromTransactionIDs(transactionIDs);
+        const mergedTransactions = this.mergeTransactionsAndReceipts(transactions, receipts);
+        return Promise.resolve(mergedTransactions);
+    }
+
+    public extractTransactions(block): any[] {
+        return this.getRawTransactions(block).map((tx: ITransaction) => {
+            return new ERC721Transaction(this.extractTransaction(block, tx));
+        });
+    }
+
+    public getTransactionIDs(transactions): string[] {
+        return transactions.map((tx: IExtractedTransaction) => tx._id);
+    }
+
+    public async fetchReceiptsFromTransactionIDs (transactionIDs: string[]) {
+        const batchLimit = 300
+        const chunk = (list, size) => list.reduce((r, v) =>
+            (!r.length || r[r.length - 1].length === size ?
+                r.push([v]) : r[r.length - 1].push(v)) && r
+            , []);
+        const chunkTransactions = chunk(transactionIDs, batchLimit)
+
+        try {
+            const receipts = await Bluebird.map(chunkTransactions, (chunk: any) => {
+                return new Promise((resolve, reject) => {
+                    let completed = false;
+                    const chunkReceipts = [];
+                    const callback = (err: Error, receipt: any) => {
+                        if (completed) return;
+                        if (err || !receipt) {
+                            completed = true;
+                            reject(err);
+                        }
+
+                        chunkReceipts.push(err ? null : receipt);
+                        if (chunkReceipts.length >= chunk.length) {
+                            completed = true;
+                            resolve(chunkReceipts);
+                        }
+                    };
+
+                    if (chunk.length > 0) {
+                        const batch = new Config.web3.BatchRequest();
+                        chunk.forEach((tx: any) => {
+                            batch.add(Config.web3.eth.getTransactionReceipt.request(tx, callback));
+                        });
+                        batch.execute();
+                    } else {
+                        resolve(chunkReceipts);
+                    }
+                });
+            })
+
+            return [].concat(...receipts);
+
+        } catch (error) {
+            winston.error(`Error getting receipt from transaction `, error)
+            Promise.reject(error)
+        }
+    }
+
+    public mergeTransactionsAndReceipts(transactions: any[], receipts: any[]) {
+        if (transactions.length !== receipts.length) {
+            winston.error(`Number of transactions not equal to number of receipts.`);
+        }
+
+        // compared to old version in TransactionParser, execution time improved from 10s to 5s
+        const receiptMap = new Map<string, any>(
+            receipts.map(r => [r.transactionHash, r] as [string, any])
+        );
+        const results: any = [];
+
+        transactions.forEach((transaction) => {
+            const receipt = receiptMap.get(transaction._id);
+            results.push(this.mergeTransactionWithReceipt(transaction, receipt));
+        });
+
+        return Promise.resolve(results);
+    }
+
+    public updateTransactionsInDatabase(transactions: any) {
+        const bulkTransactions = ERC721Transaction.collection.initializeUnorderedBulkOp();
+
+        transactions.forEach((transaction: IExtractedTransaction) =>
+            bulkTransactions.find({_id: transaction._id}).upsert().replaceOne(transaction)
+        );
+
+        if (bulkTransactions.length === 0) return Promise.resolve();
+
+        return bulkTransactions.execute().then((bulkResult: any) => {
+            return Promise.resolve(transactions);
+        });
     }
 
     public extractDecodedLogsFromTransactions(transactions): Promise<any[]> {
@@ -230,6 +331,42 @@ export class ERC721Parser {
     }
 
     // ###### private methods ######
+
+    private getRawTransactions(block): any[] {
+        return block.transactions;
+    }
+
+    private extractTransaction(block: IBlock, transaction: ITransaction) {
+        const from = String(transaction.from).toLowerCase();
+        const to: string = transaction.to === null ? "" : String(transaction.to).toLowerCase();
+        const addresses: string[] = to ? [from, to] : [from];
+
+        return {
+            _id: String(transaction.hash),
+            blockNumber: Number(transaction.blockNumber),
+            timeStamp: String(block.timestamp),
+            nonce: Number(transaction.nonce),
+            from,
+            to,
+            value: String(transaction.value),
+            gas: String(transaction.gas),
+            gasPrice: String(transaction.gasPrice),
+            gasUsed: String(0),
+            input: String(transaction.input),
+            addresses
+        };
+    }
+
+    private mergeTransactionWithReceipt(transaction: any, receipt: any) {
+        const newTransaction = transaction;
+        newTransaction.gasUsed = receipt.gasUsed;
+        newTransaction.receipt = receipt;
+        newTransaction.contract = receipt.contractAddress ? receipt.contractAddress.toLowerCase() : null
+        if (receipt.status) {
+            newTransaction.error = receipt.status === "0x1" ? "" : "Error";
+        }
+        return newTransaction;
+    }
 
     private completeBulk(bulk: any): Promise<any> {
         if (bulk.length > 0) {
