@@ -4,11 +4,12 @@ import * as Bluebird from "bluebird";
 import { loadContractABIs, removeScientificNotationFromNumbString } from "../Utils";
 import { Config } from "../Config";
 import { nameABI, ownerOfABI, standardERC721ABI } from "../abi/ABI";
-import { ERC721Contract } from "../../models/Erc721ContractModel";
 import { contracts } from "../tokens/contracts";
 import { IContract, IDecodedLog, ISavedTransaction, ITransactionOperation } from "../CommonInterfaces";
+import { ERC721Contract } from "../../models/Erc721ContractModel";
 import { ERC721TransactionOperation } from "../../models/Erc721TransactionOperationModel";
 import { ERC721Transaction } from "../../models/Erc721TransactionModel";
+import { ERC721Token } from "../../models/Erc721TokenModel";
 
 export class ERC721Parser {
     private abiDecoder = require("abi-decoder");
@@ -207,6 +208,16 @@ export class ERC721Parser {
             });
     }
 
+    public parseOperationsInBlock(blockNumber) {
+       return this.getSavedTransactionsInDatabase(blockNumber)
+           .then(transactions => {
+                const operations = this.createOperations(transactions)
+                return this.completeBulk(this.createBulk(operations))
+           }).catch((error: Error) => {
+                winston.error(`Error parsing operations in block ${blockNumber}`, error)
+           })
+    }
+
     public createOperations(transactions: any[]): any[] {
         const operations: any = [];
         transactions.forEach(transaction => {
@@ -219,6 +230,49 @@ export class ERC721Parser {
     }
 
     // ###### private methods ######
+
+    private completeBulk(bulk: any): Promise<any> {
+        if (bulk.length > 0) {
+            return bulk.execute().catch((err: Error) => {
+                winston.error(`Could not update token with error: ${err}`);
+            });
+        } else {
+            return Promise.resolve();
+        }
+    }
+
+    private createBulk(operations: any) {
+        const bulk = ERC721Token.collection.initializeUnorderedBulkOp();
+        operations.forEach((operation: any) => {
+            const contract = operation.contract
+            const address = operation.address
+
+            bulk.find({
+                _id: address
+            }).upsert().updateOne({
+                "$setOnInsert": {
+                    _id: address,
+                    tokens: []
+                }
+            });
+
+            bulk.find({
+                _id: address,
+                tokens: {
+                    "$not": {
+                        "$elemMatch": {
+                            "$in": [contract]
+                        }
+                    }
+                }
+            }).updateOne({
+                "$push": {
+                    tokens: contract
+                }
+            });
+        })
+        return bulk
+    }
 
     private updateTransactionOperationInDatabase(transactionOperation): Promise<ITransactionOperation[]> {
         return ERC721TransactionOperation.findOneAndUpdate({transactionId: transactionOperation.transactionId}, transactionOperation, {upsert: true, new: true})

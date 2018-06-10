@@ -2,6 +2,7 @@ import { BlockParser } from "../../../src/common/erc721/BlockParser";
 import { BlockTransactionParser } from "../../../src/common/erc721/BlockTransactionParser";
 import { ERC721Parser } from "../../../src/common/erc721/ERC721Parser";
 import { Database } from "../../../src/models/Database";
+import { ERC721Token } from "../../../src/models/Erc721TokenModel";
 
 const mongoose = require("mongoose");
 const config = require("config");
@@ -120,5 +121,25 @@ describe("Test ERC721Parser", () => {
         const savedERC721Contract = await erc721Parser.updateERC721ContractInDatabase(erc721Contract_CF);
 
         expect(savedERC721Contract.name).to.equal("CryptoFighters");
+    })
+
+    it("Should create operations from saved transactions", async () => {
+        const erc721Parser = new ERC721Parser();
+
+        const savedTransactions = await erc721Parser.getSavedTransactionsInDatabase(5665445);
+
+        const operations = await erc721Parser.createOperations(savedTransactions);
+
+        expect(operations.length).to.equal(2);
+        expect(operations[0].address).to.equal("0xb2c3531f77ee0a7ec7094a0bc87ef4a269e0bcfc");
+        expect(operations[1].address).to.equal("0xdcf005aa5550f76cd32c925c06a570bc36b0ac6f");
+        expect(operations[0].contract).to.deep.equal(operations[1].contract);
+
+        await erc721Parser.parseOperationsInBlock(5665445);
+
+        const owner1 = await ERC721Token.find({_id: "0xb2c3531f77ee0a7ec7094a0bc87ef4a269e0bcfc"});
+        const owner2 = await ERC721Token.find({_id: "0xdcf005aa5550f76cd32c925c06a570bc36b0ac6f"});
+
+        expect(owner1[0].tokens[0]).to.deep.equal(owner2[0].tokens[0]);
     })
 })
