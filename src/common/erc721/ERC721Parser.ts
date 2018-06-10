@@ -72,18 +72,22 @@ export class ERC721Parser {
         const contracts = await this.getERC721Contracts(contractAddresses);
 
         const savedContracts = await this.updateERC721ContractsInDatabase(contracts);
-        winston.info(`ERC721Parser.updateERC721ContractsInDatabase, rows: ${savedContracts.length}, block: ${block.number}`);
+        if (savedContracts.length > 0) {
+            winston.info(`ERC721Parser.updateERC721ContractsInDatabase, rows: ${savedContracts.length}, block: ${block.number}`);
+        }
 
         const transactionOperations = await this.parseTransactionOperations(transactions, savedContracts);
 
-        const savedTransactions = await this.updateTransactionOperationsInDatabase(transactionOperations);
-        winston.info(`ERC721Parser.updateTransactionOperationsInDatabase, rows: ${savedTransactions.length}, block: ${block.number}`);
+        const savedTransactionOperations = await this.updateTransactionOperationsInDatabase(transactionOperations);
+        if (savedTransactionOperations.length > 0) {
+            winston.info(`ERC721Parser.updateTransactionOperationsInDatabase, rows: ${savedTransactionOperations.length}, block: ${block.number}`);
+        }
 
         const savedTokenOwnerships = await this.updateTokenOwnership(block.number);
         // TODO: print out the number of rows affected
-        winston.info(`ERC721Parser.updateTokenOwnership, rows: ${savedTokenOwnerships}, block: ${block.number}`);
+        // winston.info(`ERC721Parser.updateTokenOwnership, rows: ${savedTokenOwnerships}, block: ${block.number}`);
 
-        return Promise.resolve(savedTransactions);
+        return Promise.resolve(savedTokenOwnerships);
     }
 
     public extractTransactions(block): any[] {
@@ -383,7 +387,7 @@ export class ERC721Parser {
     // ###### private methods ######
 
     private scheduleNextParsing() {
-        setDelay(1000).then(() => {
+        setDelay(100).then(() => {
             this.start()
         })
     }
