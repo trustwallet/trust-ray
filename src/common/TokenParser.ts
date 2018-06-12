@@ -184,7 +184,7 @@ export class TokenParser {
             data: `${getBalanceSelector}000000000000000000000000${tokenAddress}`
         }).then((balance: string) => Config.web3.utils.toBN(balance).toString()
         ).catch((error: Error) => {
-            winston.info("Error getting token balance ", error);
+            winston.info(`Error getting token balance for address ${address} on smart contract ${contractAddress}`, error);
         });
     }
 
