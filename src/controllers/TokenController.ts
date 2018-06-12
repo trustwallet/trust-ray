@@ -36,9 +36,9 @@ export class TokenController {
                 const tokenAddress = token.address
                 balance = await this.getTokenBalance(address, tokenAddress)
 
-                if (balance === "0") {
-                    await Token.findOneAndUpdate({_id: address}, {$pull: {tokens: token._id}})
-                }
+                // if (balance === "0") {
+                //     await Token.findOneAndUpdate({_id: address}, {$pull: {tokens: token._id}})
+                // }
 
                 return {
                     balance,
