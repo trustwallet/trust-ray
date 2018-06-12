@@ -1750,5 +1750,17 @@ export const contracts = {
     },
     "0x2d9765a94ff22e0ca3afc3e3f4b116de2b67582a": {
         id: "cgc-token"
+    },
+    "0x26db5439f651caf491a87d48799da81f191bdb6b": {
+        id: "cashbet-coin"
+    },
+    "0xb056c38f6b7dc4064367403e26424cd2c60655e1": {
+        id: "ceek-vr"
+    },
+    "0x75c5ee419331b6150879530d06f9ba054755f1da": {
+        id: "salpay"
+    },
+    "0xf091cf09c51811819db705710e9634b8bf18f164": {
+        id: "couchain"
     }
 }
