@@ -36,24 +36,60 @@ export class ERC721Parser {
         winston.info(`ERC721Parser.start()`);
 
         BlockchainState.getBlockState()
-            .then(([blockInChain, blockInDb]) => {
-                const lastTokensBlockForERC721: number = blockInDb.lastTokensBlockForERC721
-                if (lastTokensBlockForERC721 >= 0) {
-                    const blockNumberToParse = lastTokensBlockForERC721 - 1;
-                    new BlockParser().getBlockByNumber(blockNumberToParse)
-                        .then((block) => {
-                            return this.parse(block);
-                        })
-                        .then(() => {
-                            Promise.resolve(this.saveLastParsedBlock(blockNumberToParse));
-                        })
-                        .then((lastParsedBlock) => {
-                            this.scheduleNextParsing();
-                        })
-                        .catch((err: Error) => {
-                            winston.error(`ERC721Parser.start() at block: ${blockNumberToParse}, error: ${err}`);
-                        });;
+            .then(([lastBlockInChain, lastBlockInDb]) => {
+                return Promise.all([
+                    this.performStart(3, true, 0, lastBlockInChain, lastBlockInDb._doc.lastTokensBlockForERC721, lastBlockInDb._doc.lastTokensBackwardBlockForERC721),
+                    this.performStart(3, false, 0, lastBlockInChain, lastBlockInDb._doc.lastTokensBlockForERC721, lastBlockInDb._doc.lastTokensBackwardBlockForERC721)
+                ]);
+            })
+            .then(() => {
+                this.scheduleNextParsing();
+            });
+    }
+
+    private performStart(concurrentNumber = 3, forward = true, firstBlockInChain = 0,
+                         lastBlockInChain = 0, lastForwardBlockInDb = 0, lastBackwardBlockInDb) {
+        const blockNumbers = [];
+        if (forward) {
+            for (let i = lastForwardBlockInDb + 1; i < lastForwardBlockInDb + 1 + concurrentNumber; i++) {
+                if (i <= lastBlockInChain) {
+                    blockNumbers.push(i)
                 }
+            }
+
+            winston.info(`ERC721Parser.performStart(forward), ${blockNumbers}`);
+        } else {
+            for (let i = lastBackwardBlockInDb - 1; i > lastBackwardBlockInDb - 1 - concurrentNumber; i--) {
+                if (i >= firstBlockInChain) {
+                    blockNumbers.push(i)
+                }
+            }
+
+            winston.info(`ERC721Parser.performStart(backward), ${blockNumbers}`);
+        }
+
+        const promises = blockNumbers.map((blockNumber) => {
+            return new Promise((resolve, reject) => {
+                new BlockParser().getBlockByNumber(blockNumber)
+                    .then((block) => {
+                        return this.parse(block);
+                    })
+                    .then(() => {
+                        resolve(this.saveLastParsedBlock(blockNumber, forward));
+                    })
+                    .catch((err: Error) => {
+                        winston.error(`Error parsing block: ${blockNumber}, error: ${err}`);
+                        reject(err);
+                    });
+            });
+        });
+
+        return Promise.all(promises)
+            .then(() => {
+                return Promise.resolve();
+            })
+            .catch((err: Error) => {
+                winston.error(`Error parsing blocks: ${blockNumbers}, error: ${err}`);
             });
     }
 
@@ -392,10 +428,23 @@ export class ERC721Parser {
         })
     }
 
-    private saveLastParsedBlock(blockNumber: number) {
-        return LastParsedBlock.findOneAndUpdate({}, {lastTokensBlockForERC721: blockNumber}, {upsert: true, new: true}).catch((err: Error) => {
-            winston.error(`Could not save last parsed block to DB with error: ${err}`);
-        });
+    private saveLastParsedBlock(blockNumber: number, forward = true) {
+        return LastParsedBlock.findOne({})
+            .then((savedDoc) => {
+                if (forward) {
+                    if (blockNumber > savedDoc._doc.lastTokensBlockForERC721) {
+                        return LastParsedBlock.findOneAndUpdate({}, {lastTokensBlockForERC721: blockNumber}, {upsert: true, new: true}).catch((err: Error) => {
+                            winston.error(`Could not save lastTokensBlockForERC721 to DB with error: ${err}`);
+                        });
+                    }
+                } else {
+                    if (blockNumber < savedDoc._doc.lastTokensBackwardBlockForERC721) {
+                        return LastParsedBlock.findOneAndUpdate({}, {lastTokensBackwardBlockForERC721: blockNumber}, {upsert: true, new: true}).catch((err: Error) => {
+                            winston.error(`Could not save lastTokensBackwardBlockForERC721 to DB with error: ${err}`);
+                        });
+                    }
+                }
+            });
     }
 
     private getRawTransactions(block): any[] {
