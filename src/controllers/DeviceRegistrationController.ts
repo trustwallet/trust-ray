@@ -12,8 +12,8 @@ export class DeviceRegistration {
             isAirdrop: inputPreferences.isAirdrop || false
         }
         const type: string = req.body.type || ""
-        const deviceID: string = req.body.deviceID
-        const token: string = req.body.token
+        const deviceID: string = req.body.deviceID || ""
+        const token: string = req.body.token || ""
         const updatesParams = {
             deviceID,
             wallets,
@@ -41,7 +41,8 @@ export class DeviceRegistration {
         const updateOptions = {
             upsert: true,
             new: true,
-            setDefaultsOnInsert: true
+            setDefaultsOnInsert: true,
+            fields: {_id: 1}
         }
 
         Device.findOneAndUpdate(id, updateParams, updateOptions).then(response => {
