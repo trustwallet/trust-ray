@@ -8,7 +8,7 @@ const should = chai.should();
 const app = new App().app;
 
 
-describe.only("Register device", () => {
+describe("Register device", () => {
     beforeEach((done) => {
         Device.remove({}, () => {
             done();
