@@ -14,11 +14,6 @@ export class DeviceRegistration {
         const type: string = req.body.type || ""
         const deviceID: string = req.body.deviceID
         const token: string = req.body.token
-        const updateOptions = {
-            upsert: true,
-            new: true,
-            setDefaultsOnInsert: true
-        }
         const updatesParams = {
             deviceID,
             wallets,
@@ -29,14 +24,10 @@ export class DeviceRegistration {
 
         try {
             if (deviceID && token) {
-                Device.findOneAndUpdate({deviceID}, updatesParams, updateOptions).then(registeredDevice => {
-                    this.sendOnRegisterSuccess(res, registeredDevice)
-                })
+                this.findOneAndRegister(res, {deviceID}, updatesParams)
             }
             else if (token && !deviceID && type === "android") {
-                Device.findOneAndUpdate({token}, updatesParams, updateOptions).then(registeredDevice => {
-                    this.sendOnRegisterSuccess(res, registeredDevice)
-                })
+                this.findOneAndRegister(res, {token}, updatesParams)
             } else {
                 throw new TypeError()
             }
@@ -46,6 +37,22 @@ export class DeviceRegistration {
         }
     }
 
+    private findOneAndRegister(res: Response, id, updateParams) {
+        const updateOptions = {
+            upsert: true,
+            new: true,
+            setDefaultsOnInsert: true
+        }
+
+        Device.findOneAndUpdate(id, updateParams, updateOptions).then(response => {
+            sendJSONresponse(res, 200, {
+                status: 200,
+                message: "Successfully saved",
+                response,
+            });
+        })
+    }
+
     unregister = (req: Request, res: Response) => {
         const deviceID: string = req.body.deviceID
         const token: string = req.body.token
@@ -53,14 +60,10 @@ export class DeviceRegistration {
 
         try {
             if (deviceID) {
-                Device.findOneAndRemove({deviceID}).then((removedDevice) => {
-                    removedDevice ? this.sendOnUnregisterSuccess(res, removedDevice) : this.sendOnUnregisterFail(404, res, "Can not find device", removedDevice)
-                })
+                this.findOneAndUnregister(res, {deviceID})
             }
             else if (token && !deviceID && type === "android") {
-                Device.findOneAndRemove({token}).then((removedDevice) => {
-                    removedDevice ? this.sendOnUnregisterSuccess(res, removedDevice) : this.sendOnUnregisterFail(404, res, "Can not find device", removedDevice)
-                })
+                this.findOneAndUnregister(res, {token})
             } else {
                 throw new TypeError()
             }
@@ -70,12 +73,10 @@ export class DeviceRegistration {
         }
     }
 
-   private sendOnRegisterSuccess(res: Response, registeredDevice) {
-        sendJSONresponse(res, 200, {
-            status: 200,
-            message: "Successfully saved",
-            response: registeredDevice,
-        });
+    private findOneAndUnregister(res: Response, id) {
+        Device.findOneAndRemove(id).then(removedDevice => {
+            removedDevice ? this.sendOnUnregisterSuccess(res, removedDevice) : this.sendOnUnregisterFail(404, res, "Can not find device", removedDevice)
+        })
     }
 
     private sendOnRegisterFail(code: number, res: Response, message: string, error) {
