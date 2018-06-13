@@ -42,7 +42,7 @@ export class DeviceRegistration {
             upsert: true,
             new: true,
             setDefaultsOnInsert: true,
-            fields: {_id: 1}
+            fields: {_id: 0}
         }
 
         Device.findOneAndUpdate(id, updateParams, updateOptions).then(response => {
