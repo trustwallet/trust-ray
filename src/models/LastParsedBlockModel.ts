@@ -21,6 +21,9 @@ const lastParsedBlockSchema = new Schema({
     lastTokensBlockForERC721: {
         type: Number
     },
+    lastTokensBackwardBlockForERC721: {
+        type: Number
+    },
 }, {
     versionKey: false,
 });
