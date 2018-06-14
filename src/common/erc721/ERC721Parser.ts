@@ -35,11 +35,13 @@ export class ERC721Parser {
     public start() {
         winston.info(`ERC721Parser.start()`);
 
+        const numberOfBlocksToParseAtOnce = 10;
+
         BlockchainState.getBlockState()
             .then(([lastBlockInChain, lastBlockInDb]) => {
                 return Promise.all([
-                    this.performStart(3, true, 0, lastBlockInChain, lastBlockInDb._doc.lastTokensBlockForERC721, lastBlockInDb._doc.lastTokensBackwardBlockForERC721),
-                    this.performStart(3, false, 0, lastBlockInChain, lastBlockInDb._doc.lastTokensBlockForERC721, lastBlockInDb._doc.lastTokensBackwardBlockForERC721)
+                    this.performStart(numberOfBlocksToParseAtOnce, true, 0, lastBlockInChain, lastBlockInDb._doc.lastTokensBlockForERC721, lastBlockInDb._doc.lastTokensBackwardBlockForERC721),
+                    this.performStart(numberOfBlocksToParseAtOnce, false, 0, lastBlockInChain, lastBlockInDb._doc.lastTokensBlockForERC721, lastBlockInDb._doc.lastTokensBackwardBlockForERC721)
                 ]);
             })
             .then(() => {
@@ -47,11 +49,11 @@ export class ERC721Parser {
             });
     }
 
-    private performStart(concurrentNumber = 3, forward = true, firstBlockInChain = 0,
+    private performStart(numberOfBlocksToParseAtOnce = 3, forward = true, firstBlockInChain = 0,
                          lastBlockInChain = 0, lastForwardBlockInDb = 0, lastBackwardBlockInDb) {
         const blockNumbers = [];
         if (forward) {
-            for (let i = lastForwardBlockInDb + 1; i < lastForwardBlockInDb + 1 + concurrentNumber; i++) {
+            for (let i = lastForwardBlockInDb + 1; i < lastForwardBlockInDb + 1 + numberOfBlocksToParseAtOnce; i++) {
                 if (i <= lastBlockInChain) {
                     blockNumbers.push(i)
                 }
@@ -59,7 +61,7 @@ export class ERC721Parser {
 
             winston.info(`ERC721Parser.performStart(forward), ${blockNumbers}`);
         } else {
-            for (let i = lastBackwardBlockInDb - 1; i > lastBackwardBlockInDb - 1 - concurrentNumber; i--) {
+            for (let i = lastBackwardBlockInDb - 1; i > lastBackwardBlockInDb - 1 - numberOfBlocksToParseAtOnce; i--) {
                 if (i >= firstBlockInChain) {
                     blockNumbers.push(i)
                 }
