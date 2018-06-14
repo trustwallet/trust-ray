@@ -6,43 +6,6 @@ import { Error } from "mongoose";
 import { ISavedDevice } from "./Interfaces/IPusherController"
 
 export class Pusher {
-    register(req: Request, res: Response) {
-        const wallets: string[] = req.body.wallets.map((wallet: string) => wallet.toLowerCase());
-        const unuqieWallets = [...(new Set(wallets))];
-        const inputPreferences = req.body.preferences || {};
-        const preferences = {
-            isAirdrop: inputPreferences.isAirdrop || false
-        }
-        const type: string = req.body.type || ""
-
-        Device.findOneAndUpdate({
-            deviceID: req.body.deviceID
-        }, {
-            wallets: unuqieWallets,
-            token: req.body.token,
-            preferences,
-            type
-        }, {
-            upsert: true,
-            new: true,
-            setDefaultsOnInsert: true
-        }
-        ).then((savedDevice: ISavedDevice) => {
-            sendJSONresponse(res, 200, {
-                status: 200,
-                message: "Successfully saved",
-                response: savedDevice,
-            });
-        }).catch((error: Error) => {
-            winston.error("Failed to save device ", error);
-            sendJSONresponse(res, 500, {
-                status: 500,
-                message: "Failed to save device",
-                error,
-              });
-        });
-    }
-
     unregister(req: Request, res: Response): void {
         Device.findOneAndRemove({
             deviceID: req.body.deviceID

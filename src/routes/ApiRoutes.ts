@@ -3,6 +3,7 @@ import { TransactionController } from "../controllers/TransactionController";
 import { TokenController } from "../controllers/TokenController";
 import { StatusController } from "../controllers/StatusController";
 import { Pusher } from "../controllers/PusherController";
+import { DeviceRegistration } from "../controllers/DeviceRegistrationController";
 import { PriceController } from "../controllers/PriceController";
 import { TokenPriceController } from "../controllers/TokenPriceController";
 import { AssetsController } from "../controllers/AssestsController";
@@ -13,6 +14,7 @@ const transactionController = new TransactionController();
 const tokenController = new TokenController();
 const statusController = new StatusController();
 const pusherController = new Pusher();
+const deviceRegistration = new DeviceRegistration();
 const priceController = new PriceController();
 const tokenPriceController = new TokenPriceController();
 const assetsController = new AssetsController();
@@ -30,8 +32,9 @@ router.get("/tokens/:address", tokenController.readOneToken);
 router.get("/tokenInfo/:tokenAddress", tokenController.readTokenInfo);
 
 // URLs for push notifications
-router.post("/push/register", pusherController.register);
+router.post("/push/register", deviceRegistration.register);
 router.delete("/push/unregister", pusherController.unregister);
+router.post("/push/unregister", deviceRegistration.unregister);
 
 router.get("/prices", priceController.getPrices);
 router.post("/tokenPrices", tokenPriceController.getTokenPrices);
