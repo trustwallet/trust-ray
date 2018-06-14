@@ -1,8 +1,5 @@
-import * as winston from "winston";
 import { Config } from "./Config";
 import { LastParsedBlock } from "../models/LastParsedBlockModel";
-import { setDelay } from "./Utils";
-const config = require("config");
 
 export class BlockchainState {
     getState(): Promise<any> {
@@ -15,6 +12,7 @@ export class BlockchainState {
                     lastTokensBlock: blockInChain,
                     lastTokensBackwardBlock: blockInChain,
                     lastTokensBlockForERC721: blockInChain,
+                    lastTokensBackwardBlockForERC721: blockInChain
                 }).save()
             }
 
@@ -40,6 +38,10 @@ export class BlockchainState {
 
             if (!blockInDb.lastTokensBlockForERC721) {
                 blockInDb.lastTokensBlockForERC721 = blockInChain
+            }
+
+            if (!blockInDb.lastTokensBackwardBlockForERC721) {
+                blockInDb.lastTokensBackwardBlockForERC721 = blockInChain
             }
 
             return blockInDb.save()
