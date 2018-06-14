@@ -75,7 +75,10 @@ export class DeviceRegistration {
     }
 
     private findOneAndUnregister(res: Response, id) {
-        Device.findOneAndRemove(id).then(removedDevice => {
+        const removeOptions: any = {
+            projection: {_id: 0}
+        }
+        Device.findOneAndRemove(id, removeOptions).then(removedDevice => {
             removedDevice ? this.sendOnUnregisterSuccess(res, removedDevice) : this.sendOnUnregisterFail(404, res, "Can not find device", removedDevice)
         })
     }

@@ -45,6 +45,7 @@ describe("Register device", () => {
                 body.should.have.property("response");
 
                 const response = res.body.response;
+                response.should.not.have.property("_id")
                 response.should.have.property("wallets").eql([address]);
                 response.should.have.property("preferences");
                 response.preferences.should.have.property("isAirdrop")
@@ -77,6 +78,7 @@ describe("Register device", () => {
                 body.should.have.property("response");
 
                 const response = res.body.response;
+                response.should.not.have.property("_id")
                 response.should.have.property("wallets").eql([address]);
                 response.should.have.property("preferences");
                 response.preferences.should.have.property("isAirdrop")
@@ -108,6 +110,7 @@ describe("Register device", () => {
             .end((err, res) => {
                 const body = res.body
                 res.should.have.status(200)
+                res.should.not.have.property("_id")
                 body.should.have.property("message").eql("Successfully unregistered")
             })
     });
@@ -132,6 +135,7 @@ describe("Register device", () => {
             .end((err, res) => {
                 const body = res.body
                 res.should.have.status(200)
+                res.should.not.have.property("_id")
                 body.should.have.property("message").eql("Successfully unregistered")
             })
     });
