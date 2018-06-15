@@ -1,7 +1,7 @@
 import * as winston from "winston";
 import * as Bluebird from "bluebird";
 
-import { loadContractABIs, removeScientificNotationFromNumbString, setDelay } from "../Utils";
+import { fetchTransactionReceipts, loadContractABIs, removeScientificNotationFromNumbString, setDelay } from "../Utils";
 import { Config } from "../Config";
 import { nameABI, ownerOfABI, standardERC721ABI } from "../abi/ABI";
 import { contracts } from "../tokens/contracts";
@@ -139,50 +139,7 @@ export class ERC721Parser {
     }
 
     public async fetchReceiptsFromTransactionIDs (transactionIDs: string[]) {
-        const batchLimit = 300
-        const chunk = (list, size) => list.reduce((r, v) =>
-            (!r.length || r[r.length - 1].length === size ?
-                r.push([v]) : r[r.length - 1].push(v)) && r
-            , []);
-        const chunkTransactions = chunk(transactionIDs, batchLimit)
-
-        try {
-            const receipts = await Bluebird.map(chunkTransactions, (chunk: any) => {
-                return new Promise((resolve, reject) => {
-                    let completed = false;
-                    const chunkReceipts = [];
-                    const callback = (err: Error, receipt: any) => {
-                        if (completed) return;
-                        if (err || !receipt) {
-                            completed = true;
-                            reject(err);
-                        }
-
-                        chunkReceipts.push(err ? null : receipt);
-                        if (chunkReceipts.length >= chunk.length) {
-                            completed = true;
-                            resolve(chunkReceipts);
-                        }
-                    };
-
-                    if (chunk.length > 0) {
-                        const batch = new Config.web3.BatchRequest();
-                        chunk.forEach((tx: any) => {
-                            batch.add(Config.web3.eth.getTransactionReceipt.request(tx, callback));
-                        });
-                        batch.execute();
-                    } else {
-                        resolve(chunkReceipts);
-                    }
-                });
-            })
-
-            return [].concat(...receipts);
-
-        } catch (error) {
-            winston.error(`Error getting receipt from transaction `, error)
-            Promise.reject(error)
-        }
+        return fetchTransactionReceipts(transactionIDs);
     }
 
     public attachReceiptsToTransactions(transactions: any[], receipts: any[]) {
