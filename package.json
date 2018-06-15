@@ -38,7 +38,7 @@
     "@types/mongoose-paginate": "^5.0.6",
     "@types/morgan": "^1.7.35",
     "@types/node": "^10.0.7",
-    "@types/request": "2.47.0",
+    "@types/request": "2.47.1",
     "@types/winston": "^2.3.7",
     "@types/xss-filters": "0.0.27",
     "abi-decoder": "kolya182/abi-decoder#master",
