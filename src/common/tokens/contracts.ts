@@ -1762,5 +1762,11 @@ export const contracts = {
     },
     "0xf091cf09c51811819db705710e9634b8bf18f164": {
         id: "couchain"
+    },
+    "0x624d520bab2e4ad83935fa503fb130614374e850": {
+        id: "smartshare"
+    },
+    "0x0f8c45b896784a1e408526b9300519ef8660209c": {
+        id: "xmax"
     }
 }
