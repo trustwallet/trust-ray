@@ -1193,7 +1193,7 @@ export const contracts = {
     "0xa4e8c3ec456107ea67d3075bf9e3df3a75823db0": {
         id: "loom-network"
     },
-    "0xf244176246168f24e3187f7288edbca29267739b": {
+    "0xc011a72400e58ecd99ee497cf89e3775d4bd732f": {
         id: "havven"
     },
     "0x1122b6a0e00dce0563082b6e2953f3a943855c1f": {
