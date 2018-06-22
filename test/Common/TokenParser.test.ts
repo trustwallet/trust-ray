@@ -99,10 +99,10 @@ describe("Test ERC20Parser", () => {
 
         tests.forEach(({address, decimals, type, expectedDecimals}) => {
             it(`For address ${address} with decimals = "${decimals}" and type "${type}" should return decimals ${expectedDecimals}`, async () => {
-                const contractName = await getContractDecimals(address)
+                const contractDecimal = await getContractDecimals(address)
 
-                expect(contractName).to.be.an("string")
-                expect(contractName).to.be.equal(expectedDecimals)
+                expect(contractDecimal).to.be.an("string")
+                expect(contractDecimal).to.be.equal(expectedDecimals)
             })
         })
     })
