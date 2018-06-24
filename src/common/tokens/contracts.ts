@@ -1768,5 +1768,8 @@ export const contracts = {
     },
     "0x0f8c45b896784a1e408526b9300519ef8660209c": {
         id: "xmax"
+    },
+    "0x69beab403438253f13b6e92db91f7fb849258263": {
+        id: "neurotoken"
     }
 }
