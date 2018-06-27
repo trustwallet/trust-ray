@@ -38,11 +38,6 @@ const ERC20ContractScheme = new Schema({
     versionKey: false,
 });
 
-// indices
-ERC20ContractScheme.index({address: 1}, {name: "contractAddressIndex"});
-ERC20ContractScheme.index({symbol: 1}, {name: "contractSymbolIndex"});
-ERC20ContractScheme.index({name: 1}, {name: "contractNameIndex"});
-
 ERC20ContractScheme.plugin(mongoosePaginate);
 
 export const ERC20Contract = mongoose.model("ERC20Contract", ERC20ContractScheme);
