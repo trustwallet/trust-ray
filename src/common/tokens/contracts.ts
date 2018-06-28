@@ -1771,5 +1771,17 @@ export const contracts = {
     },
     "0x69beab403438253f13b6e92db91f7fb849258263": {
         id: "neurotoken"
+    },
+    "0x0d262e5dc4a06a0f1c90ce79c7a60c09dfc884e4": {
+        id: "jet8"
+    },
+    "0x436f0f3a982074c4a05084485d421466a994fe53": {
+        id: "rate3"
+    },
+    "0x69b148395ce0015c13e36bffbad63f49ef874e03": {
+        id: "data"
+    },
+    "0xbe428c3867f05dea2a89fc76a102b544eac7f772": {
+        id: "cybervein"
     }
 }
