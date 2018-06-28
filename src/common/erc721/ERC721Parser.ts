@@ -32,21 +32,20 @@ export class ERC721Parser {
         }
     }
 
-    public start() {
-        winston.info(`ERC721Parser.start()`);
+    public async start() {
+            winston.info(`ERC721Parser.start()`);
 
-        const numberOfBlocksToParseAtOnce = 10;
+            const numberOfBlocksToParseAtOnce: number = 10
+            const [lastBlockInChain, latestBlocks] = await BlockchainState.getBlockState()
+            const lastTokensBlockForERC721: number = latestBlocks.lastTokensBlockForERC721
+            const lastTokensBackwardBlockForERC721: number = latestBlocks.lastTokensBackwardBlockForERC721
 
-        BlockchainState.getBlockState()
-            .then(([lastBlockInChain, lastBlockInDb]) => {
-                return Promise.all([
-                    this.performStart(numberOfBlocksToParseAtOnce, true, 0, lastBlockInChain, lastBlockInDb._doc.lastTokensBlockForERC721, lastBlockInDb._doc.lastTokensBackwardBlockForERC721),
-                    this.performStart(numberOfBlocksToParseAtOnce, false, 0, lastBlockInChain, lastBlockInDb._doc.lastTokensBlockForERC721, lastBlockInDb._doc.lastTokensBackwardBlockForERC721)
-                ]);
-            })
-            .then(() => {
-                this.scheduleNextParsing();
-            });
+            await Promise.all([
+                this.performStart(numberOfBlocksToParseAtOnce, true, 0, lastBlockInChain, lastTokensBlockForERC721, lastTokensBackwardBlockForERC721),
+                // this.performStart(numberOfBlocksToParseAtOnce, false, 0, lastBlockInChain, lastTokensBlockForERC721, lastTokensBackwardBlockForERC721)
+            ])
+
+            this.scheduleNextParsing()
     }
 
     private performStart(numberOfBlocksToParseAtOnce = 3, forward = true, firstBlockInChain = 0,
@@ -59,7 +58,7 @@ export class ERC721Parser {
                 }
             }
 
-            winston.info(`ERC721Parser.performStart(forward), ${blockNumbers}`);
+            winston.info(`ERC721Parser.performStart(forward ===>), ${blockNumbers}`);
         } else {
             for (let i = lastBackwardBlockInDb - 1; i > lastBackwardBlockInDb - 1 - numberOfBlocksToParseAtOnce; i--) {
                 if (i >= firstBlockInChain) {
@@ -67,32 +66,23 @@ export class ERC721Parser {
                 }
             }
 
-            winston.info(`ERC721Parser.performStart(backward), ${blockNumbers}`);
+            winston.info(`ERC721Parser.performStart(<=== backward), ${blockNumbers}`);
         }
 
-        const promises = blockNumbers.map((blockNumber) => {
-            return new Promise((resolve, reject) => {
-                new BlockParser().getBlockByNumber(blockNumber)
-                    .then((block) => {
-                        return this.parse(block);
-                    })
-                    .then(() => {
-                        resolve(this.saveLastParsedBlock(blockNumber, forward));
-                    })
-                    .catch((err: Error) => {
-                        winston.error(`Error parsing block: ${blockNumber}, error: ${err}`);
-                        reject(err);
-                    });
-            });
-        });
+        return Bluebird.map(blockNumbers, (blockNumber) => {
+            return new Promise(async (resolve, reject) => {
+                try {
+                    const block = await new BlockParser().getBlockByNumber(blockNumber)
+                    await this.parse(block)
+                    resolve(this.saveLastParsedBlock(blockNumber, forward))
 
-        return Promise.all(promises)
-            .then(() => {
-                return Promise.resolve();
+                } catch (error) {
+                    winston.error(`Error parsing block: ${blockNumber}, error: ${error}`);
+                    reject(error);
+                }
             })
-            .catch((err: Error) => {
-                winston.error(`Error parsing blocks: ${blockNumbers}, error: ${err}`);
-            });
+        })
+
     }
 
     public async parse(block): Promise<any[]> {
@@ -138,7 +128,7 @@ export class ERC721Parser {
         return transactions.map((tx: IExtractedTransaction) => tx._id);
     }
 
-    public async fetchReceiptsFromTransactionIDs (transactionIDs: string[]) {
+    public fetchReceiptsFromTransactionIDs (transactionIDs: string[]) {
         return fetchTransactionReceipts(transactionIDs);
     }
 
@@ -227,11 +217,8 @@ export class ERC721Parser {
     }
 
     public getERC721Contracts(contractAddresses): Promise<any[]> {
-        return Promise.all(
-            this.getERC721ContractPromises(contractAddresses)
-        ).then((contracts) => {
-            return contracts.filter(function(c) { return c }); // filter out null and undefined
-        });
+        return Promise.all(this.getERC721ContractPromises(contractAddresses))
+            .then((contracts) => contracts.filter((c) => c )) // filter out null and undefined
     }
 
     public async getERC721Contract(contractAddress) {
@@ -290,7 +277,7 @@ export class ERC721Parser {
     public async parseTransactionOperations(transactions: ISavedTransaction[], contracts: IContract[]) {
         const rawTxOps = await this.parseRawTransactionOperations(transactions, contracts);
         const rawTxOpsFlat = [].concat.apply([], rawTxOps); // flatten [[1],[2]] to [1, 2]
-        const rawTxOpsWithoutUndefined = rawTxOpsFlat.filter(function(e) { return e }); // remove undefined elements
+        const rawTxOpsWithoutUndefined = rawTxOpsFlat.filter(e => e); // remove undefined elements
         return rawTxOpsWithoutUndefined;
     }
 
