@@ -1193,7 +1193,7 @@ export const contracts = {
     "0xa4e8c3ec456107ea67d3075bf9e3df3a75823db0": {
         id: "loom-network"
     },
-    "0xf244176246168f24e3187f7288edbca29267739b": {
+    "0xc011a72400e58ecd99ee497cf89e3775d4bd732f": {
         id: "havven"
     },
     "0x1122b6a0e00dce0563082b6e2953f3a943855c1f": {
@@ -1768,5 +1768,50 @@ export const contracts = {
     },
     "0x0f8c45b896784a1e408526b9300519ef8660209c": {
         id: "xmax"
+    },
+    "0x69beab403438253f13b6e92db91f7fb849258263": {
+        id: "neurotoken"
+    },
+    "0x0d262e5dc4a06a0f1c90ce79c7a60c09dfc884e4": {
+        id: "jet8"
+    },
+    "0x436f0f3a982074c4a05084485d421466a994fe53": {
+        id: "rate3"
+    },
+    "0x69b148395ce0015c13e36bffbad63f49ef874e03": {
+        id: "data"
+    },
+    "0xca3ea3061d638e02113aa960340c98343b5acd62": {
+        id: "bittwatt"
+    },
+    "0x49b127bc33ce7e1586ec28cec6a65b112596c822": {
+        id: "alax"
+    },
+    "0x3c4a3ffd813a107febd57b2f01bc344264d90fde": {
+        id: "energitoken"
+    },
+    "0xa3d58c4e56fedcae3a7c43a725aee9a71f0ece4e": {
+        id: "metronome"
+    },
+    "0x9ab165d795019b6d8b3e971dda91071421305e5a": {
+        id: "aurora"
+    },
+    "0x970e035e2a013cf4becd67e300d65bc32a56d826": {
+        id: "bodhi-eth"
+    },
+    "0xeb9a4b185816c354db92db09cc3b50be60b901b6": {
+        id: "origin-sport"
+    },
+    "0xffa93aacf49297d51e211817452839052fdfb961": {
+        id: "distributed-credit-chain"
+    },
+    "0xa8258abc8f2811dd48eccd209db68f25e3e34667": {
+        id: "constellation"
+    },
+    "0x8a77e40936bbc27e80e9a3f526368c967869c86d": {
+        id: "merculet"
+    },
+    "0xc86d054809623432210c107af2e3f619dcfbf652": {
+        id: "sentinel-protocol"
     }
 }
