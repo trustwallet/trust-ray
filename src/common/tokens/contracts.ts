@@ -1813,5 +1813,20 @@ export const contracts = {
     },
     "0xc86d054809623432210c107af2e3f619dcfbf652": {
         id: "sentinel-protocol"
+    },
+    "0x906b3f8b7845840188eab53c3f5ad348a787752f": {
+        id: "dorado"
+    },
+    "0x9cda8a60dd5afa156c95bd974428d91a0812e054": {
+        id: "tatatu"
+    },
+    "0x8e1b448ec7adfc7fa35fc2e885678bd323176e34": {
+        id: "egretia"
+    },
+    "0xb9ef770b6a5e12e45983c5d80545258aa38f3b78": {
+        id: "0chain"
+    },
+    "0xa2a54f1ec1f09316ef12c1770d32ed8f21b1fb6a": {
+        id: "digifinextoken"
     }
 }
