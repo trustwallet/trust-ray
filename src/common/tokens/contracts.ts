@@ -1828,5 +1828,8 @@ export const contracts = {
     },
     "0xa2a54f1ec1f09316ef12c1770d32ed8f21b1fb6a": {
         id: "digifinextoken"
+    },
+    "0xfc05987bd2be489ACCF0f509E44B0145d68240f7": {
+        id: "essentia"
     }
 }
