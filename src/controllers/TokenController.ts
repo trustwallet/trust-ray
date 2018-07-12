@@ -32,12 +32,12 @@ export class TokenController {
 
         if (tokens) {
             const tokensBalancePromise = tokens.tokens.map(async (token: any) => {
-                let balance: string = "0"
+                const balance: string = "0"
                 const tokenAddress: string = token.address
 
-                if (showBalance) {
-                    balance = await this.getTokenBalance(address, tokenAddress)
-                }
+                // if (showBalance) {
+                //     balance = await this.getTokenBalance(address, tokenAddress)
+                // }
 
                 return {
                     balance,
