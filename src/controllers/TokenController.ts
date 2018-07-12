@@ -4,6 +4,7 @@ import { Token } from "../models/TokenModel";
 import { ERC20Contract } from "../models/Erc20ContractModel";
 import * as xss from "xss-filters";
 import { TokenParser } from "../common/TokenParser";
+import * as BluebirdPromise from "bluebird";
 const config = require("config");
 
 export class TokenController {
@@ -31,13 +32,13 @@ export class TokenController {
         const tokens = await Token.findOne({_id: address}).populate({path: "tokens", match: {enabled: true}})
 
         if (tokens) {
-            const tokensBalancePromise = tokens.tokens.map(async (token: any) => {
-                const balance: string = "0"
+            return BluebirdPromise.map(tokens.tokens, async (token: any) => {
+                let balance: string = "0"
                 const tokenAddress: string = token.address
 
-                // if (showBalance) {
-                //     balance = await this.getTokenBalance(address, tokenAddress)
-                // }
+                if (showBalance) {
+                    balance = await this.getTokenBalance(address, tokenAddress)
+                }
 
                 return {
                     balance,
@@ -49,9 +50,7 @@ export class TokenController {
                         symbol: token.symbol
                     }
                 }
-            })
-
-            return Promise.all(tokensBalancePromise).then((tokens) => tokens)
+            }, {concurrency: 11}).then(tokens => tokens)
         } else {
             return Promise.resolve([])
         }
