@@ -36,7 +36,7 @@ export class TokenController {
                 let balance: string = "0"
                 const tokenAddress: string = token.address
 
-                if (showBalance) {
+                if (showBalance && (address !== "0x0000000000000000000000000000000000000000")) {
                     balance = await this.getTokenBalance(address, tokenAddress)
                 }
 
