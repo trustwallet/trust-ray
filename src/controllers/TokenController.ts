@@ -50,7 +50,7 @@ export class TokenController {
                         symbol: token.symbol
                     }
                 }
-            }, {concurrency: 5}).then(tokens => tokens)
+            }, {concurrency: 11}).then(tokens => tokens)
         } else {
             return Promise.resolve([])
         }
