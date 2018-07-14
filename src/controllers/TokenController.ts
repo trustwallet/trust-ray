@@ -21,7 +21,7 @@ export class TokenController {
 
         const queryParams = this.extractQueryParameters(req)
         const address = queryParams.address.toLowerCase()
-        const showBalance = queryParams.showBalance === "true"
+        const showBalance = false //queryParams.showBalance === "true"
 
         const tokens = await this.getTokensByAddress(address, showBalance)
 
