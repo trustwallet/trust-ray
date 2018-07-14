@@ -33,7 +33,7 @@ export class TransactionController {
 
         if (queryParams.contract) {
             const contract: string = queryParams.contract.toLowerCase();
-            query.to = {$eq: contract}
+            Object.assign(query, { addresses: {"$all": [address, contract]} })
         }
 
 
