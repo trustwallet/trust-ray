@@ -33,7 +33,9 @@ export class TransactionController {
 
         if (queryParams.contract) {
             const contract: string = queryParams.contract.toLowerCase();
-            Object.assign(query, { addresses: {"$all": [address, contract]} })
+            if (contract !== "0x0000000000000000000000000000000000000000") {
+                   Object.assign(query, { addresses: {"$all": [address, contract]} })
+            }
         }
 
 
