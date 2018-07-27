@@ -54,7 +54,7 @@
     "coinmarketcap-api": "^2.0.0",
     "compression": "^1.7.2",
     "concurrently": "^3.4.0",
-    "config": "^1.29.4",
+    "config": "^2.0.0",
     "connect-mongo": "^2.0.0",
     "cors": "^2.8.4",
     "errorhandler": "^1.4.3",
