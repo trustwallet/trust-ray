@@ -3,7 +3,6 @@ import { sendJSONresponse } from "../common/Utils";
 import { Transaction } from "../models/TransactionModel";
 import { ERC20Contract } from "../models/Erc20ContractModel";
 import * as xss from "xss-filters";
-import { WalletsController } from "./WalletsController";
 
 export class TransactionController {
 
@@ -11,7 +10,6 @@ export class TransactionController {
     private maxLimit: number = 50;
 
     public readAllTransactions = (req: Request, res: Response) => {
-        const Wallets = new WalletsController()
         // validate query input
         const validationErrors: any = TransactionController.validateQueryParameters(req);
         if (validationErrors) {
@@ -26,7 +24,6 @@ export class TransactionController {
         if (queryParams.address !== undefined) {
             const address: string = queryParams.address.toLowerCase();
             query.addresses = { "$in": [address] };
-            Wallets.register(address);
         }
         query.blockNumber = { "$gte": queryParams.startBlock, "$lte": queryParams.endBlock};
         const address: string = queryParams.address.toLowerCase();

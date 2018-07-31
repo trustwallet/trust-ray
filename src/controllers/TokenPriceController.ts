@@ -1,9 +1,7 @@
 import { Request, Response } from "express";
 import { sendJSONresponse } from "../common/Utils";
 import * as winston from "winston";
-const axios = require("axios");
 import * as BluebirbPromise from "bluebird";
-import { Config } from "../common/Config";
 import { IToken, IPrice } from "./Interfaces/ITokenPriceController";
 import { contracts } from "../common/tokens/contracts";
 
