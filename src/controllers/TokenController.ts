@@ -21,7 +21,7 @@ export class TokenController {
 
         const queryParams = this.extractQueryParameters(req)
         const address = queryParams.address.toLowerCase()
-        const showBalance = false //queryParams.showBalance === "true"
+        const showBalance = false // queryParams.showBalance === "true"
 
         const tokens = await this.getTokensByAddress(address, showBalance)
 
@@ -108,12 +108,23 @@ export class TokenController {
     }
 
     public listTokens(req: Request, res: Response) {
-        const term = req.query.query;
-        if (!term) {
+        const {query, verified = true } = req.query
+        const isVerified: boolean = verified == "true"
+
+        const findOptions = {
+            enabled: true,
+            verified: isVerified
+        }
+        if (!query) {
             sendJSONresponse(res, 404, {"message": "need query"})
             return;
         }
-        const re = new RegExp(term, "i");
+
+        if (!isVerified) {
+            delete findOptions.verified
+        }
+
+        const re = new RegExp(query, "i");
         ERC20Contract.find({
             $and: [
                 {$or: [
@@ -121,7 +132,7 @@ export class TokenController {
                     { "symbol": { $regex: re }},
                     { "address": { $regex: re }}
                 ]},
-                {enabled: true},
+                findOptions
             ]
         }).limit(20).sort({verified: -1}).exec().then((contracts: any) => {
             sendJSONresponse(res, 200, contracts);
