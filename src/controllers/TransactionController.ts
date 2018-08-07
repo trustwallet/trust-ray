@@ -147,7 +147,7 @@ export class TransactionController {
 
         // filter non-address calls parameter
         let filterContractInteraction = false;
-        if (req.query.filterContractInteraction && req.query.filterContractInteraction !== 'false') {
+        if (req.query.filterContractInteraction && req.query.filterContractInteraction !== "false") {
             filterContractInteraction = true
         }
 
