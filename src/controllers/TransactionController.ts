@@ -35,6 +35,12 @@ export class TransactionController {
             }
         }
 
+        if (queryParams.filterContractInteraction) {
+            Object.assign(query, { $or: [
+                { from: { $eq: address } },
+                { to: { $eq: address } }
+            ]})
+        }
 
         Transaction.paginate(query, {
             page: queryParams.page,
@@ -100,8 +106,9 @@ export class TransactionController {
         req.checkQuery("startBlock", "startBlock needs to be a number").optional().isNumeric();
         req.checkQuery("endBlock", "endBlock needs to be a number").optional().isNumeric();
         req.checkQuery("limit", "limit needs to be a number").optional().isNumeric();
-        req.checkQuery("address", "address needs to be alphanumeric and have a length 42").isAlphanumeric().isLength({min: 42, max: 42});
-        req.checkQuery("contract", "contract symbol needs to be alphanumeric and have a length 42").optional().isAlphanumeric().isLength({min: 42, max: 42});
+        req.checkQuery("address", "address needs to be alphanumeric and have a length 42").isAlphanumeric().isLength({ min: 42, max: 42 });
+        req.checkQuery("contract", "contract symbol needs to be alphanumeric and have a length 42").optional().isAlphanumeric().isLength({ min: 42, max: 42 });
+        req.checkQuery("filterContractInteraction", "filterContractInteraction needs to be boolean").optional().isString();
 
         return req.validationErrors();
     }
@@ -138,6 +145,12 @@ export class TransactionController {
             endBlock = 9999999999;
         }
 
+        // filter non-address calls parameter
+        let filterContractInteraction = false;
+        if (req.query.filterContractInteraction && req.query.filterContractInteraction !== "false") {
+            filterContractInteraction = true
+        }
+
         const contract = req.query.contract;
 
         return {
@@ -146,7 +159,8 @@ export class TransactionController {
             endBlock: endBlock,
             page: page,
             limit,
-            contract
+            contract,
+            filterContractInteraction
         };
     }
 
