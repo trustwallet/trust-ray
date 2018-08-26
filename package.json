@@ -32,7 +32,7 @@
     "chai-http": "^3.0.0",
     "coinmarketcap-api": "^2.0.0",
     "compression": "^1.7.3",
-    "concurrently": "^3.6.1",
+    "concurrently": "^4.0.1",
     "config": "^2.0.1",
     "cors": "^2.8.4",
     "errorhandler": "^1.4.3",
