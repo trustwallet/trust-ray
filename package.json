@@ -22,7 +22,7 @@
   "dependencies": {
     "@shackpank/node-pushnotifications": "^0.1.1",
     "abi-decoder": "kolya182/abi-decoder#master",
-    "aws-sdk": "^2.204.0",
+    "aws-sdk": "^2.313.0",
     "axios": "^0.17.1",
     "bignumber.js": "^7.0.2",
     "bluebird": "^3.5.1",
