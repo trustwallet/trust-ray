@@ -50,7 +50,7 @@
     "morgan": "^1.9.0",
     "svg2png": "^4.1.1",
     "ts-node": "^7.0.0",
-    "tsc-watch": "^1.0.26",
+    "tsc-watch": "1.0.27",
     "tslint": "^5.0.0",
     "typescript": "^2.7.2",
     "web3": "^1.0.0-beta.24",
