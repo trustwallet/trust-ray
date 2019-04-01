@@ -4,7 +4,8 @@ import { IDevice } from "../controllers/Interfaces/IPusherController"
 const deviceSchema = new Schema({
     deviceID: {
         type: String,
-        required: true
+        required: true,
+        index: true
     },
     token: {
         type: String,
@@ -12,13 +13,8 @@ const deviceSchema = new Schema({
     },
     wallets: {
         type: [String],
-        required: true
-    },
-    preferences: {
-        isAirdrop: {
-            type: Boolean,
-            default: false
-        }
+        required: true,
+        index: true
     },
     type: {
         type: String
